@@ -12,6 +12,7 @@ MySQL 8.0 / MariaDB 기준. utf8mb4 사용.
 | tags | 공통 태그 (글·프로젝트 공용) |
 | posts | 블로그 게시글 |
 | post_tags | 글-태그 N:M |
+| post_attachments | 글-첨부파일 N:M (다중) |
 | careers | 경력/이력 |
 | projects | 프로젝트 포트폴리오 |
 | project_links | 프로젝트별 다중 링크 |
@@ -83,6 +84,15 @@ CREATE TABLE post_tags (
   FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
   FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 ) COMMENT='게시글 태그 매핑';
+
+CREATE TABLE post_attachments (
+  post_id BIGINT NOT NULL,
+  asset_id BIGINT NOT NULL,
+  sort_order INT DEFAULT 0 COMMENT '노출 순서',
+  PRIMARY KEY (post_id, asset_id),
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+) COMMENT='게시글 첨부파일 (다중)';
 
 CREATE TABLE careers (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,

@@ -5,26 +5,26 @@
 - [docs/01-db-schema.md](../docs/01-db-schema.md): posts, categories, tags, post_tags, assets.
 - [docs/02-api-spec.md](../docs/02-api-spec.md): GET/POST/PUT/DELETE /posts, GET /categories, GET /tags, POST /assets/upload.
 
-## 1. 글 목록 (PostsList)
+## 1. 글 목록 (PostList)
 
-**파일**: `apps/backoffice/src/pages/PostsList.jsx`
+**파일**: `apps/backoffice/src/pages/posts/PostList.jsx`
 
 - **API**: GET /api/posts (필터: category, tag, status). 페이지네이션·정렬.
-- **UI**: 테이블 또는 카드 목록. 제목, 카테고리, 상태(DRAFT/PUBLISHED/PRIVATE), 발행일, 수정일. [새 글 쓰기] → `/write`, 행 클릭 또는 [수정] → `/write/:id`.
+- **UI**: 테이블 또는 카드 목록. 제목, 카테고리, 상태(DRAFT/PUBLISHED/PRIVATE), 발행일, 수정일. [새 글 쓰기] → `/posts/new`, [보기] → `/posts/:postId`, [수정] → `/posts/:postId/edit`.
 - **삭제**: DELETE /api/posts/{id} (확인 후).
 
-## 2. 글 쓰기 (Write)
+## 2. 글 쓰기·상세 (PostEditor / PostNew / PostEdit / PostDetail)
 
-**파일**: `apps/backoffice/src/pages/Write.jsx` (및 필요한 하위 컴포넌트)
+**파일**: `apps/backoffice/src/pages/posts/PostEditor.jsx`(공통 에디터), `PostNew.jsx`, `PostEdit.jsx`, `PostDetail.jsx`
 
 **레이아웃**: 좌측 에디터 / 우측 설정 패널.
 
-### 에디터 (TipTap)
+### 에디터 (Toast UI Editor)
 
 - **툴바**: H1~H3, Bold, Italic, Strike, Blockquote, Code Block, Link, Image, YouTube Embed, Horizontal Rule.
 - **이미지**: 툴바 버튼·드래그앤드롭·Ctrl+V → POST /api/assets/upload 호출 후 이미지 URL로 삽입.
 - **유튜브**: URL 붙여넣기 시 플레이어 노드로 변환.
-- **저장**: content_html(뷰어용), content_json(TipTap 복구용) 둘 다 API로 전송.
+- **저장**: content_html(뷰어용), content_json(에디터 복구용) 둘 다 API로 전송.
 
 ### 우측 설정 패널
 
@@ -43,5 +43,9 @@
 ## 완료 기준
 
 - 글 목록에서 필터·페이지네이션·수정/삭제 동작.
-- Write에서 TipTap 에디터·설정 패널·이미지 업로드·유튜브 임베드 동작.
+- PostEditor에서 Toast UI 에디터·설정 패널·이미지 업로드·유튜브 임베드 동작.
 - 저장 시 posts·post_tags 반영.
+
+## 구현 현황
+
+Phase 02 완료. 실제 라우트·파일은 `apps/backoffice/src/App.jsx` CustomRoutes 기준: `/posts`, `/posts/new`, `/posts/:postId`, `/posts/:postId/edit`. 포스트 상세(PostDetail)·첨부파일(다중 업로드·상세 목록·다운로드) 포함. 상세 구현은 [docs/backoffice/README.md](../../docs/backoffice/README.md) 참고.

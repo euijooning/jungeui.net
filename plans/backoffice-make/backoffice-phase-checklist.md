@@ -33,25 +33,27 @@
 
 ## Phase 02: 글 목록·글 쓰기(에디터)
 
-**파일**: `PostsList.jsx`, `Write.jsx`
+**파일**: `PostList.jsx`, `PostEditor.jsx`, `PostNew.jsx`, `PostEdit.jsx`, `PostDetail.jsx`
 
-- [ ] **14** PostsList: GET /api/posts (필터 category, tag, status), 페이지네이션·정렬.
-- [ ] **15** PostsList: 테이블/카드에 제목, 카테고리, 상태(DRAFT/PUBLISHED/PRIVATE), 발행일, 수정일 표시.
-- [ ] **16** PostsList: [새 글 쓰기] → `/posts/new`, 행 클릭 또는 [수정] → `/posts/{postId}/edit`.
-- [ ] **17** PostsList: DELETE /api/posts/{id} (확인 후).
-- [ ] **18** Write: 좌측 에디터 / 우측 설정 패널 레이아웃.
-- [ ] **19** Write: TipTap 툴바 (H1~H3, Bold, Italic, Strike, Blockquote, Code Block, Link, Image, YouTube Embed, Horizontal Rule).
-- [ ] **20** Write: 이미지 — 툴바·드래그앤드롭·Ctrl+V → POST /api/assets/upload 후 URL 삽입.
-- [ ] **21** Write: 유튜브 URL 붙여넣기 시 플레이어 노드로 변환.
-- [ ] **22** Write: 저장 시 content_html, content_json 둘 다 API 전송.
-- [ ] **23** Write: 설정 패널 — Status, Publish Date, URL Slug, Category(GET /api/categories), Tags(칩), Thumbnail.
-- [ ] **24** Write: POST /api/posts(신규), PUT /api/posts/{id}(수정), GET /api/posts/{id}(수정 시 content_json 복원). 라우트: `/posts/new`, `/posts/:postId/edit`.
+- [x] **14** PostList: GET /api/posts (필터 category, tag, status), 페이지네이션·정렬.
+- [x] **15** PostList: 테이블/카드에 제목, 카테고리, 상태(DRAFT/PUBLISHED/PRIVATE), 발행일, 수정일 표시.
+- [x] **16** PostList: [새 글 쓰기] → `/posts/new`, 행 클릭 또는 [수정] → `/posts/{postId}/edit`.
+- [x] **17** PostList: DELETE /api/posts/{id} (확인 후).
+- [x] **18** PostEditor: 좌측 에디터 / 우측 설정 패널 레이아웃.
+- [x] **19** PostEditor: Toast UI 에디터 툴바 (H1~H3, Bold, Italic, Strike, Blockquote, Code Block, Link, Image, YouTube Embed, Horizontal Rule).
+- [x] **20** PostEditor: 이미지 — 툴바·드래그앤드롭·Ctrl+V → POST /api/assets/upload 후 URL 삽입.
+- [x] **21** PostEditor: 유튜브 URL 붙여넣기 시 플레이어 노드로 변환.
+- [x] **22** PostEditor: 저장 시 content_html, content_json 둘 다 API 전송.
+- [x] **23** PostEditor: 설정 패널 — Status, Publish Date, URL Slug, Category(GET /api/categories), Tags(칩), Thumbnail.
+- [x] **24** PostEditor: POST /api/posts(신규), PUT /api/posts/{id}(수정), GET /api/posts/{id}(수정 시 content_json 복원). 라우트: `/posts/new`, `/posts/:postId/edit`.
 
 ### Phase 02 완료 점검 (구현 후 실행 후 보고)
 
-- [ ] **25** 글 목록에서 필터·페이지네이션·수정/삭제 동작.
-- [ ] **26** Write에서 TipTap 에디터·설정 패널·이미지 업로드·유튜브 임베드 동작.
-- [ ] **27** 저장 시 posts·post_tags 반영.
+- [x] **25** 글 목록에서 필터·페이지네이션·수정/삭제 동작.
+- [x] **26** PostEditor에서 Toast UI 에디터·설정 패널·이미지 업로드·유튜브 임베드 동작.
+- [x] **27** 저장 시 posts·post_tags 반영.
+
+**Phase 02 완료** (점검일: 2026-02-05)
 
 ---
 
