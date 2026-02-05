@@ -1,2 +1,58 @@
 * { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, sans-serif; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: left;
+  background-color: var(--ui-background);
+  color: var(--ui-text);
+}
+
+/* 라이트 모드 기본 */
+:root {
+  --ui-primary: #35C5F0;
+  --ui-primary-hover: #2BB8E3;
+  --ui-background: #FFFFFF;
+  --ui-background-secondary: #F5F9FC;
+  --ui-text: #1A1A1A;
+  --ui-text-secondary: #555555;
+  --ui-border: #E0E8EE;
+  --ui-card-bg: #FFFFFF;
+  --ui-link: #35C5F0;
+  --ui-link-hover: #2BB8E3;
+}
+
+/* 다크 모드 */
+[data-theme="dark"] {
+  --ui-primary: #35C5F0;
+  --ui-primary-hover: #4dd4f7;
+  --ui-background: #0f172a;
+  --ui-background-secondary: #1e293b;
+  --ui-text: #f3f4f6;
+  --ui-text-secondary: #9ca3af;
+  --ui-border: #374151;
+  --ui-card-bg: #111827;
+  --ui-link: #7dd3fc;
+  --ui-link-hover: #bae6fd;
+}
+
+/* 1-1. 기본 컨테이너 */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* 1-2. 2컬럼 레이아웃 (sungbin.dev 기준) */
+.layout-2col {
+  display: grid;
+  grid-template-columns: 7fr 3fr;
+  gap: 32px;
+}
+
+@media (max-width: 768px) {
+  .layout-2col {
+    grid-template-columns: 1fr;
+  }
+}

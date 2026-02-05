@@ -2,6 +2,15 @@
 
 참조: [docs/01-db-schema.md](../../docs/common/01-db-schema.md), [docs/02-api-spec.md](../../docs/common/02-api-spec.md), [docs/03-folder-structure.md](../../docs/common/03-folder-structure.md), [docs/04-design-guide.md](../../docs/common/04-design-guide.md)
 
+## 0. 전체 설계 철학 (필독)
+
+**UI 핵심 원칙**
+
+- 모든 콘텐츠는 중앙 컨테이너 안에서 **좌우 정렬** (본문 가운데 띄우기 ❌, 좌측 정렬 기본 ⭕)
+- 리스트는 무조건 **카드형(Box) + Grid**
+- 관리자(Admin)와 클라이언트(Client)는 **색상 체계 분리**
+- Tailwind 색상은 "구조/UI용", Theme(MUI)는 "행동/포인트용"
+
 ## 목표
 
 방문자용 블로그·포트폴리오 클라이언트. 로그인/회원가입 없음, 공개 읽기 전용.
@@ -31,13 +40,21 @@
 
 | Phase | 문서 | 내용 |
 |-------|------|------|
-| 1 | [01-design-and-ui-kit.md](01-design-and-ui-kit.md) | 디자인 가이드·공통 컴포넌트 (하늘색/연파랑, Button/Card/Layout 등) |
-| 2 | [02-post-list-and-sidebar.md](02-post-list-and-sidebar.md) | 루트·포스트 목록, 우측 게시판(카테고리), 박스형 리스트, 페이지네이션(5개), 카테고리명 표시, 검색 결과 |
+| 1 | [01-design-and-ui-kit.md](01-design-and-ui-kit.md) | 글로벌 레이아웃·색상 테마·공통 컴포넌트 |
+| 2 | [02-post-list-and-sidebar.md](02-post-list-and-sidebar.md) | 카드 그리드·2컬럼·페이지네이션·카테고리·검색 |
 | 3 | [03-post-detail.md](03-post-detail.md) | 글 상세 (/posts/:postId), TOC, Utterances 댓글 |
-| 4 | [04-about.md](04-about.md) | 소개 페이지, 경력 타임라인, 프로젝트 그리드 |
-| 5 | [05-common-layout-seo-footer.md](05-common-layout-seo-footer.md) | 헤더(로고·검색·메뉴·다크모드), 푸터(이메일·저작권), SEO·sitemap |
+| 4 | [04-about.md](04-about.md) | 소개 페이지·경력 타임라인·프로젝트 그리드 |
+| 5 | [05-common-layout-seo-footer.md](05-common-layout-seo-footer.md) | 헤더·푸터·SEO·sitemap |
 
 요약 체크리스트: [client-phase-checklist.md](client-phase-checklist.md)
+
+## 8. 절대 금지 사항
+
+- 가운데 정렬된 본문
+- 카드 크기 제각각
+- 리스트 아닌 텍스트 나열
+- Tailwind sky 색을 버튼에 사용
+- theme primary를 사이드바에 사용
 
 ## 초기기획서 대비 변경 사항
 

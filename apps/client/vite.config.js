@@ -11,6 +11,15 @@ export default defineConfig(({ mode }) => {
     root: '.',
     publicDir: 'public',
     envDir: rootEnvDir,
+    resolve: {
+      alias: {
+        '@ui-kit': path.resolve(__dirname, '../../shared/ui-kit'),
+      },
+      dedupe: ['react', 'react-dom'],
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom'],
+    },
     server: {
       port: parseInt(env.VITE_CLIENT_PORT || '5182', 10),
     },
