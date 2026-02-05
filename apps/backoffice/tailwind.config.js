@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        tablet: '1024px',
+        desktop: '1280px',
+      },
       fontFamily: {
         sans: ['Escoredream','ui-sans-serif','system-ui','-apple-system','BlinkMacSystemFont','Segoe UI','Roboto','Helvetica','Arial','Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol', 'sans-serif'],
       },

@@ -42,4 +42,4 @@ uploads/
 static/uploads/
 
 # Sample / example folders
-(sample)/
+(sample)/*

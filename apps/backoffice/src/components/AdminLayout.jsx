@@ -3,14 +3,63 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useLogout } from "react-admin";
 import apiClient from "../lib/apiClient";
 
+const STORAGE_KEY_SIDEBAR = "sidebarCollapsed";
+
+function useWindowWidth() {
+  const [width, setWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1280
+  );
+  useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return width;
+}
+
 const AdminLayout = ({ children }) => {
+  const width = useWindowWidth();
+  const isMobile = width < 1024;
+  const isTablet = width >= 1024 && width < 1280;
+  const isDesktop = width >= 1280;
+
   const [userName, setUserName] = useState("관리자");
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [postsAccordionOpen, setPostsAccordionOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_SIDEBAR) === "true";
+    } catch {
+      return false;
+    }
+  });
+  const [mobileOverlayOpen, setMobileOverlayOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const logout = useLogout();
   const currentPath = location.pathname.replace(/\/$/, "") || "/";
+
+  // 1280 이상 리사이즈 시 오버레이 닫기
+  useEffect(() => {
+    if (isDesktop) setMobileOverlayOpen(false);
+  }, [isDesktop]);
+
+  // body에 sidebar-overlay-open 토글
+  useEffect(() => {
+    const open = (isMobile || isTablet) && mobileOverlayOpen;
+    document.body.classList.toggle("sidebar-overlay-open", open);
+    return () => document.body.classList.remove("sidebar-overlay-open");
+  }, [isMobile, isTablet, mobileOverlayOpen]);
+
+  // 데스크톱에서 sidebarCollapsed localStorage 저장
+  useEffect(() => {
+    if (!isDesktop) return;
+    try {
+      localStorage.setItem(STORAGE_KEY_SIDEBAR, String(sidebarCollapsed));
+    } catch (_) {}
+  }, [isDesktop, sidebarCollapsed]);
+
+  const closeOverlay = () => setMobileOverlayOpen(false);
 
   // 글(목록/상세/수정) 경로일 때 아코디언 열기
   useEffect(() => {
@@ -81,10 +130,21 @@ const AdminLayout = ({ children }) => {
     if (titles[currentPath]) return titles[currentPath];
     if (/^\/posts\/[^/]+\/edit$/.test(currentPath)) return "포스트 수정";
     if (/^\/posts\/[^/]+$/.test(currentPath)) return "포스트 보기";
-    return "JUNGEUI LAB ADMIN";
+    return "JUNGEUI LAB";
   };
 
-  // 대메뉴 > 하위메뉴: 대시보드(단일), 글(아코디언), 경력, 프로젝트, 파일 보관함
+  const postsAsSingleLink =
+    (isDesktop && sidebarCollapsed) || (isTablet && !mobileOverlayOpen);
+  const sidebarInOverlayMode =
+    isMobile || (isTablet && mobileOverlayOpen);
+  const sidebarWidth =
+    isDesktop
+      ? (sidebarCollapsed ? "4rem" : "15rem")
+      : isTablet && !mobileOverlayOpen
+        ? "4rem"
+        : "15rem";
+
+  // 대메뉴 > 하위메뉴: 대시보드(단일), 글(아코디언 또는 단일 링크), 경력, 프로젝트, 파일 보관함
   const navSections = [
     { type: "single", href: "/", icon: "fa-home", label: "대시보드" },
     {
@@ -115,18 +175,21 @@ const AdminLayout = ({ children }) => {
         {/* Left Navigation Bar (LNB) */}
         <aside
           id="sidebar"
-          className="lnb-container bg-primary shadow-lg flex-shrink-0 sm:relative flex flex-col"
-          style={{ width: "15rem" }}
+          className={`lnb-container bg-primary shadow-lg flex-shrink-0 flex flex-col transition-[width] duration-200 ${
+            sidebarInOverlayMode ? "sidebar-overlay-mode" : ""
+          } ${isDesktop && sidebarCollapsed ? "collapsed" : ""}`}
+          style={{ width: sidebarWidth }}
         >
           {/* Logo Section */}
           <div className="lnb-header h-16 flex items-center justify-between px-4 border-b border-secondary flex-shrink-0">
             <Link
               to="/"
+              onClick={isMobile || isTablet ? closeOverlay : undefined}
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity duration-200"
             >
               <img src="/favicon.png" alt="" className="w-8 h-8 object-contain flex-shrink-0" />
               <span className="text-md font-semibold text-white sidebar-text">
-                JUNGEUI LAB ADMIN
+                JUNGEUI LAB
               </span>
             </Link>
           </div>
@@ -141,16 +204,33 @@ const AdminLayout = ({ children }) => {
                     <Link
                       key={section.href}
                       to={section.href}
+                      onClick={isMobile || isTablet ? closeOverlay : undefined}
                       className={`nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer ${
-                        active ? "bg-sky-500 text-white shadow-lg ring-2 ring-white ring-opacity-20" : "text-gray-300"
+                        active ? "bg-green-200 text-green-800" : "text-gray-300"
                       }`}
                     >
-                      <i className={`fas ${section.icon} nav-icon mr-3 text-lg ${active ? "text-white" : "text-gray-400"}`}></i>
-                      <span className={`sidebar-text ${active ? "text-white" : "text-gray-300"}`}>{section.label}</span>
+                      <i className={`fas ${section.icon} nav-icon mr-3 text-lg ${active ? "text-green-600" : "text-gray-400"}`}></i>
+                      <span className={`sidebar-text ${active ? "text-green-600" : "text-gray-300"}`}>{section.label}</span>
                     </Link>
                   );
                 }
                 if (section.type === "accordion") {
+                  if (postsAsSingleLink) {
+                    const active = isActive("/posts");
+                    return (
+                      <Link
+                        key="posts-single"
+                        to="/posts"
+                        onClick={isMobile || isTablet ? closeOverlay : undefined}
+                        className={`nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer ${
+                          active ? "bg-green-200 text-green-600" : "text-gray-300"
+                        }`}
+                      >
+                        <i className={`fas ${section.icon} nav-icon mr-3 text-lg ${active ? "text-green-600" : "text-gray-400"}`}></i>
+                        <span className={`sidebar-text ${active ? "text-white" : "text-gray-300"}`}>{section.title}</span>
+                      </Link>
+                    );
+                  }
                   return (
                     <div key={`accordion-${idx}`} className="space-y-1">
                       <div className="flex items-center text-sm font-medium text-gray-300 rounded-md overflow-visible">
@@ -178,12 +258,13 @@ const AdminLayout = ({ children }) => {
                               <Link
                                 key={sub.href}
                                 to={sub.href}
+                                onClick={isMobile || isTablet ? closeOverlay : undefined}
                                 className={`nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer ${
-                                  active ? "bg-sky-500 text-white shadow-lg ring-2 ring-white ring-opacity-20" : "text-gray-300"
+                                  active ? "bg-green-200 text-green-600" : "text-gray-300"
                                 }`}
                               >
-                                <i className={`fas ${sub.icon} nav-icon mr-3 text-lg ${active ? "text-white" : "text-gray-400"}`}></i>
-                                <span className={`sidebar-text ${active ? "text-white" : "text-gray-300"}`}>{sub.label}</span>
+                                <i className={`fas ${sub.icon} nav-icon mr-3 text-lg ${active ? "text-green-600" : "text-gray-400"}`}></i>
+                                <span className={`sidebar-text ${active ? "text-green-600" : "text-gray-300"}`}>{sub.label}</span>
                               </Link>
                             );
                           })}
@@ -198,13 +279,41 @@ const AdminLayout = ({ children }) => {
           </nav>
         </aside>
 
+        {/* 모바일/태블릿 오버레이 배경 */}
+        {(isMobile || isTablet) && mobileOverlayOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 desktop:hidden"
+            onClick={closeOverlay}
+            aria-hidden
+          />
+        )}
+
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top Header */}
           <header className="h-16 bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
-            <div className="flex items-center justify-between px-6 h-full">
-              {/* Left side */}
-              <div className="flex items-center">
+            <div className="flex items-center justify-between px-4 tablet:px-6 h-full">
+              {/* Left: 햄버거(모바일/태블릿) 또는 사이드바 토글(데스크톱) + 제목 */}
+              <div className="flex items-center gap-3">
+                {isMobile || isTablet ? (
+                  <button
+                    type="button"
+                    onClick={() => setMobileOverlayOpen((v) => !v)}
+                    className="p-2 rounded-md text-gray-500 hover:bg-gray-100"
+                    aria-label="메뉴 열기"
+                  >
+                    <i className="fas fa-bars text-lg" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setSidebarCollapsed((v) => !v)}
+                    className="p-2 rounded-md text-gray-500 hover:bg-gray-100"
+                    aria-label={sidebarCollapsed ? "사이드바 펼치기" : "사이드바 접기"}
+                  >
+                    <i className={`fas fa-${sidebarCollapsed ? "indent" : "outdent"} text-lg`} />
+                  </button>
+                )}
                 <h1 className="text-xl font-semibold text-gray-900">
                   {getPageTitle()}
                 </h1>
@@ -250,7 +359,7 @@ const AdminLayout = ({ children }) => {
 
           {/* Page Content - w-full로 모든 페이지 본문이 가용 너비 꽉 채움 */}
           <main className="flex-1 overflow-y-auto custom-scrollbar bg-samsung-light min-w-0">
-            <div className="p-6 w-full max-w-full box-border">{children}</div>
+            <div className="px-4 tablet:px-6 desktop:px-8 py-6 w-full max-w-full box-border">{children}</div>
           </main>
         </div>
       </div>

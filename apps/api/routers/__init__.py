@@ -1,11 +1,12 @@
 from fastapi import APIRouter
 
 from apps.api.routers import auth, health
-from apps.api.routers import assets, categories, posts, tags
+from apps.api.routers import assets, categories, dashboard, posts, tags
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(health.router)
 api_router.include_router(auth.router)
+api_router.include_router(dashboard.router)
 api_router.include_router(assets.router)
 api_router.include_router(categories.router, prefix="/categories")
 api_router.include_router(tags.router, prefix="/tags")

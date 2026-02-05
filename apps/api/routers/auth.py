@@ -1,9 +1,10 @@
-"""인증 라우터 - 로그인/로그아웃."""
+"""인증 라우터 - 로그인/로그아웃/현재 사용자."""
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from sqlalchemy import text
-from jose import jwt
+from jose import jwt, JWTError
 from datetime import datetime, timedelta
 
 from apps.api.core import SECRET_KEY, get_db
@@ -14,6 +15,7 @@ from apps.api.core.config import (
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+security = HTTPBearer(auto_error=False)
 
 
 class LoginRequest(BaseModel):
@@ -65,3 +67,37 @@ def login(body: LoginRequest, db=Depends(get_db)):
         access_token=token,
         user={"id": user_id, "email": user_email, "name": name or "Admin"},
     )
+
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    db=Depends(get_db),
+):
+    """Bearer 토큰 검증 후 현재 사용자 반환. 없거나 유효하지 않으면 401."""
+    if not credentials or credentials.scheme.lower() != "bearer":
+        raise HTTPException(status_code=401, detail="인증이 필요합니다.")
+    try:
+        payload = jwt.decode(
+            credentials.credentials,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+        )
+        user_id = payload.get("sub")
+        email = payload.get("email")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
+    row = db.execute(
+        text("SELECT id, email, name FROM users WHERE id = :id"),
+        {"id": int(user_id)},
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=401, detail="사용자를 찾을 수 없습니다.")
+    return {"id": row[0], "email": row[1], "name": (row[2] or "Admin")}
+
+
+@router.get("/me")
+def auth_me(user=Depends(get_current_user)):
+    """현재 로그인한 사용자 정보 (Bearer 토큰 필요)."""
+    return user

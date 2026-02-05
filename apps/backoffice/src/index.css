@@ -98,6 +98,41 @@
 
 .lnb-container.collapsed .nav-item {
   justify-content: center;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.lnb-container.collapsed .nav-item .nav-icon {
+  margin-right: 0 !important;
+}
+
+.lnb-container.collapsed .lnb-content {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Sidebar overlay mode: 1279px 이하에서 fixed, 슬라이드 인 */
+@media (max-width: 1279px) {
+  .sidebar-overlay-mode {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 15rem;
+    transform: translateX(-100%);
+    z-index: 50;
+    transition: transform 0.2s ease;
+  }
+  body.sidebar-overlay-open .sidebar-overlay-mode {
+    transform: translateX(0);
+  }
+}
+@media (min-width: 1280px) {
+  .sidebar-overlay-mode {
+    position: relative;
+    transform: none;
+  }
 }
 
 /* 아코디언 메인 아이템 hover 효과 제거 */

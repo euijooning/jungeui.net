@@ -21,8 +21,8 @@ export default function Dashboard() {
   }, []);
 
   const todayVisits = stats?.today_visits ?? stats?.todayVisits;
-  const yesterdayVisits = stats?.yesterday_visits ?? stats?.yesterdayVisits;
   const totalViews = stats?.total_views ?? stats?.totalViews;
+  const publishedPosts = stats?.published_posts ?? stats?.publishedPosts;
   const display = (v) => (statsError || stats === null ? '-' : (v ?? '-'));
 
   return (
@@ -59,13 +59,13 @@ export default function Dashboard() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center">
-                <i className="fas fa-user-friends text-green-600 text-2xl" />
+                <i className="fas fa-file-alt text-green-600 text-2xl" />
               </div>
             </div>
             <div className="ml-4 flex-1">
-              <h3 className="text-sm font-medium text-gray-600 mb-1">어제 방문자</h3>
-              <p className="text-3xl font-bold text-green-600 mb-1">{display(yesterdayVisits)}</p>
-              <p className="text-xs text-gray-500">전일 기준</p>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">발행 포스트</h3>
+              <p className="text-3xl font-bold text-green-600 mb-1">{display(publishedPosts)}</p>
+              <p className="text-xs text-gray-500">PUBLISHED + UNLISTED</p>
             </div>
           </div>
         </div>
