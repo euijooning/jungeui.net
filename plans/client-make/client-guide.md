@@ -7,7 +7,7 @@
 1. **메인·글 목록** (/)  
    - 2컬럼(70% 목록 / 30% 사이드바). 카드: 썸네일, 카테고리, 제목, 요약, 작성일·태그. 사이드: 프로필, 카테고리 리스트, 태그 클라우드. GET /api/posts (status=PUBLISHED).
 
-2. **글 상세** (/post/:slug)  
+2. **글 상세** (/posts/:postId)  
    - 제목, 메타, 본문(content_html), TOC, 태그, 이전/다음 글. 코드 블록 문법 강조·Copy 버튼, 이미지 라이트박스, 유튜브 임베드. Utterances 댓글.
 
 3. **About** (/about)  
@@ -21,5 +21,6 @@
 
 ## 참조
 
-- [docs/02-api-spec.md](../docs/02-api-spec.md): 공개 GET 엔드포인트.
-- [docs/04-design-guide.md](../docs/04-design-guide.md), shared/ui-kit.
+- **[plans/client/](../client/)**: 상세 기획·Phase별 체크리스트 (00-client-implementation-guide.md, 01~05 phase 문서, client-phase-checklist.md).
+- [docs/02-api-spec.md](../../docs/common/02-api-spec.md): 공개 GET 엔드포인트.
+- [docs/04-design-guide.md](../../docs/common/04-design-guide.md), shared/ui-kit.
