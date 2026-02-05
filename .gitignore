@@ -18,6 +18,9 @@ build/
 .idea/
 .vscode/
 
+# Git diff/compare temp files
+.git-head-*.txt
+
 # Node (apps/client, apps/backoffice)
 node_modules/
 apps/client/node_modules/
