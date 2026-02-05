@@ -130,7 +130,7 @@ const AdminLayout = ({ children }) => {
     if (titles[currentPath]) return titles[currentPath];
     if (/^\/posts\/[^/]+\/edit$/.test(currentPath)) return "포스트 수정";
     if (/^\/posts\/[^/]+$/.test(currentPath)) return "포스트 보기";
-    return "JUNGEUI LAB";
+    return "JUNGEUI LAB ADMIN";
   };
 
   const postsAsSingleLink =
@@ -146,7 +146,7 @@ const AdminLayout = ({ children }) => {
 
   // 대메뉴 > 하위메뉴: 대시보드(단일), 글(아코디언 또는 단일 링크), 경력, 프로젝트, 파일 보관함
   const navSections = [
-    { type: "single", href: "/", icon: "fa-home", label: "대시보드" },
+    { type: "single", href: "/", icon: "fa-th", label: "대시보드" },
     {
       type: "accordion",
       title: "포스트",
@@ -189,7 +189,7 @@ const AdminLayout = ({ children }) => {
             >
               <img src="/favicon.png" alt="" className="w-8 h-8 object-contain flex-shrink-0" />
               <span className="text-md font-semibold text-white sidebar-text">
-                JUNGEUI LAB
+                JUNGEUI LAB ADMIN
               </span>
             </Link>
           </div>

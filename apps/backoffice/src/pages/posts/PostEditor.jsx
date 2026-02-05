@@ -192,8 +192,22 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         return;
       }
       await loadScript(TOAST_UI_SCRIPT);
-      await loadScript(TOAST_UI_I18N);
       await loadCss(TOAST_UI_CSS);
+      for (let i = 0; i < 50; i++) {
+        if (window.toastui?.Editor) break;
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      if (window.toastui?.Editor) {
+        await loadScript(TOAST_UI_I18N);
+      }
+      for (let i = 0; i < 30; i++) {
+        if (window.toastui?.Editor) {
+          setToastUILoaded(true);
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      console.warn('[PostEditor] Toast UI Editor not found on window.toastui after load');
       setToastUILoaded(true);
     };
     load();
@@ -202,12 +216,21 @@ export default function PostEditor({ isEdit = false, postId = null }) {
   const canInitEditor = toastUILoaded && (!isEdit || initialEditorContent !== null);
 
   useEffect(() => {
-    if (!canInitEditor || !window.toastui?.Editor) return;
+    if (!canInitEditor) return;
+    if (!window.toastui?.Editor) {
+      console.warn('[PostEditor] window.toastui.Editor not available, skipping editor init');
+      return;
+    }
 
     let cancelled = false;
     const t = setTimeout(() => {
       const el = document.getElementById('post-editor');
       if (cancelled || !el) return;
+      const Editor = window.toastui?.Editor;
+      if (!Editor) {
+        console.warn('[PostEditor] window.toastui.Editor lost in setTimeout');
+        return;
+      }
 
       if (editorRef.current) {
         try {
@@ -216,7 +239,6 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         editorRef.current = null;
       }
 
-      const { Editor } = window.toastui;
       const initialValue = isEdit ? (initialEditorContent || '') : '';
 
       const customHTMLRenderer = {
@@ -414,6 +436,11 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     const extOk = (f) => ATTACH_EXT_SET.has((f.name || '').split('.').pop()?.toLowerCase());
     const sizeOk = (f) => f.size <= MAX_ATTACH_SIZE;
     setAttachmentUploading(true);
+    const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+    const isDev = import.meta.env.DEV;
+    const uploadUrl = isDev && !apiBase ? '/api/assets/upload' : `${apiBase || ''}/api/assets/upload`;
+    const token = getAccessToken();
+    console.log('[첨부업로드] uploadUrl=', uploadUrl, 'files=', files.length, 'VITE_API_URL=', import.meta.env.VITE_API_URL);
     try {
       for (const file of files) {
         if (!extOk(file)) {
@@ -426,13 +453,36 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         }
         const formData = new FormData();
         formData.append('file', file);
-        const res = await apiClient.upload(`/api/assets/upload`, formData);
-        const id = res.data?.id;
-        const original_name = res.data?.original_name || file.name;
-        if (id) setAttachmentList((prev) => [...prev, { id, original_name }]);
+        console.log('[첨부업로드] POST', file.name);
+        const response = await fetch(uploadUrl, {
+          method: 'POST',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          body: formData,
+          credentials: 'include',
+        });
+        console.log('[첨부업로드] response.ok=', response.ok, 'status=', response.status);
+        if (!response.ok) {
+          const errBody = await response.json().catch(() => ({}));
+          throw new Error(errBody.detail || `업로드 실패 (${response.status})`);
+        }
+        const result = await response.json();
+        console.log('[첨부업로드] result=', result);
+        const id = result?.id != null ? Number(result.id) : null;
+        const original_name = result?.original_name || file.name;
+        console.log('[첨부업로드] parsed id=', id, 'original_name=', original_name);
+        if (id && id > 0) {
+          setAttachmentList((prev) => {
+            const next = [...prev, { id, original_name }];
+            console.log('[첨부업로드] setAttachmentList prev.len=', prev.length, 'next.len=', next.length);
+            return next;
+          });
+        } else {
+          console.warn('[첨부업로드] id가 없거나 0이라 목록에 추가 안 함', { id, result });
+        }
       }
     } catch (err) {
-      alert(err?.response?.data?.detail || err?.message || '업로드에 실패했습니다.');
+      console.error('[첨부업로드] error', err);
+      alert(err?.message || '업로드에 실패했습니다.');
     } finally {
       setAttachmentUploading(false);
     }
@@ -451,10 +501,18 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       if (isScheduled && form.published_at) {
         published_at = form.published_at.includes('T') ? form.published_at.replace('T', ' ').slice(0, 19) : form.published_at;
       } else if (!isScheduled) {
-        published_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        // 수정 시에는 기존 발행일 유지(목록 순서 유지). 새 글만 지금 시각으로 발행
+        if (isEdit && form.published_at) {
+          const raw = form.published_at.includes('T') ? form.published_at.replace('T', ' ').slice(0, 19) : form.published_at;
+          published_at = raw;
+        } else {
+          published_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        }
       }
     }
     const postTagsRaw = (form.post_tags || []).filter((x) => typeof x === 'number' || (typeof x === 'string' && /^\d+$/.test(x)));
+    const attachment_asset_ids = (attachmentList || []).map((a) => Number(a.id)).filter((n) => !Number.isNaN(n) && n > 0);
+    console.log('[저장] attachmentList=', attachmentList, 'attachment_asset_ids=', attachment_asset_ids);
     const payload = {
       title: form.title || '제목 없음',
       slug: slugFromTitle(form.title) || 'untitled',
@@ -465,7 +523,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       content_html,
       content_json: null,
       post_tags: postTagsRaw.map((x) => Number(x)),
-      attachment_asset_ids: (attachmentList || []).map((a) => Number(a.id)).filter((n) => !Number.isNaN(n) && n > 0),
+      attachment_asset_ids,
     };
     setSaving(true);
     setSaveError(null);
@@ -473,11 +531,11 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       if (isEdit && postId) {
         await apiClient.put(`/api/posts/${postId}`, payload);
         alert('글 수정 완료');
-        window.location.href = '/posts';
+        navigate('/posts');
       } else {
         await apiClient.post('/api/posts', payload);
         alert('글 등록 완료');
-        window.location.href = '/posts';
+        navigate('/posts');
       }
     } catch (e) {
       setSaveError(e?.message || '저장에 실패했습니다.');

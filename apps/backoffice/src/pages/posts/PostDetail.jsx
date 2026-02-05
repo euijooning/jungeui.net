@@ -52,8 +52,10 @@ export default function PostDetail() {
   };
 
   const handleDownload = async (assetId, filename) => {
-    const base = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-    const url = base ? `${base}/api/assets/${assetId}/download` : `/api/assets/${assetId}/download`;
+    const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+    const isDev = import.meta.env.DEV;
+    const downloadBase = isDev ? '' : apiBase;
+    const url = downloadBase ? `${downloadBase}/api/assets/${assetId}/download` : `/api/assets/${assetId}/download`;
     const token = getAccessToken();
     try {
       const res = await fetch(url, {
@@ -103,11 +105,11 @@ export default function PostDetail() {
 
   return (
     <div className="w-full">
-      {/* Header */}
+      {/* Header: 페이지 제목 + 글 제목 한 번만 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">포스트 상세</h1>
-          <p className="mt-1 text-sm text-gray-500">포스트 정보를 확인하세요</p>
+          <p className="text-sm text-gray-500 mb-1">포스트 상세</p>
+          <h1 className="text-2xl font-bold text-gray-900">{post.title || '(제목 없음)'}</h1>
         </div>
         <div className="flex space-x-3">
           <Link
@@ -171,15 +173,13 @@ export default function PostDetail() {
         </div>
       </div>
 
-      {/* Content Card */}
+      {/* 본문: 라벨은 컨테이너 밖 */}
+      <h3 className="text-md font-medium text-gray-900 mb-3">본문</h3>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">{post.title || '(제목 없음)'}</h2>
-        <div className="border-t border-gray-200 pt-6">
-          <div
-            className="prose max-w-none toastui-editor-contents"
-            dangerouslySetInnerHTML={{ __html: post.content_html || '<p>내용 없음</p>' }}
-          />
-        </div>
+        <div
+          className="prose max-w-none toastui-editor-contents"
+          dangerouslySetInnerHTML={{ __html: post.content_html || '<p>내용 없음</p>' }}
+        />
       </div>
 
       {/* 첨부 파일 */}
@@ -190,11 +190,13 @@ export default function PostDetail() {
           if (attachments.length === 0) {
             return <p className="text-sm text-gray-500">첨부된 파일이 없습니다.</p>;
           }
+          const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+          const isDev = import.meta.env.DEV;
+          const linkBase = isDev ? '' : apiBase;
           return (
             <ul className="space-y-2">
               {attachments.map((a) => {
-                const base = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-                const href = a.url ? (a.url.startsWith('http') ? a.url : base ? `${base}${a.url}` : a.url) : null;
+                const href = a.url ? (a.url.startsWith('http') ? a.url : linkBase ? `${linkBase}${a.url}` : a.url) : null;
                 const label = a.original_name || `파일 ${a.id}`;
                 return (
                   <li key={a.id} className="flex items-center gap-3 flex-wrap">
