@@ -5,8 +5,8 @@ import apiClient from '../../lib/apiClient';
 const PER_PAGE = 10;
 const STATUS_OPTIONS = [
   { value: '', label: '전체' },
-  { value: 'DRAFT', label: '임시저장' },
-  { value: 'PUBLISHED', label: '발행' },
+  { value: 'PUBLISHED', label: '공개' },
+  { value: 'UNLISTED', label: '일부공개' },
   { value: 'PRIVATE', label: '비공개' },
 ];
 
@@ -17,7 +17,8 @@ function formatDate(v) {
 }
 
 function statusBadge(status) {
-  if (status === 'PUBLISHED') return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">발행</span>;
+  if (status === 'PUBLISHED') return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">공개</span>;
+  if (status === 'UNLISTED') return <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">일부공개</span>;
   if (status === 'PRIVATE') return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">비공개</span>;
   return <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">임시저장</span>;
 }
@@ -27,11 +28,12 @@ export default function PostList() {
   const [posts, setPosts] = useState([]);
   const [total, setTotal] = useState(0);
   const [categories, setCategories] = useState([]);
-  const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
-  const [filter, setFilter] = useState({ category_id: '', tag_id: '', status: '' });
+  const [filter, setFilter] = useState({ category_id: '', status: '', title_q: '' });
+  const [orderBy, setOrderBy] = useState('latest_published');
+  const [selectedIds, setSelectedIds] = useState(new Set());
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -39,15 +41,6 @@ export default function PostList() {
       setCategories(Array.isArray(res.data) ? res.data : res.data?.items || []);
     } catch (e) {
       setCategories([]);
-    }
-  }, []);
-
-  const fetchTags = useCallback(async () => {
-    try {
-      const res = await apiClient.get('/api/tags');
-      setTags(Array.isArray(res.data) ? res.data : res.data?.items || []);
-    } catch (e) {
-      setTags([]);
     }
   }, []);
 
@@ -59,8 +52,9 @@ export default function PostList() {
       params.set('page', String(page + 1));
       params.set('per_page', String(PER_PAGE));
       if (filter.category_id) params.set('category_id', filter.category_id);
-      if (filter.tag_id) params.set('tag_id', filter.tag_id);
       if (filter.status) params.set('status', filter.status);
+      if (filter.title_q?.trim()) params.set('q', filter.title_q.trim());
+      if (orderBy && orderBy !== 'latest_published') params.set('order_by', orderBy);
       const res = await apiClient.get(`/api/posts?${params.toString()}`);
       const data = res.data;
       const list = Array.isArray(data) ? data : data?.items ?? data?.data ?? [];
@@ -74,12 +68,11 @@ export default function PostList() {
     } finally {
       setLoading(false);
     }
-  }, [page, filter.category_id, filter.tag_id, filter.status]);
+  }, [page, filter.category_id, filter.status, filter.title_q, orderBy]);
 
   useEffect(() => {
     fetchCategories();
-    fetchTags();
-  }, [fetchCategories, fetchTags]);
+  }, [fetchCategories]);
 
   useEffect(() => {
     fetchPosts();
@@ -99,6 +92,15 @@ export default function PostList() {
   const from = page * PER_PAGE + 1;
   const to = Math.min((page + 1) * PER_PAGE, total);
 
+  const allPageSelected = posts.length > 0 && posts.every((row) => selectedIds.has(row.id));
+  const toggleAll = () => {
+    if (allPageSelected) setSelectedIds((prev) => { const n = new Set(prev); posts.forEach((row) => n.delete(row.id)); return n; });
+    else setSelectedIds((prev) => { const n = new Set(prev); posts.forEach((row) => n.add(row.id)); return n; });
+  };
+  const toggleOne = (id) => {
+    setSelectedIds((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  };
+
   return (
     <div className="w-full">
       {/* Header - (sample) 스타일: 제목 + 설명 + 우측 버튼 */}
@@ -108,6 +110,24 @@ export default function PostList() {
           <p className="mt-1 text-sm text-gray-500">포스트 목록·수정·삭제</p>
         </div>
         <div className="flex space-x-3">
+          <button
+            type="button"
+            onClick={async () => {
+              if (!window.confirm('정말 삭제하시겠습니까?')) return;
+              try {
+                for (const id of selectedIds) await apiClient.delete(`/api/posts/${id}`);
+                setSelectedIds(new Set());
+                fetchPosts();
+                window.alert('삭제가 완료되었습니다.');
+              } catch (e) {
+                window.alert(e?.message || '삭제에 실패했습니다.');
+              }
+            }}
+            disabled={selectedIds.size === 0}
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-red-600 rounded-lg hover:bg-red-700 hover:border-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            삭제
+          </button>
           <button
             onClick={() => navigate('/posts/new')}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
@@ -150,17 +170,14 @@ export default function PostList() {
               ))}
             </select>
           </div>
-          <div className="min-w-[120px]">
-            <select
-              value={filter.tag_id}
-              onChange={(e) => setFilter((f) => ({ ...f, tag_id: e.target.value }))}
+          <div className="min-w-[180px]">
+            <input
+              type="text"
+              placeholder="제목 검색"
+              value={filter.title_q}
+              onChange={(e) => setFilter((f) => ({ ...f, title_q: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">전체 태그</option>
-              {tags.map((t) => (
-                <option key={t.id} value={String(t.id)}>{t.name}</option>
-              ))}
-            </select>
+            />
           </div>
           <button
             type="submit"
@@ -169,6 +186,24 @@ export default function PostList() {
             검색
           </button>
         </form>
+      </div>
+
+      {/* 정렬기준 */}
+      <div className="mb-4 flex items-center gap-2">
+        <label htmlFor="order-by" className="text-sm font-medium text-gray-700">정렬기준</label>
+        <select
+          id="order-by"
+          value={orderBy}
+          onChange={(e) => {
+            setOrderBy(e.target.value);
+            setPage(0);
+          }}
+          className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="latest_published">최신 발행순</option>
+          <option value="views">조회순</option>
+          <option value="oldest">오래된 순</option>
+        </select>
       </div>
 
       {/* Error */}
@@ -188,74 +223,84 @@ export default function PostList() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                      <input type="checkbox" checked={allPageSelected} onChange={toggleAll} className="rounded border-gray-300" />
+                    </th>
+                    <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-14">번호</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제목</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">카테고리</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">등록일</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">발행일</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정일</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {posts.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-12 text-center text-gray-500">
+                      <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
                         글이 없습니다.
                       </td>
                     </tr>
                   ) : (
-                    posts.map((row) => (
-                      <tr key={row.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm">
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/posts/${row.id}`)}
-                            className="text-blue-600 hover:text-blue-800 text-left"
-                          >
-                            {row.title || '(제목 없음)'}
-                          </button>
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{row.category?.name ?? row.category_name ?? '-'}</td>
-                        <td className="px-4 py-3 text-sm">{statusBadge(row.status)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">{formatDate(row.published_at)}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">{formatDate(row.updated_at)}</td>
-                        <td className="px-4 py-3 text-sm text-right space-x-2">
-                          <button type="button" onClick={() => navigate(`/posts/${row.id}`)} className="text-blue-600 hover:text-blue-800">보기</button>
-                          <button type="button" onClick={() => navigate(`/posts/${row.id}/edit`)} className="text-blue-600 hover:text-blue-800">수정</button>
-                          <button type="button" onClick={() => handleDelete(row.id, row.title)} className="text-red-600 hover:text-red-800">삭제</button>
-                        </td>
-                      </tr>
-                    ))
+                    posts.map((row, index) => {
+                      const displayNo = total - page * PER_PAGE - index;
+                      return (
+                        <tr key={row.id} className="hover:bg-gray-50">
+                          <td className="px-2 py-3 text-center">
+                            <input type="checkbox" checked={selectedIds.has(row.id)} onChange={() => toggleOne(row.id)} className="rounded border-gray-300" />
+                          </td>
+                          <td className="px-2 py-3 text-sm text-gray-500">{displayNo}</td>
+                          <td className="px-4 py-3 text-sm">
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/posts/${row.id}`)}
+                              className="text-blue-600 hover:text-blue-800 text-left"
+                            >
+                              {row.title || '(제목 없음)'}
+                            </button>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">{row.category?.name ?? row.category_name ?? '-'}</td>
+                          <td className="px-4 py-3 text-sm">{statusBadge(row.status)}</td>
+                          <td className="px-4 py-3 text-sm text-gray-500">{formatDate(row.created_at)}</td>
+                          <td className="px-4 py-3 text-sm text-gray-500">{formatDate(row.published_at)}</td>
+                          <td className="px-4 py-3 text-sm text-right space-x-2">
+                            <button type="button" onClick={() => navigate(`/posts/${row.id}`)} className="text-blue-600 hover:text-blue-800">보기</button>
+                            <button type="button" onClick={() => navigate(`/posts/${row.id}/edit`)} className="text-blue-600 hover:text-blue-800">수정</button>
+                            <button type="button" onClick={() => handleDelete(row.id, row.title)} className="text-red-600 hover:text-red-800">삭제</button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
             </div>
 
-            {/* Pagination - (sample) 스타일 */}
-            {total > 0 && (
-              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                <div className="flex-1 flex justify-between sm:hidden">
-                  <button
-                    type="button"
-                    onClick={() => setPage((p) => Math.max(0, p - 1))}
-                    disabled={page <= 0}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    이전
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPage((p) => p + 1)}
-                    disabled={page >= totalPages - 1}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    다음
-                  </button>
-                </div>
-                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                  <p className="text-sm text-gray-700">
-                    총 {total}개 중 {from}-{to}개
-                  </p>
+            {/* Pagination - (sample) 스타일 - total과 무관하게 항상 표시 */}
+            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page <= 0}
+                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  이전
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={page >= totalPages - 1}
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  다음
+                </button>
+              </div>
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <p className="text-sm text-gray-700">
+                  {total === 0 ? '총 0개 중 0개 표시' : `총 ${total}개 중 ${from}-${to}개`}
+                </p>
                   <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                     <button
                       type="button"
@@ -295,7 +340,6 @@ export default function PostList() {
                   </nav>
                 </div>
               </div>
-            )}
           </>
         )}
       </div>

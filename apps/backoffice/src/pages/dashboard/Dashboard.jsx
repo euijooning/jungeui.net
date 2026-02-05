@@ -91,17 +91,17 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">바로가기</h3>
           <div className="space-y-3">
             <button
-              onClick={() => navigate('/posts/new')}
+              onClick={() => navigate('/posts')}
               className="w-full flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
             >
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <i className="fas fa-edit text-white" />
+                  <i className="fas fa-list text-white" />
                 </div>
               </div>
               <div className="ml-3 text-left">
-                <h4 className="text-sm font-medium text-gray-900">새 포스트</h4>
-                <p className="text-sm text-gray-500">새 포스트를 작성합니다</p>
+                <h4 className="text-sm font-medium text-gray-900">포스트 목록</h4>
+                <p className="text-sm text-gray-500">포스트 목록을 봅니다</p>
               </div>
               <div className="ml-auto">
                 <i className="fas fa-chevron-right text-gray-400" />

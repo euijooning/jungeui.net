@@ -209,8 +209,8 @@ const AdminLayout = ({ children }) => {
                         active ? "bg-green-200 text-green-800" : "text-gray-300"
                       }`}
                     >
-                      <i className={`fas ${section.icon} nav-icon mr-3 text-lg ${active ? "text-green-600" : "text-gray-400"}`}></i>
-                      <span className={`sidebar-text ${active ? "text-green-600" : "text-gray-300"}`}>{section.label}</span>
+                      <i className={`fas ${section.icon} nav-icon mr-3 text-lg ${active ? "text-green-800" : "text-gray-400"}`}></i>
+                      <span className={`sidebar-text ${active ? "text-green-800" : "text-gray-300"}`}>{section.label}</span>
                     </Link>
                   );
                 }
@@ -223,10 +223,10 @@ const AdminLayout = ({ children }) => {
                         to="/posts"
                         onClick={isMobile || isTablet ? closeOverlay : undefined}
                         className={`nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer ${
-                          active ? "bg-green-200 text-green-600" : "text-gray-300"
+                          active ? "bg-green-200 text-green-800" : "text-gray-300"
                         }`}
                       >
-                        <i className={`fas ${section.icon} nav-icon mr-3 text-lg ${active ? "text-green-600" : "text-gray-400"}`}></i>
+                        <i className={`fas ${section.icon} nav-icon mr-3 text-lg ${active ? "text-green-800" : "text-gray-400"}`}></i>
                         <span className={`sidebar-text ${active ? "text-white" : "text-gray-300"}`}>{section.title}</span>
                       </Link>
                     );
@@ -260,11 +260,11 @@ const AdminLayout = ({ children }) => {
                                 to={sub.href}
                                 onClick={isMobile || isTablet ? closeOverlay : undefined}
                                 className={`nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer ${
-                                  active ? "bg-green-200 text-green-600" : "text-gray-300"
+                                  active ? "bg-green-200 text-green-800" : "text-gray-300"
                                 }`}
                               >
-                                <i className={`fas ${sub.icon} nav-icon mr-3 text-lg ${active ? "text-green-600" : "text-gray-400"}`}></i>
-                                <span className={`sidebar-text ${active ? "text-green-600" : "text-gray-300"}`}>{sub.label}</span>
+                                <i className={`fas ${sub.icon} nav-icon mr-3 text-lg ${active ? "text-green-800" : "text-gray-400"}`}></i>
+                                <span className={`sidebar-text ${active ? "text-green-800" : "text-gray-300"}`}>{sub.label}</span>
                               </Link>
                             );
                           })}
