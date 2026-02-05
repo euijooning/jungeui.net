@@ -70,32 +70,8 @@ export default function Home() {
     return range;
   };
 
-  const sidebar = (
-    <>
-      <hr className="sidebar-divider" />
-      <nav className="sidebar-categories" aria-label="카테고리">
-        <h2 className="sidebar-categories__title">카테고리</h2>
-        <ul>
-          <li>
-            <Link to="/" className={!categoryId ? 'is-active' : ''}>전체</Link>
-          </li>
-          {categories.map((cat) => (
-            <li key={cat.id}>
-              <Link
-                to={`/?category_id=${cat.id}`}
-                className={categoryId === String(cat.id) ? 'is-active' : ''}
-              >
-                {cat.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </>
-  );
-
   return (
-    <SharedLayout sidebar={sidebar}>
+    <SharedLayout categories={categories} currentCategoryId={categoryId || null}>
       <div className="search-result-strip">
         {q && (
           <p className="search-result-strip__text">&quot;{q}&quot; 검색 결과 {total}건</p>

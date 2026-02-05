@@ -1,9 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function Card({ thumbnail, title, summary, meta, categories, children, onClick, listMode, ...props }) {
+  const navigate = useNavigate();
   // listMode일 때 'post-card--list' 클래스 추가
   const classNames = ['post-card', listMode && 'post-card--list'].filter(Boolean).join(' ');
+
+  const handleCategoryClick = (e, categoryId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/?category_id=${categoryId}`);
+  };
 
   return (
     <article
@@ -19,11 +26,16 @@ export default function Card({ thumbnail, title, summary, meta, categories, chil
       )}
       <div className="post-card__body">
         {Array.isArray(categories) && categories.length > 0 && (
-          <div className="post-card__categories" onClick={(e) => e.stopPropagation()}>
+          <div className="post-card__categories">
             {categories.map((cat) => (
-              <Link key={cat.id} to={`/?category_id=${cat.id}`} className="post-card__category-pill">
+              <button
+                key={cat.id}
+                type="button"
+                className="post-card__category-pill"
+                onClick={(e) => handleCategoryClick(e, cat.id)}
+              >
                 {cat.name}
-              </Link>
+              </button>
             ))}
           </div>
         )}

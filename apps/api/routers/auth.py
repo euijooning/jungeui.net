@@ -69,6 +69,33 @@ def login(body: LoginRequest, db=Depends(get_db)):
     )
 
 
+def get_optional_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    db=Depends(get_db),
+):
+    """Bearer 토큰이 있으면 사용자 반환, 없으면 None."""
+    if not credentials or credentials.scheme.lower() != "bearer":
+        return None
+    try:
+        payload = jwt.decode(
+            credentials.credentials,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+        )
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+    except JWTError:
+        return None
+    row = db.execute(
+        text("SELECT id, email, name FROM users WHERE id = :id"),
+        {"id": int(user_id)},
+    ).fetchone()
+    if not row:
+        return None
+    return {"id": row[0], "email": row[1], "name": (row[2] or "Admin")}
+
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(security),
     db=Depends(get_db),

@@ -26,3 +26,20 @@ export async function fetchPosts({ page = 1, per_page = 5, category_id, q } = {}
 export async function fetchCategories() {
   return request('/api/categories');
 }
+
+/** 글 단건 조회 (공개용). 비공개 시 백엔드에서 404. */
+export async function fetchPost(postId) {
+  return request(`/api/posts/${postId}`);
+}
+
+/** 이전/다음 글 (published_at 기준). */
+export async function fetchPostNeighbors(postId) {
+  return request(`/api/posts/${postId}/neighbors`);
+}
+
+/** 첨부파일 등 정적 파일 전체 URL (프로덕션에서 API 도메인 사용). */
+export function getStaticUrl(path) {
+  if (!path) return '';
+  const base = import.meta.env.PROD ? (VITE_API_URL || '') : '';
+  return base ? `${base.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}` : path;
+}

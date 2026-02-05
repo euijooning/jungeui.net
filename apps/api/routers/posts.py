@@ -5,6 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError, ProgrammingError, SQLAlchemyError
 
 from apps.api.core import get_db
+from apps.api.routers.auth import get_optional_user
 
 router = APIRouter(tags=["posts"])
 
@@ -112,9 +113,49 @@ def list_posts(
     return {"items": items, "total": total}
 
 
+@router.get("/{post_id}/neighbors")
+def get_post_neighbors(post_id: int, db=Depends(get_db)):
+    """이전/다음 글 (published_at 기준, PUBLISHED만). 목록 순서=newest first."""
+    cur = db.execute(
+        text("SELECT id, published_at FROM posts WHERE id = :id AND status = 'PUBLISHED'"),
+        {"id": post_id},
+    ).fetchone()
+    if not cur:
+        raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
+    pub_at = cur[1]
+    # 이전글 = 목록에서 위 = 더 최신 글 (published_at, id) > current
+    prev_row = db.execute(
+        text("""
+            SELECT p.id, p.title FROM posts p
+            WHERE p.status = 'PUBLISHED' AND p.id != :id
+            AND (COALESCE(p.published_at, '1970-01-01') > COALESCE(:pub_at, '1970-01-01')
+                 OR (COALESCE(p.published_at, '1970-01-01') = COALESCE(:pub_at, '1970-01-01') AND p.id > :id))
+            ORDER BY COALESCE(p.published_at, '1970-01-01') ASC, p.id ASC
+            LIMIT 1
+        """),
+        {"id": post_id, "pub_at": pub_at},
+    ).fetchone()
+    # 다음글 = 목록에서 아래 = 더 오래된 글
+    next_row = db.execute(
+        text("""
+            SELECT p.id, p.title FROM posts p
+            WHERE p.status = 'PUBLISHED' AND p.id != :id
+            AND (COALESCE(p.published_at, '1970-01-01') < COALESCE(:pub_at, '1970-01-01')
+                 OR (COALESCE(p.published_at, '1970-01-01') = COALESCE(:pub_at, '1970-01-01') AND p.id < :id))
+            ORDER BY COALESCE(p.published_at, '1970-01-01') DESC, p.id DESC
+            LIMIT 1
+        """),
+        {"id": post_id, "pub_at": pub_at},
+    ).fetchone()
+    return {
+        "prev": {"id": prev_row[0], "title": prev_row[1]} if prev_row else None,
+        "next": {"id": next_row[0], "title": next_row[1]} if next_row else None,
+    }
+
+
 @router.get("/{post_id}")
-def get_post(post_id: int, db=Depends(get_db)):
-    """글 단건 조회."""
+def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional_user)):
+    """글 단건 조회. 비로그인 시 PUBLISHED만, 로그인 시 전체."""
     row = db.execute(
         text("""
             SELECT p.id, p.title, p.slug, p.status, p.published_at, p.category_id, p.thumbnail_asset_id,
@@ -127,6 +168,8 @@ def get_post(post_id: int, db=Depends(get_db)):
         {"id": post_id},
     ).fetchone()
     if not row:
+        raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
+    if not current_user and row[3] != "PUBLISHED":
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
     tag_rows = db.execute(
         text("SELECT t.id, t.name FROM post_tags pt JOIN tags t ON t.id = pt.tag_id WHERE pt.post_id = :id"),

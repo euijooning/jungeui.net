@@ -106,7 +106,7 @@ palette: {
 - [x] **8** 카드: #111827
 - [x] **9** 텍스트: gray-100
 - [x] **10** primary 색상은 그대로 유지
-- [ ] **11** Utterances 테마 연동 필수 (Phase 03에서 구현)
+- [x] **11** Utterances 테마 연동 필수 (Phase 03에서 구현)
 
 ---
 
