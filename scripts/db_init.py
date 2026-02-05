@@ -89,6 +89,15 @@ CREATE TABLE post_tags (
   FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 ) COMMENT='게시글 태그 매핑';
 
+CREATE TABLE post_attachments (
+  post_id BIGINT NOT NULL,
+  asset_id BIGINT NOT NULL,
+  sort_order INT DEFAULT 0 COMMENT '노출 순서',
+  PRIMARY KEY (post_id, asset_id),
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+) COMMENT='게시글 첨부파일 (다중)';
+
 CREATE TABLE careers (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   logo_asset_id BIGINT NULL COMMENT '회사 로고 ID',

@@ -75,6 +75,30 @@ const apiClient = {
     });
   },
 
+  /** multipart/form-data 업로드 (body에 FormData 전달, Content-Type은 제외) */
+  async upload(url, formData, options = {}) {
+    const fullUrl = resolveUrl(url);
+    const headers = { ...getAuthHeaders() };
+    delete headers['Content-Type'];
+    const response = await fetch(fullUrl, {
+      ...options,
+      method: 'POST',
+      headers: { ...headers, ...(options.headers || {}) },
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = new Error(`HTTP ${response.status}`);
+      error.status = response.status;
+      error.response = {
+        status: response.status,
+        data: await response.json().catch(() => ({})),
+      };
+      throw error;
+    }
+    const data = await response.json().catch(() => ({}));
+    return { data, status: response.status, headers: response.headers };
+  },
+
   put(url, data, options = {}) {
     return this.request(url, {
       ...options,

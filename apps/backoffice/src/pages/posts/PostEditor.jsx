@@ -11,7 +11,6 @@ import {
   Divider,
   Radio,
   RadioGroup,
-  Checkbox,
   CircularProgress,
   Alert,
 } from '@mui/material';
@@ -20,6 +19,10 @@ import apiClient, { getAccessToken } from '../../lib/apiClient';
 const TOAST_UI_SCRIPT = 'https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js';
 const TOAST_UI_I18N = 'https://uicdn.toast.com/editor/latest/i18n/ko-kr.js';
 const TOAST_UI_CSS = 'https://uicdn.toast.com/editor/latest/toastui-editor.min.css';
+
+const ATTACH_ACCEPT = '.png,.jpg,.jpeg,.pdf,.ppt,.pptx,.hwp,.hwpx,.docx';
+const ATTACH_EXT_SET = new Set(['png', 'jpg', 'jpeg', 'pdf', 'ppt', 'pptx', 'hwp', 'hwpx', 'docx']);
+const MAX_ATTACH_SIZE = 10 * 1024 * 1024;
 
 function slugFromTitle(title) {
   return (title || '')
@@ -120,16 +123,17 @@ export default function PostEditor({ isEdit = false, postId = null }) {
   const [initialEditorContent, setInitialEditorContent] = useState(null);
   const [form, setForm] = useState({
     title: '',
-    status: 'DRAFT',
-    visibility: 'PUBLISHED',
+    status: '',
+    visibility: '',
     publishType: 'now',
     published_at: '',
-    category_id: '',
+    category_id: '__select__',
     thumbnail_asset_id: null,
     post_tags: [],
   });
+  const [attachmentList, setAttachmentList] = useState([]);
   const [tagInput, setTagInput] = useState('');
-  const [useFirstImageAsThumb, setUseFirstImageAsThumb] = useState(false);
+  const [contentHtml, setContentHtml] = useState('');
 
   const loadPost = useCallback(async () => {
     if (!postId) return;
@@ -140,10 +144,11 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       const status = d.status ?? 'DRAFT';
       const pubAt = d.published_at ? d.published_at.slice(0, 16) : '';
       const isScheduled = status === 'PUBLISHED' && pubAt && new Date(pubAt) > new Date();
+      const visibility = status === 'DRAFT' ? 'PUBLISHED' : status;
       setForm({
         title: d.title ?? '',
-        status,
-        visibility: status === 'DRAFT' ? 'PUBLISHED' : status,
+        status: visibility,
+        visibility,
         publishType: isScheduled ? 'scheduled' : 'now',
         published_at: pubAt,
         category_id: d.category_id != null ? String(d.category_id) : '',
@@ -152,6 +157,10 @@ export default function PostEditor({ isEdit = false, postId = null }) {
           typeof t === 'object' && t?.id != null ? t.id : t
         ),
       });
+      setAttachmentList((Array.isArray(d.attachments) ? d.attachments : []).map((a) => ({
+        id: a.id,
+        original_name: a.original_name || `파일 ${a.id}`,
+      })));
       setInitialEditorContent(d.content_html || '');
     } catch (e) {
       setLoadError(e?.message || '글을 불러오지 못했습니다.');
@@ -319,10 +328,12 @@ export default function PostEditor({ isEdit = false, postId = null }) {
               }
             );
             if (replaced !== html) ed.setHTML(replaced);
+            setContentHtml(ed.getHTML());
           }, 250);
         };
       })();
       ed.on('change', onChange);
+      setContentHtml(ed.getHTML());
 
       editorRef.current = ed;
     }, 100);
@@ -370,12 +381,21 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     setForm((f) => ({ ...f, title: e.target.value }));
   };
 
-  const handleTagKeyDown = (e) => {
+  const handleTagKeyDown = async (e) => {
     if (e.key !== 'Enter' || !tagInput.trim()) return;
     e.preventDefault();
     const name = tagInput.trim();
     const existing = tags.find((t) => (t.name || '').toLowerCase() === name.toLowerCase());
-    const id = existing?.id;
+    let id = existing?.id;
+    if (!id) {
+      try {
+        const res = await apiClient.post('/api/tags', { name });
+        id = res.data?.id;
+        if (id) setTags((prev) => [...prev, { id, name: res.data?.name ?? name }]);
+      } catch (err) {
+        return;
+      }
+    }
     if (id && !form.post_tags.includes(id)) setForm((f) => ({ ...f, post_tags: [...f.post_tags, id] }));
     setTagInput('');
   };
@@ -384,34 +404,80 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     setForm((f) => ({ ...f, post_tags: f.post_tags.filter((x) => x !== idOrName) }));
   };
 
+  const attachmentInputRef = useRef(null);
+  const [attachmentUploading, setAttachmentUploading] = useState(false);
+
+  const handleAttachmentSelect = async (e) => {
+    const files = Array.from(e.target?.files || []);
+    if (attachmentInputRef.current) attachmentInputRef.current.value = '';
+    if (!files.length) return;
+    const extOk = (f) => ATTACH_EXT_SET.has((f.name || '').split('.').pop()?.toLowerCase());
+    const sizeOk = (f) => f.size <= MAX_ATTACH_SIZE;
+    setAttachmentUploading(true);
+    try {
+      for (const file of files) {
+        if (!extOk(file)) {
+          alert(`허용되지 않는 파일 형식입니다: ${file.name}`);
+          continue;
+        }
+        if (!sizeOk(file)) {
+          alert(`파일 크기는 10MB 이하여야 합니다: ${file.name}`);
+          continue;
+        }
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await apiClient.upload(`/api/assets/upload`, formData);
+        const id = res.data?.id;
+        const original_name = res.data?.original_name || file.name;
+        if (id) setAttachmentList((prev) => [...prev, { id, original_name }]);
+      }
+    } catch (err) {
+      alert(err?.response?.data?.detail || err?.message || '업로드에 실패했습니다.');
+    } finally {
+      setAttachmentUploading(false);
+    }
+  };
+
+  const removeAttachment = (id) => {
+    setAttachmentList((prev) => prev.filter((a) => a.id !== id));
+  };
+
   const handleSave = async () => {
     const content_html = editorRef.current ? editorRef.current.getHTML() : '';
-    const visibility = form.visibility;
+    const visibility = form.visibility || form.status;
     const isScheduled = visibility === 'PUBLISHED' && form.publishType === 'scheduled';
+    let published_at = null;
+    if (visibility === 'PUBLISHED') {
+      if (isScheduled && form.published_at) {
+        published_at = form.published_at.includes('T') ? form.published_at.replace('T', ' ').slice(0, 19) : form.published_at;
+      } else if (!isScheduled) {
+        published_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+      }
+    }
+    const postTagsRaw = (form.post_tags || []).filter((x) => typeof x === 'number' || (typeof x === 'string' && /^\d+$/.test(x)));
     const payload = {
       title: form.title || '제목 없음',
       slug: slugFromTitle(form.title) || 'untitled',
-      status: form.status === 'DRAFT' ? form.status : visibility,
-      published_at: isScheduled ? (form.published_at || null) : null,
-      category_id: form.category_id ? Number(form.category_id) : null,
+      status: visibility,
+      published_at: published_at || null,
+      category_id: (form.category_id && form.category_id !== '__select__') ? Number(form.category_id) : null,
       thumbnail_asset_id: form.thumbnail_asset_id || null,
       content_html,
       content_json: null,
-      post_tags: form.post_tags
-        .filter((x) => typeof x === 'number' || (typeof x === 'string' && /^\d+$/.test(x)))
-        .map((x) => Number(x)),
+      post_tags: postTagsRaw.map((x) => Number(x)),
+      attachment_asset_ids: (attachmentList || []).map((a) => Number(a.id)).filter((n) => !Number.isNaN(n) && n > 0),
     };
     setSaving(true);
     setSaveError(null);
     try {
       if (isEdit && postId) {
         await apiClient.put(`/api/posts/${postId}`, payload);
-        alert('수정되었습니다.');
+        alert('글 수정 완료');
+        window.location.href = '/posts';
       } else {
-        const res = await apiClient.post('/api/posts', payload);
-        const id = res.data?.id ?? res.data?.data?.id;
-        if (id) navigate(`/posts/${id}/edit`, { replace: true });
-        else alert('저장되었습니다.');
+        await apiClient.post('/api/posts', payload);
+        alert('글 등록 완료');
+        window.location.href = '/posts';
       }
     } catch (e) {
       setSaveError(e?.message || '저장에 실패했습니다.');
@@ -419,6 +485,13 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       setSaving(false);
     }
   };
+
+  const bodyTrimmed = (contentHtml || '').replace(/<[^>]+>/g, '').trim();
+  const canSave =
+    form.title.trim() !== '' &&
+    form.category_id !== '__select__' &&
+    bodyTrimmed.length > 0 &&
+    ['PUBLISHED', 'UNLISTED', 'PRIVATE'].includes(form.status);
 
   if (!toastUILoaded || (isEdit && initialEditorContent === null && !loadError)) {
     return (
@@ -461,14 +534,15 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       {/* sample처럼 단일 컬럼 - 하단으로 쭉 */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 mb-2">제목</label>
+          <label className="block text-sm font-medium text-gray-900 mb-2">제목 <span className="text-blue-600">*</span></label>
           <TextField fullWidth placeholder="제목을 입력하세요" value={form.title} onChange={handleTitleChange} size="small" />
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 mb-2">카테고리</label>
+          <label className="block text-sm font-medium text-gray-900 mb-2">카테고리 <span className="text-blue-600">*</span></label>
           <FormControl fullWidth size="small">
-            <Select value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))} displayEmpty>
-              <MenuItem value="">없음</MenuItem>
+            <Select value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))} displayEmpty renderValue={(v) => (v === '__select__' ? '선택' : v === '' ? '미지정' : (categories.find((c) => String(c.id) === v)?.name || categories.find((c) => String(c.id) === v)?.slug || v))}>
+              <MenuItem value="__select__" disabled>선택</MenuItem>
+              <MenuItem value="">미지정</MenuItem>
               {categories.map((c) => (
                 <MenuItem key={c.id} value={String(c.id)}>{c.name || c.slug}</MenuItem>
               ))}
@@ -477,7 +551,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         </div>
         <div className="mb-6">
           <div className="flex items-center justify-between gap-3 mb-2">
-            <label className="block text-sm font-medium text-gray-900">본문</label>
+            <label className="block text-sm font-medium text-gray-900">본문 <span className="text-blue-600">*</span></label>
             <div className="flex items-center gap-2">
               <input
                 ref={multiImageInputRef}
@@ -511,25 +585,26 @@ export default function PostEditor({ isEdit = false, postId = null }) {
           </div>
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 mb-2">발행 방식</label>
+          <label className="block text-sm font-medium text-gray-900 mb-2">발행 방식 <span className="text-blue-600">*</span></label>
           <div className="flex flex-col gap-3">
-            <FormControl component="fieldset">
-              <RadioGroup
-                row
-                value={form.status === 'DRAFT' ? 'DRAFT' : form.visibility}
+            <FormControl fullWidth size="small">
+              <Select
+                value={form.status || '__select__'}
                 onChange={(e) => {
                   const v = e.target.value;
-                  if (v === 'DRAFT') setForm((f) => ({ ...f, status: 'DRAFT', visibility: 'PUBLISHED', publishType: 'now' }));
-                  else setForm((f) => ({ ...f, status: v, visibility: v, publishType: v === 'PUBLISHED' ? f.publishType : 'now' }));
+                  if (v === '__select__') return;
+                  setForm((f) => ({ ...f, status: v, visibility: v, publishType: v === 'PUBLISHED' ? f.publishType : 'now' }));
                 }}
+                displayEmpty
+                renderValue={(v) => (v === '__select__' || !v ? '발행 상태를 선택하세요' : v === 'PUBLISHED' ? '공개' : v === 'UNLISTED' ? '일부공개' : v === 'PRIVATE' ? '비공개' : v)}
               >
-                <FormControlLabel value="DRAFT" control={<Radio size="small" />} label="임시저장" />
-                <FormControlLabel value="PUBLISHED" control={<Radio size="small" />} label="공개" />
-                <FormControlLabel value="UNLISTED" control={<Radio size="small" />} label="일부공개" />
-                <FormControlLabel value="PRIVATE" control={<Radio size="small" />} label="비공개" />
-              </RadioGroup>
+                <MenuItem value="__select__" disabled>발행 상태를 선택하세요</MenuItem>
+                <MenuItem value="PUBLISHED">공개</MenuItem>
+                <MenuItem value="UNLISTED">일부공개</MenuItem>
+                <MenuItem value="PRIVATE">비공개</MenuItem>
+              </Select>
             </FormControl>
-            {form.status !== 'DRAFT' && form.visibility === 'PUBLISHED' && (
+            {form.visibility === 'PUBLISHED' && (
               <div className="pl-1">
                 <RadioGroup
                   row
@@ -559,8 +634,61 @@ export default function PostEditor({ isEdit = false, postId = null }) {
           </div>
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 mb-2">썸네일</label>
-          <FormControlLabel control={<Checkbox checked={useFirstImageAsThumb} onChange={(e) => setUseFirstImageAsThumb(e.target.checked)} />} label="본문 첫 이미지를 썸네일로" />
+          <label className="block text-sm font-medium text-gray-900 mb-2">파일 첨부</label>
+          <p className="text-xs text-gray-500 mb-2">PNG, JPG, JPEG, PDF, PPT, PPTX, HWP, HWPX, DOCX (각 10MB 이하, 다중 선택 가능)</p>
+          <input
+            ref={attachmentInputRef}
+            type="file"
+            accept={ATTACH_ACCEPT}
+            multiple
+            className="hidden"
+            onChange={handleAttachmentSelect}
+          />
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => attachmentInputRef.current?.click()}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); attachmentInputRef.current?.click(); } }}
+            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-blue-400', 'bg-gray-50'); }}
+            onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-blue-400', 'bg-gray-50'); }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.currentTarget.classList.remove('border-blue-400', 'bg-gray-50');
+              const files = Array.from(e.dataTransfer?.files || []);
+              if (files.length) {
+                const dt = new DataTransfer();
+                files.forEach((f) => dt.items.add(f));
+                if (attachmentInputRef.current) attachmentInputRef.current.files = dt.files;
+                handleAttachmentSelect({ target: { files: dt.files, value: '' } });
+              }
+            }}
+            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-gray-50 transition-colors"
+          >
+            {attachmentUploading ? (
+              <p className="text-gray-500">업로드 중...</p>
+            ) : (
+              <>
+                <p className="text-gray-600">클릭하거나 파일을 끌어다 놓으세요</p>
+                <p className="text-sm text-gray-400 mt-1">여러 파일 선택 가능</p>
+              </>
+            )}
+          </div>
+          {attachmentList.length > 0 && (
+            <ul className="mt-3 space-y-2">
+              {attachmentList.map((a) => (
+                <li key={a.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded border border-gray-200">
+                  <span className="text-sm text-gray-800 truncate">{a.original_name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeAttachment(a.id)}
+                    className="text-red-600 hover:text-red-800 text-sm font-medium ml-2 shrink-0"
+                  >
+                    삭제
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <Divider sx={{ my: 2 }} />
         <div className="flex justify-end gap-3">
@@ -569,7 +697,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
               목록으로
             </Button>
           )}
-          <Button variant="contained" onClick={handleSave} disabled={saving}>
+          <Button variant="contained" onClick={handleSave} disabled={saving || !canSave}>
             {saving ? <CircularProgress size={24} /> : isEdit ? '수정' : '저장'}
           </Button>
         </div>
