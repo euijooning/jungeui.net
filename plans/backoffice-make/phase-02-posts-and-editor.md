@@ -49,3 +49,10 @@
 ## 구현 현황
 
 Phase 02 완료. 실제 라우트·파일은 `apps/backoffice/src/App.jsx` CustomRoutes 기준: `/posts`, `/posts/new`, `/posts/:postId`, `/posts/:postId/edit`. 포스트 상세(PostDetail)·첨부파일(다중 업로드·상세 목록·다운로드) 포함. 상세 구현은 [docs/backoffice/README.md](../../docs/backoffice/README.md) 참고.
+
+### 추가 적용 사항
+
+- **대시보드 아이콘**: 사이드바 대시보드 메뉴 아이콘 `fa-th`(네모 4개 그리드) 사용.
+- **저장 후 이동**: 글 등록/수정 완료 시 **포스트 목록**(`/posts`)으로 리다이렉트 (대시보드 아님).
+- **수정 시 발행일 유지**: 수정 저장 시 `published_at`을 **현재 시각으로 덮어쓰지 않음**. 기존 발행일 유지로 목록 순서 변경 없음. 예약 발행일 변경 시에만 `published_at` 갱신.
+- **포스트 상세**: 제목은 상단에 한 번만 표시. **본문** 라벨은 컨테이너(흰 카드) **밖** 상단에 표시 후, 본문 내용만 카드 안에 렌더링.

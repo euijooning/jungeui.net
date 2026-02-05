@@ -118,6 +118,12 @@ palette: {
 - [x] **15** Modal/라이트박스: 이미지 확대용 (글 상세).
 - [x] **16** 공통 컴포넌트는 `shared/ui-kit/components/` (필요 시 `react/` 하위)에 정의.
 
+### 헤더·네비 추가 적용 (갱신)
+
+- **로고**: 높이 36px (favicon).
+- **메뉴 링크(Posts/About)**: 간격 2rem. 호버 시 밑줄은 **text-decoration 대신 border-bottom** 사용(잘림 방지).
+- **scrollbar-gutter: stable** (html): 목록↔상세 전환 시 스크롤바 유무로 인한 레이아웃 밀림 방지.
+
 ---
 
 ## Phase 01 완료 점검 (구현 후 실행 후 보고)
