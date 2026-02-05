@@ -1,5 +1,5 @@
 """
-Jungeui Labs - DB 초기화 및 테이블 생성.
+Jungeui Lab- DB 초기화 및 테이블 생성.
 사용: python scripts/db_init.py
 환경변수: MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE (기본 jungeui)
 """

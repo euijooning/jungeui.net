@@ -1,4 +1,4 @@
-# Jungeui Labs API 명세
+# Jungeui LabAPI 명세
 
 API 베이스: `http://localhost:8009` (또는 환경변수 `VITE_API_URL` / 백오피스)
 

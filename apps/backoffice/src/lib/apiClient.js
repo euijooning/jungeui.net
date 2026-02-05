@@ -1,4 +1,4 @@
-// Jungeui Labs API (루트 .env 의 VITE_API_URL 사용)
+// Jungeui LabAPI (루트 .env 의 VITE_API_URL 사용)
 const API_BASE = import.meta.env.VITE_API_URL;
 if (!API_BASE) console.error('VITE_API_URL is required in .env');
 

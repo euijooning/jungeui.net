@@ -1,4 +1,4 @@
-"""Jungeui Labs REST API - FastAPI 진입점."""
+"""Jungeui LabREST API - FastAPI 진입점."""
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
@@ -11,7 +11,7 @@ from apps.api.core.config import NAKED_HOST, REDIRECT_WWW_TO_NAKED, WWW_HOST
 from apps.api.routers import api_router
 
 app = FastAPI(
-    title="Jungeui Labs API",
+    title="Jungeui LabAPI",
     description="블로그·포트폴리오 백엔드",
     version="0.1.0",
 )
@@ -45,4 +45,4 @@ app.include_router(api_router)
 
 @app.get("/")
 def root():
-    return {"message": "Jungeui Labs API", "docs": "/docs"}
+    return {"message": "Jungeui LabAPI", "docs": "/docs"}

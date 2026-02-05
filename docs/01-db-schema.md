@@ -1,4 +1,4 @@
-# Jungeui Labs DB 스키마 (v5.0)
+# Jungeui LabDB 스키마 (v5.0)
 
 MySQL 8.0 / MariaDB 기준. utf8mb4 사용.
 

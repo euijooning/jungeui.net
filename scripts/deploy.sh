@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Jungeui Labs - 배포 자동화 (예시)
+# Jungeui Lab- 배포 자동화 (예시)
 # 사용: bash scripts/deploy.sh
 # 실제 서버 경로·환경에 맞게 수정 후 사용하세요.
 

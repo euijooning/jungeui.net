@@ -11,7 +11,7 @@ export default function Dashboard() {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>Jungeui Labs 대시보드</Typography>
+      <Typography variant="h5" gutterBottom>Jungeui Lab대시보드</Typography>
       <Typography color="text.secondary" paragraph>
         사이트 현황을 한눈에 파악합니다.
       </Typography>
