@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ThemeProvider } from './ThemeContext';
+import { ThemeProvider } from './ThemeContext'; // ThemeContext 파일은 있다고 가정
 import App from './App';
 import './index.css';
 

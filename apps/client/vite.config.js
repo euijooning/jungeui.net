@@ -22,6 +22,12 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: parseInt(env.VITE_CLIENT_PORT || '5182', 10),
+      proxy: env.VITE_API_URL
+        ? {
+            '/api': { target: env.VITE_API_URL, changeOrigin: true },
+            '/static': { target: env.VITE_API_URL, changeOrigin: true },
+          }
+        : {},
     },
   };
 });
