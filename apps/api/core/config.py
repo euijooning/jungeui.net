@@ -20,7 +20,8 @@ DATABASE_URL = (
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24h
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24h (로그인 유지 미선택 시)
+ACCESS_TOKEN_EXPIRE_DAYS_REMEMBER = 30  # 로그인 유지 선택 시 최대 30일
 
 UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "uploads")).resolve()
 if not UPLOAD_DIR.is_absolute():

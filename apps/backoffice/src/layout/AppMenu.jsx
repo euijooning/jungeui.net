@@ -12,10 +12,10 @@ import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 
 const menuItems = [
   { to: '/', label: '대시보드', icon: <DashboardIcon /> },
-  { to: '/posts', label: '글 관리', icon: <ArticleIcon /> },
-  { to: '/write', label: '글 쓰기', icon: <EditNoteIcon /> },
-  { to: '/careers', label: '경력 관리', icon: <WorkIcon /> },
-  { to: '/projects', label: '프로젝트 관리', icon: <FolderIcon /> },
+  { to: '/posts', label: '포스트 목록', icon: <ArticleIcon /> },
+  { to: '/posts/new', label: '새 포스트', icon: <EditNoteIcon /> },
+  { to: '/careers', label: '경력', icon: <WorkIcon /> },
+  { to: '/projects', label: '프로젝트', icon: <FolderIcon /> },
   { to: '/assets', label: '파일 보관함', icon: <PhotoLibraryIcon /> },
 ];
 

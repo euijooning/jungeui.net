@@ -1,4 +1,4 @@
-# Jungeui Labs
+# Jungeui Lab
 
 사고 과정(Process)과 결과물(Output)을 보여주는 브랜딩 채널.  
 기술 블로그 + 포트폴리오(경력/프로젝트) + 커스텀 백오피스.
@@ -17,3 +17,4 @@
 - [01-db-schema.md](docs/01-db-schema.md) — DB 테이블 정의
 - [02-api-spec.md](docs/02-api-spec.md) — API 명세
 - [03-folder-structure.md](docs/03-folder-structure.md) — 폴더 구조 상세
+- [plans/backoffice-make/](plans/backoffice-make/) — 백오피스 구현 가이드 (Phase 01 완료)

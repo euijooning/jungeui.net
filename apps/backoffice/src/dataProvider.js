@@ -1,16 +1,13 @@
 import { fetchUtils } from 'react-admin';
 import { stringify } from 'query-string';
+import { getAccessToken } from './lib/apiClient';
 
 const apiBase = import.meta.env.VITE_API_URL;
 if (!apiBase) console.error('VITE_API_URL is required in .env');
 const apiUrl = `${apiBase || ''}/api`;
 
-/**
- * JWT 토큰을 로컬스토리지에서 읽는 함수
- * (백엔드에서 쿠키 기반이라면 localStorage 대신 자동 쿠키 전송)
- */
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('access_token');
+  const token = getAccessToken();
   const headers = new Headers({ Accept: 'application/json' });
   if (token) headers.set('Authorization', `Bearer ${token}`);
   headers.set('Content-Type', 'application/json');

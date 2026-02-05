@@ -6,12 +6,14 @@ import { dataProvider } from "./dataProvider";
 import AdminLayout from "./components/AdminLayout";
 import LoginPage from "./components/LoginPage";
 import { adminTheme } from "./styles/AdminTheme";
-import Dashboard from "./pages/Dashboard";
-import PostsList from "./pages/PostsList";
-import Write from "./pages/Write";
-import CareersList from "./pages/CareersList";
-import ProjectsList from "./pages/ProjectsList";
-import AssetsList from "./pages/AssetsList";
+import Dashboard from "./pages/dashboard/Dashboard";
+import PostList from "./pages/posts/PostList";
+import PostDetail from "./pages/posts/PostDetail";
+import PostNew from "./pages/posts/PostNew";
+import PostEdit from "./pages/posts/PostEdit";
+import CareerList from "./pages/careers/CareerList";
+import ProjectList from "./pages/projects/ProjectList";
+import AssetList from "./pages/assets/AssetList";
 
 export default function AdminApp() {
   return (
@@ -28,12 +30,13 @@ export default function AdminApp() {
     >
       <CustomRoutes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/posts" element={<PostsList />} />
-        <Route path="/write" element={<Write />} />
-        <Route path="/write/:id" element={<Write />} />
-        <Route path="/careers" element={<CareersList />} />
-        <Route path="/projects" element={<ProjectsList />} />
-        <Route path="/assets" element={<AssetsList />} />
+        <Route path="/posts" element={<PostList />} />
+        <Route path="/posts/new" element={<PostNew />} />
+        <Route path="/posts/:postId/edit" element={<PostEdit />} />
+        <Route path="/posts/:postId" element={<PostDetail />} />
+        <Route path="/careers" element={<CareerList />} />
+        <Route path="/projects" element={<ProjectList />} />
+        <Route path="/assets" element={<AssetList />} />
       </CustomRoutes>
     </Admin>
   );

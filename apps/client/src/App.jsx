@@ -25,7 +25,7 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header style={{ padding: '1rem 2rem', borderBottom: '1px solid #eee' }}>
-        <Link to="/" style={{ marginRight: '1rem', textDecoration: 'none', color: 'inherit' }}>Jungeui Labs</Link>
+        <Link to="/" style={{ marginRight: '1rem', textDecoration: 'none', color: 'inherit' }}>Jungeui Lab</Link>
         <Link to="/" style={{ marginRight: '1rem', textDecoration: 'none', color: 'inherit' }}>Posts</Link>
         <Link to="/about" style={{ marginRight: '1rem', textDecoration: 'none', color: 'inherit' }}>About</Link>
       </header>
@@ -36,7 +36,7 @@ export default function App() {
         </Routes>
       </main>
       <footer style={{ padding: '1rem 2rem', borderTop: '1px solid #eee', fontSize: '0.875rem', color: '#666' }}>
-        © 2026 Jungeui Labs. All rights reserved.
+        © 2026 Jungeui Lab. All rights reserved.
       </footer>
     </div>
   );

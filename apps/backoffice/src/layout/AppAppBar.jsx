@@ -1,48 +1,18 @@
 import { useState } from 'react'
-import { useLocation, Link } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useRedirect, useLogout } from 'react-admin'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 
 function getPageTitleByPath(path) {
-	switch (path) {
-		case '/':
-			return '대시보드'
-		case '/users':
-			return '회원 관리'
-		case '/bulletins':
-			return '주보 관리'
-		case '/sermons':
-			return '설교 관리'
-		case '/columns':
-			return '칼럼 관리'
-		case '/library':
-			return '자료실 관리'
-		case '/albums':
-			return '앨범 관리'
-		case '/banners':
-			return '팝업/배너 관리'
-		case '/news/history':
-			return '연혁 관리'
-		case '/news/events':
-			return '교회일정 관리'
-		case '/news/staff':
-			return '섬기는 이 관리'
-		case '/registry/members':
-			return '교인 관리'
-		case '/registry/attendance':
-			return '출석 관리'
-		case '/registry/visitation':
-			return '심방 관리'
-		case '/registry/education':
-			return '교육 관리'
-		case '/settings/notifications':
-			return '알림'
-		case '/settings/basic':
-			return '기본 설정'
-		default:
-			return '관리자 시스템'
-	}
+	if (path === '/') return '대시보드'
+	if (path === '/posts') return '글 관리'
+	if (path === '/posts/new') return '새 포스트'
+	if (/^\/posts\/[^/]+\/edit$/.test(path)) return '포스트 수정'
+	if (path === '/careers') return '경력'
+	if (path === '/projects') return '프로젝트'
+	if (path === '/assets') return '파일 보관함'
+	return 'JUNGEUI LAB ADMIN'
 }
 
 export default function AppAppBar({ onMenuClick, height = 56 }) {
@@ -85,14 +55,6 @@ export default function AppAppBar({ onMenuClick, height = 56 }) {
 
 					{/* Right side */}
 					<div className="flex items-center space-x-2">
-						{/* Notifications */}
-						<Link
-							to="/notifications"
-							className="p-2 rounded-md text-gray-500 hover:text-gray-700 relative"
-						>
-							<i className="fas fa-bell text-lg"></i>
-						</Link>
-
 						{/* User menu */}
 						<div className="relative">
 							<button
@@ -115,22 +77,6 @@ export default function AppAppBar({ onMenuClick, height = 56 }) {
 									id="user-dropdown"
 									className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
 								>
-									<Link
-										to="/settings/basic"
-										className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-										onClick={() => setUserDropdownOpen(false)}
-									>
-										설정
-									</Link>
-									<hr className="my-1 border-gray-200" />
-									<Link
-										to="/"
-										className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-										onClick={() => setUserDropdownOpen(false)}
-									>
-										사이트 홈
-									</Link>
-									<hr className="my-1 border-gray-200" />
 									<button
 										id="logout-button"
 										onClick={() => {

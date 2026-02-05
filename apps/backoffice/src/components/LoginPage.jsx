@@ -12,7 +12,7 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    login({ username: email, password }, '/').catch(() => {
+    login({ username: email, password, rememberMe }, '/').catch(() => {
       notify('이메일 또는 비밀번호가 올바르지 않습니다.', { type: 'error' });
     });
   };
@@ -68,7 +68,7 @@ const LoginPage = () => {
               marginBottom: 0.5,
             }}
           >
-            Jungeui Labs
+            정의랩 관리자
           </Typography>
         </Box>
 
@@ -113,7 +113,7 @@ const LoginPage = () => {
                 color="primary"
               />
             }
-            label="로그인 유지"
+            label="로그인 유지 (최대 30일)"
             sx={{ marginTop: 1, marginBottom: 2 }}
           />
 

@@ -46,16 +46,21 @@ def main():
     )
     try:
         with conn.cursor() as cur:
-            # 관리자 (이미 있으면 스킵)
+            # 관리자 (없으면 생성, 있으면 .env 비밀번호/이름으로 갱신)
             cur.execute("SELECT id FROM users WHERE email = %s", (SEED_ADMIN_EMAIL,))
-            if cur.fetchone() is None:
+            row = cur.fetchone()
+            if row is None:
                 cur.execute(
                     "INSERT INTO users (email, password_hash, name) VALUES (%s, %s, %s)",
                     (SEED_ADMIN_EMAIL, password_hash, SEED_ADMIN_NAME),
                 )
                 print("관리자 계정 생성:", SEED_ADMIN_EMAIL)
             else:
-                print("관리자 계정 이미 존재:", SEED_ADMIN_EMAIL)
+                cur.execute(
+                    "UPDATE users SET password_hash = %s, name = %s WHERE email = %s",
+                    (password_hash, SEED_ADMIN_NAME, SEED_ADMIN_EMAIL),
+                )
+                print("관리자 계정 비밀번호/이름 갱신:", SEED_ADMIN_EMAIL)
 
             # 기본 카테고리 (없을 때만)
             categories = [

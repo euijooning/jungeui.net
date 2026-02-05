@@ -1,23 +1,56 @@
-// Jungeui LabAPI (루트 .env 의 VITE_API_URL 사용)
-const API_BASE = import.meta.env.VITE_API_URL;
-if (!API_BASE) console.error('VITE_API_URL is required in .env');
+/**
+ * Jungeui Lab API client (루트 .env의 VITE_API_URL 사용)
+ *
+ * - 개발: 상대 경로(/api/...) 사용 → Vite proxy가 VITE_API_URL로 전달 (same-origin, CORS 없음)
+ * - 프로덕션: VITE_API_URL 기준 절대 URL 사용
+ * - 네트워크 실패 시 status=0, isNetworkError=true 인 Error throw (호출부에서 구분 가능)
+ */
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const isDev = import.meta.env.DEV;
+
+if (isDev && !import.meta.env.VITE_API_URL) {
+  console.warn('[apiClient] VITE_API_URL not set; /api requests will use current origin.');
+}
+
+function getAccessToken() {
+  return localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+}
+
+function getAuthHeaders() {
+  const token = getAccessToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return headers;
+}
+
+function resolveUrl(path) {
+  if (path.startsWith('http')) return path;
+  const base = isDev && API_BASE ? '' : API_BASE;
+  const segment = path.startsWith('/') ? path : `/${path}`;
+  return base ? `${base}${segment}` : segment;
+}
 
 const apiClient = {
   async request(url, options = {}) {
-    // URL이 절대 경로가 아니면 JSON Server URL 추가
-    const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
-    
-    const defaultOptions = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+    const fullUrl = resolveUrl(url);
+    const init = {
+      ...options,
+      headers: { ...getAuthHeaders(), ...(options.headers || {}) },
     };
 
-    const response = await fetch(fullUrl, { ...defaultOptions, ...options });
-    
+    let response;
+    try {
+      response = await fetch(fullUrl, init);
+    } catch (e) {
+      const err = new Error(e?.message || 'Network request failed');
+      err.status = 0;
+      err.response = { status: 0, data: null };
+      err.isNetworkError = true;
+      throw err;
+    }
+
     if (!response.ok) {
-      const error = new Error(`HTTP error! status: ${response.status}`);
+      const error = new Error(`HTTP ${response.status}`);
       error.status = response.status;
       error.response = {
         status: response.status,
@@ -26,11 +59,8 @@ const apiClient = {
       throw error;
     }
 
-    return {
-      data: await response.json().catch(() => ({})),
-      status: response.status,
-      headers: response.headers,
-    };
+    const data = await response.json().catch(() => ({}));
+    return { data, status: response.status, headers: response.headers };
   },
 
   get(url, options = {}) {
@@ -58,4 +88,5 @@ const apiClient = {
   },
 };
 
+export { getAccessToken };
 export default apiClient;

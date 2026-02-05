@@ -38,7 +38,7 @@ export default function AppSidebar({
 							<i className="fas fa-landmark text-white text-md"></i>
 						</div>
 						<span className="text-md font-semibold text-white">
-							Jungeui Lab
+							JUNGEUI LAB ADMIN
 						</span>
 					</Link>
 				</div>

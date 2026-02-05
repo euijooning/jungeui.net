@@ -1,12 +1,15 @@
 """Jungeui LabREST API - FastAPI 진입점."""
+from pathlib import Path
+
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
+from starlette.staticfiles import StaticFiles
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from apps.api.core import CORS_ORIGINS
+from apps.api.core import CORS_ORIGINS, UPLOAD_DIR
 from apps.api.core.config import NAKED_HOST, REDIRECT_WWW_TO_NAKED, WWW_HOST
 from apps.api.routers import api_router
 
@@ -41,6 +44,11 @@ app.add_middleware(
 )
 
 app.include_router(api_router)
+
+# 업로드 파일 서빙
+_upload_dir = Path(UPLOAD_DIR)
+_upload_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/static/uploads", StaticFiles(directory=str(_upload_dir)), name="uploads")
 
 
 @app.get("/")

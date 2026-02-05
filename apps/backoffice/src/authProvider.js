@@ -5,12 +5,35 @@ if (!API_BASE) console.error('VITE_API_URL is required in .env');
 const STORAGE_USER = 'user';
 const STORAGE_TOKEN = 'access_token';
 
+function getStorage(rememberMe) {
+  return rememberMe ? localStorage : sessionStorage;
+}
+
+function getToken() {
+  return localStorage.getItem(STORAGE_TOKEN) || sessionStorage.getItem(STORAGE_TOKEN);
+}
+
+function getUser() {
+  return localStorage.getItem(STORAGE_USER) || sessionStorage.getItem(STORAGE_USER);
+}
+
+function clearAuth() {
+  localStorage.removeItem(STORAGE_USER);
+  localStorage.removeItem(STORAGE_TOKEN);
+  sessionStorage.removeItem(STORAGE_USER);
+  sessionStorage.removeItem(STORAGE_TOKEN);
+}
+
 export const authProvider = {
-  login: ({ username, password }) => {
+  login: ({ username, password, rememberMe = false }) => {
     return fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({
+        username,
+        password,
+        remember_me: !!rememberMe,
+      }),
     })
       .then((res) => {
         if (res.ok) return res.json();
@@ -19,8 +42,9 @@ export const authProvider = {
         });
       })
       .then((data) => {
-        localStorage.setItem(STORAGE_TOKEN, data.access_token);
-        localStorage.setItem(STORAGE_USER, JSON.stringify(data.user));
+        const storage = getStorage(rememberMe);
+        storage.setItem(STORAGE_TOKEN, data.access_token);
+        storage.setItem(STORAGE_USER, JSON.stringify(data.user));
         return Promise.resolve();
       })
       .catch((err) => {
@@ -32,14 +56,13 @@ export const authProvider = {
   },
 
   logout: () => {
-    localStorage.removeItem(STORAGE_USER);
-    localStorage.removeItem(STORAGE_TOKEN);
+    clearAuth();
     return Promise.resolve();
   },
 
   checkAuth: () => {
-    const token = localStorage.getItem(STORAGE_TOKEN);
-    const user = localStorage.getItem(STORAGE_USER);
+    const token = getToken();
+    const user = getUser();
     if (!token && !user) return Promise.reject(new Error('인증이 필요합니다.'));
     return Promise.resolve();
   },
@@ -47,8 +70,7 @@ export const authProvider = {
   checkError: (error) => {
     const status = error?.status || error?.response?.status;
     if (status === 401 || status === 403) {
-      localStorage.removeItem(STORAGE_USER);
-      localStorage.removeItem(STORAGE_TOKEN);
+      clearAuth();
       return Promise.reject();
     }
     return Promise.resolve();
@@ -56,7 +78,8 @@ export const authProvider = {
 
   getIdentity: () => {
     try {
-      const user = JSON.parse(localStorage.getItem(STORAGE_USER) || '{}');
+      const raw = getUser();
+      const user = raw ? JSON.parse(raw) : {};
       return Promise.resolve({
         id: user.id,
         fullName: user.name || user.email,

@@ -10,7 +10,7 @@
 
 **파일**: `apps/backoffice/src/components/AdminLayout.jsx`
 
-- **navSections**: 회원 관리, 콘텐츠 관리, 교회소개, 교적, 설정, 가족모임 관리 전부 제거. Jungeui 6개만 유지: 대시보드(/), 글 관리(/posts), 글 쓰기(/write), 경력(/careers), 프로젝트(/projects), 파일 보관함(/assets). (단, 실제 메뉴는 AppSidebar + AppMenu에서 렌더하므로 AdminLayout 내부 네비는 제거하거나 Jungeui 6개와 동일하게 단순화.)
+- **navSections**: 회원 관리, 콘텐츠 관리, 교회소개, 교적, 설정, 가족모임 관리 전부 제거. Jungeui 6개만 유지: 대시보드(/), 글(아코디언·글 목록 /posts), 글 쓰기(/posts/new), 경력(/careers), 프로젝트(/projects), 파일 보관함(/assets).
 - **아코디언 state**: `contentAccordionOpen`, `usersAccordionOpen`, `churchAccordionOpen`, `membershipAccordionOpen`, `settingsAccordionOpen` 및 관련 `useEffect` 제거.
 - **getPageTitle**: 레거시 경로 매핑 제거. `/`, `/posts`, `/write`, `/careers`, `/projects`, `/assets` 만 매핑.
 - **loadUserInfo**: `/api/auth/me` 호출 시 응답 필드가 Jungeui API 스펙(name 등)에 맞게 처리. nickname → name 등.
@@ -27,7 +27,7 @@
 **파일**: `apps/backoffice/src/pages/Dashboard.jsx`
 
 - **통계**: GET /api/dashboard/stats (또는 동일 스펙) 연동. 오늘/어제 방문자, 누적 조회수 등 표시. API 미구현 시 플레이스홀더 유지.
-- **Quick Action**: [새 글 쓰기] → `/write`, [경력 추가] → `/careers` (이미 있으면 유지).
+- **Quick Action**: [새 글 쓰기] → `/posts/new`, [경력 추가] → `/careers`.
 - **Recent Activity**: 최근 글 5개, 최근 댓글(Utterances 연동 시) 영역. API 준비되면 연동.
 
 ## 완료 기준
@@ -35,3 +35,9 @@
 - AdminLayout에 은혜이음 전용 메뉴·경로·getPageTitle 없음.
 - 대시보드에서 통계 API 호출(또는 준비 후 연동 가능한 구조).
 - 로그인·dataProvider가 02-api-spec 기준으로 동작.
+
+---
+
+## Phase 01 완료
+
+- 위 완료 기준 충족. AdminLayout Jungeui 6개 메뉴만 유지, getPageTitle 레거시 제거, loadUserInfo Jungeui 스펙(name 등), apiClient/dataProvider/authProvider VITE_API_URL·02-api-spec 연동, 대시보드 GET /api/dashboard/stats·바로가기(/posts/new, /careers)·Recent Activity 플레이스홀더 반영됨.
