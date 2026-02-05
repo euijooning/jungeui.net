@@ -100,9 +100,12 @@ async def upload_file(
             "size_bytes": len(content),
         },
     )
-    db.commit()
     row = db.execute(text("SELECT LAST_INSERT_ID()")).fetchone()
-    asset_id = row[0] if row else None
+    asset_id = (row[0] if row and row[0] else None)
+    db.commit()
+    if not asset_id:
+        row2 = db.execute(text("SELECT id FROM assets ORDER BY id DESC LIMIT 1")).fetchone()
+        asset_id = row2[0] if row2 else None
 
     return {"id": asset_id, "url": url, "original_name": original_name}
 
