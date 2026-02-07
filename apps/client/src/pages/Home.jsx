@@ -70,29 +70,38 @@ export default function Home() {
     return range;
   };
 
+  const paginationBtn =
+    'w-9 h-9 flex items-center justify-center border rounded-lg text-base transition-colors border-[#C2CFDA] dark:border-[var(--ui-border)] bg-[var(--ui-background-secondary)] text-[var(--ui-text)] disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-[var(--ui-border)]';
+  const paginationNum =
+    'min-w-[36px] h-9 px-2 flex items-center justify-center border rounded-lg text-[0.9375rem] transition-colors border-[#C2CFDA] dark:border-[var(--ui-border)] bg-[var(--ui-background-secondary)] text-[var(--ui-text)] hover:bg-[var(--ui-border)]';
+  const paginationActive =
+    'bg-[var(--ui-primary)] border-[var(--ui-primary)] text-white hover:bg-[var(--ui-primary-hover)] hover:border-[var(--ui-primary-hover)]';
+
   return (
     <SharedLayout categories={categories} currentCategoryId={categoryId || null}>
-      <div className="search-result-strip">
+      <div className="mb-3 min-h-6">
         {q && (
-          <p className="search-result-strip__text">&quot;{q}&quot; 검색 결과 {total}건</p>
+          <p className="m-0 text-[0.9375rem] theme-text-secondary">
+            &quot;{q}&quot; 검색 결과 {total}건
+          </p>
         )}
       </div>
-      <div className="post-list-center">
+      <div className="w-full flex flex-col gap-4">
         {loading ? (
-          <div className="list-message">로딩 중...</div>
+          <div className="theme-text-secondary text-center py-8">로딩 중...</div>
         ) : (
           <>
             {posts.length === 0 ? (
-              <div className="list-message">게시글이 없습니다.</div>
+              <div className="theme-text-secondary text-center py-8">게시글이 없습니다.</div>
             ) : (
-              <div className="post-grid">
+              <div className="flex flex-col gap-6 w-full [&>a]:no-underline [&>a]:text-inherit [&>a]:block group/list">
                 {posts.map((post) => {
                   const meta = formatDate(post.published_at || post.created_at) || '';
                   const categories = post.category_id != null && post.category_name
                     ? [{ id: post.category_id, name: post.category_name }]
                     : [];
                   return (
-                    <Link key={post.id} to={`/posts/${post.id}`}>
+                    <Link key={post.id} to={`/posts/${post.id}`} className="group/card">
                       <Card
                         listMode
                         title={post.title}
@@ -100,6 +109,7 @@ export default function Home() {
                         meta={meta}
                         categories={categories}
                         thumbnail={post.thumbnail}
+                        className="group-hover/card:-translate-y-0.5 group-hover/card:shadow-md"
                       />
                     </Link>
                   );
@@ -107,20 +117,20 @@ export default function Home() {
               </div>
             )}
 
-            <nav className="pagination" aria-label="페이지 네비게이션">
-              <div className="pagination__group">
-                <button type="button" className="pagination__btn" disabled={page <= 1} onClick={() => setPage(page - 1)} aria-label="이전 페이지">&#8249;</button>
-                <button type="button" className="pagination__btn" disabled={page <= 1} onClick={() => setPage(1)} aria-label="첫 페이지">&#171;</button>
+            <nav className="flex items-center justify-center gap-2 mt-8 flex-wrap" aria-label="페이지 네비게이션">
+              <div className="flex items-center gap-1">
+                <button type="button" className={paginationBtn} disabled={page <= 1} onClick={() => setPage(page - 1)} aria-label="이전 페이지">&#8249;</button>
+                <button type="button" className={paginationBtn} disabled={page <= 1} onClick={() => setPage(1)} aria-label="첫 페이지">&#171;</button>
               </div>
-              <div className="pagination__numbers">
+              <div className="flex items-center gap-1">
                 {paginationRange().map((n, i) =>
                   n === '…' ? (
-                    <span key={`ellipsis-${i}`} className="pagination__ellipsis">…</span>
+                    <span key={`ellipsis-${i}`} className="min-w-[36px] h-9 flex items-center justify-center text-[0.9375rem] theme-text-secondary">…</span>
                   ) : (
                     <button
                       key={n}
                       type="button"
-                      className={`pagination__num ${page === n ? 'pagination__num--active' : ''}`}
+                      className={`${paginationNum} ${page === n ? paginationActive : ''}`}
                       onClick={() => setPage(n)}
                       aria-label={`${n}페이지`}
                       aria-current={page === n ? 'page' : undefined}
@@ -130,9 +140,9 @@ export default function Home() {
                   )
                 )}
               </div>
-              <div className="pagination__group">
-                <button type="button" className="pagination__btn" disabled={page >= totalPages} onClick={() => setPage(totalPages)} aria-label="마지막 페이지">&#187;</button>
-                <button type="button" className="pagination__btn" disabled={page >= totalPages} onClick={() => setPage(page + 1)} aria-label="다음 페이지">&#8250;</button>
+              <div className="flex items-center gap-1">
+                <button type="button" className={paginationBtn} disabled={page >= totalPages} onClick={() => setPage(totalPages)} aria-label="마지막 페이지">&#187;</button>
+                <button type="button" className={paginationBtn} disabled={page >= totalPages} onClick={() => setPage(page + 1)} aria-label="다음 페이지">&#8250;</button>
               </div>
             </nav>
           </>

@@ -30,6 +30,9 @@ const closeIcon = (
   </svg>
 );
 
+const linkBase = "block text-[0.9375rem] no-underline py-2 px-3 rounded-lg transition-colors theme-link";
+const linkActive = "theme-link-active text-[0.9375rem]";
+
 export default function SharedLayout({ categories = [], currentCategoryId = null, children }) {
   const { theme, setTheme } = useTheme();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -40,29 +43,29 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
 
   const sidebarContent = hasCategories ? (
     <>
-      <hr className="sidebar-divider" />
+      <hr className="h-0 border-0 m-0 mb-4" />
       <nav className="sidebar-categories" aria-label="카테고리">
-        <h2 className="sidebar-categories__title">카테고리</h2>
-        <ul>
-          <li>
-            <Link to="/" className={!currentCategoryId ? 'is-active' : ''}>전체</Link>
+        <h2 className="text-xl font-semibold theme-text-secondary uppercase tracking-wide mb-3 pl-3">카테고리</h2>
+        <ul className="list-none p-0 m-0">
+          <li className="mb-1">
+            <Link to="/" className={`${linkBase} ${!currentCategoryId ? linkActive : ''}`}>전체</Link>
           </li>
           {isTree ? (
             categories.map((root) => (
-              <li key={root.id}>
+              <li key={root.id} className="mb-1">
                 <Link
                   to={`/?category_id=${root.id}`}
-                  className={currentCategoryId === String(root.id) ? 'is-active' : ''}
+                  className={`${linkBase} ${currentCategoryId === String(root.id) ? linkActive : ''}`}
                 >
                   {root.name}
                 </Link>
                 {root.children?.length > 0 && (
-                  <ul className="sidebar-categories__sub">
+                  <ul className="list-none pl-3 mt-1 mb-2 ml-6 border-l-2 theme-border">
                     {root.children.map((child) => (
-                      <li key={child.id}>
+                      <li key={child.id} className="mb-0.5">
                         <Link
                           to={`/?category_id=${child.id}`}
-                          className={currentCategoryId === String(child.id) ? 'is-active' : ''}
+                          className={`${linkBase} py-1.5 pl-0 text-[0.9rem] ${currentCategoryId === String(child.id) ? linkActive : ''}`}
                         >
                           {child.name}
                         </Link>
@@ -74,10 +77,10 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
             ))
           ) : (
             categories.map((cat) => (
-              <li key={cat.id}>
+              <li key={cat.id} className="mb-1">
                 <Link
                   to={`/?category_id=${cat.id}`}
-                  className={currentCategoryId === String(cat.id) ? 'is-active' : ''}
+                  className={`${linkBase} ${currentCategoryId === String(cat.id) ? linkActive : ''}`}
                 >
                   {cat.name}
                 </Link>
@@ -127,33 +130,35 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
   const currentQ = searchParams.get('q') ?? '';
 
   const header = (
-    <nav className="area_navi">
-      <div className="area_navi__inner">
-        <Link to="/" className="logo" aria-label="홈으로 이동">
-          <img src="/favicon.png" alt="Jungeui Lab" />
+    <nav className="flex items-center justify-between flex-wrap gap-3 md:flex-nowrap">
+      <div className="flex items-center gap-8 md:gap-8">
+        <Link to="/" className="block" aria-label="홈으로 이동">
+          <img src="/favicon.png" alt="Jungeui Lab" className="block h-9 w-auto" />
         </Link>
-        <nav className="area_navi__links">
-          <Link to="/">Posts</Link>
-          <Link to="/about">About</Link>
+        <nav className="flex gap-8 items-center" aria-label="메인 메뉴">
+          <Link to="/" className="theme-nav-link text-lg pb-0.5 border-b border-transparent -mb-px transition-colors">Posts</Link>
+          <Link to="/about" className="theme-nav-link text-lg pb-0.5 border-b border-transparent -mb-px transition-colors">About</Link>
         </nav>
       </div>
-      <div className="area_navi__right">
-        <form className="header-search" onSubmit={handleSearch} role="search">
+      <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+        <form className="flex items-center gap-2 max-[374px]:hidden" onSubmit={handleSearch} role="search">
           <input
             type="search"
             name="q"
-            className="header-search__input"
+            className="w-[180px] min-h-9 px-2.5 text-sm border rounded-md theme-input-bg theme-text theme-input-border placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20"
             placeholder="검색"
             aria-label="제목 검색"
             defaultValue={currentQ}
             key={currentQ || '_'}
           />
-          <button type="submit" className="header-search__btn">검색</button>
+          <button type="submit" className="min-h-9 px-3 text-sm font-semibold border border-primary rounded-md bg-primary text-white hover:bg-primary-hover hover:border-primary-hover transition-colors">
+            검색
+          </button>
         </form>
         {hasCategories && (
           <button
             type="button"
-            className="btn_hamburger"
+            className="flex md:hidden items-center justify-center w-8 h-8 border rounded-md theme-btn-icon theme-input-bg hover:bg-[var(--ui-background-secondary)]"
             onClick={() => setOverlayOpen(true)}
             aria-label="카테고리 메뉴"
           >
@@ -162,7 +167,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
         )}
         <button
           type="button"
-          className="btn_theme"
+          className="flex items-center justify-center w-8 h-8 border rounded-md theme-btn-icon bg-transparent hover:opacity-80"
           onClick={() => setTheme()}
           aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
         >
@@ -182,51 +187,51 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
 
       {overlayOpen && hasCategories && (
         <div
-          className="overlay-backdrop"
+          className="fixed inset-0 z-[1000] bg-black/40 flex justify-end"
           onClick={() => setOverlayOpen(false)}
           role="button"
           tabIndex={-1}
           aria-label="메뉴 닫기"
         >
           <div
-            className="overlay-panel"
+            className="w-[280px] max-w-[85vw] h-full theme-bg-card shadow-xl z-[1001] p-5 overflow-y-auto flex flex-col gap-4"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-label="카테고리 메뉴"
           >
-            <div className="overlay-panel__header">
-              <h2 className="sidebar-categories__title">카테고리</h2>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-xl font-semibold theme-text-secondary uppercase tracking-wide m-0">카테고리</h2>
               <button
                 type="button"
-                className="overlay-panel__close"
+                className="flex items-center justify-center w-11 h-11 p-0 border rounded-md theme-border theme-bg-secondary theme-text hover:bg-[var(--ui-border)] shrink-0"
                 onClick={() => setOverlayOpen(false)}
                 aria-label="닫기"
               >
                 {closeIcon}
               </button>
             </div>
-            <nav className="sidebar-categories" aria-label="카테고리">
-              <ul>
-                <li>
-                  <Link to="/" className={!currentCategoryId ? 'is-active' : ''} onClick={() => setOverlayOpen(false)}>전체</Link>
+            <nav aria-label="카테고리">
+              <ul className="list-none p-0 m-0">
+                <li className="mb-1">
+                  <Link to="/" className={`${linkBase} ${!currentCategoryId ? linkActive : ''}`} onClick={() => setOverlayOpen(false)}>전체</Link>
                 </li>
                 {isTree ? (
                   categories.map((root) => (
-                    <li key={root.id}>
+                    <li key={root.id} className="mb-1">
                       <Link
                         to={`/?category_id=${root.id}`}
-                        className={currentCategoryId === String(root.id) ? 'is-active' : ''}
+                        className={`${linkBase} ${currentCategoryId === String(root.id) ? linkActive : ''}`}
                         onClick={() => setOverlayOpen(false)}
                       >
                         {root.name}
                       </Link>
                       {root.children?.length > 0 && (
-                        <ul className="sidebar-categories__sub">
+                        <ul className="list-none pl-3 mt-1 mb-2 ml-6 border-l-2 theme-border">
                           {root.children.map((child) => (
-                            <li key={child.id}>
+                            <li key={child.id} className="mb-0.5">
                               <Link
                                 to={`/?category_id=${child.id}`}
-                                className={currentCategoryId === String(child.id) ? 'is-active' : ''}
+                                className={`${linkBase} py-1.5 pl-0 text-[0.9rem] ${currentCategoryId === String(child.id) ? linkActive : ''}`}
                                 onClick={() => setOverlayOpen(false)}
                               >
                                 {child.name}
@@ -239,10 +244,10 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
                   ))
                 ) : (
                   categories.map((cat) => (
-                    <li key={cat.id}>
+                    <li key={cat.id} className="mb-1">
                       <Link
                         to={`/?category_id=${cat.id}`}
-                        className={currentCategoryId === String(cat.id) ? 'is-active' : ''}
+                        className={`${linkBase} ${currentCategoryId === String(cat.id) ? linkActive : ''}`}
                         onClick={() => setOverlayOpen(false)}
                       >
                         {cat.name}

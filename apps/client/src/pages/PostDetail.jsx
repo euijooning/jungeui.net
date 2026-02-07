@@ -139,7 +139,7 @@ export default function PostDetail() {
   if (loading) {
     return (
       <SharedLayout categories={categories} currentCategoryId={null}>
-        <p className="post-detail__loading">불러오는 중...</p>
+        <p className="text-center py-8 theme-text-secondary">불러오는 중...</p>
       </SharedLayout>
     );
   }
@@ -147,9 +147,9 @@ export default function PostDetail() {
   if (error || !post) {
     return (
       <SharedLayout categories={categories} currentCategoryId={null}>
-        <div className="post-detail__error">
+        <div className="text-center py-8 theme-text-secondary">
           <p>{error || '글을 찾을 수 없습니다.'}</p>
-          <Link to="/" className="post-detail__back">목록으로 돌아가기</Link>
+          <Link to="/" className="inline-block mt-4 text-[var(--ui-primary)] no-underline hover:underline">목록으로 돌아가기</Link>
         </div>
       </SharedLayout>
     );
@@ -160,55 +160,55 @@ export default function PostDetail() {
 
   return (
     <SharedLayout categories={categories} currentCategoryId={currentCategoryId}>
-      <article className="post-detail">
-        <header className="post-detail__header-card">
+      <article className="max-w-[720px] mt-6 md:mt-9">
+        <header className="theme-bg-card theme-card-border rounded-xl px-4 py-4 md:p-6 md:px-7 mb-6 shadow-sm">
           {tags.length > 0 && (
-            <div className="post-detail__tags">
+            <div className="flex flex-wrap gap-1.5 mb-3">
               {tags.map((t) => (
-                <span key={t.id} className="post-detail__tag-pill">{t.name}</span>
+                <span key={t.id} className="inline-block py-1 px-2.5 text-[0.8125rem] rounded-md theme-bg-secondary theme-text-secondary border theme-border">{t.name}</span>
               ))}
             </div>
           )}
-          <h1 className="post-detail__title">{post.title}</h1>
-          {dateStr && <time className="post-detail__date" dateTime={post.published_at || post.created_at}>{dateStr}</time>}
+          <h1 className="text-2xl font-bold leading-tight mb-2 mt-0 theme-text">{post.title}</h1>
+          {dateStr && <time className="text-[0.9375rem] theme-text-secondary block" dateTime={post.published_at || post.created_at}>{dateStr}</time>}
         </header>
 
-        <div className="post-detail__body-card">
+        <div className="max-w-[720px] mb-6 theme-bg-card theme-card-border rounded-xl shadow-sm overflow-hidden">
           <div
             ref={bodyRef}
-            className="post-detail__body"
+            className="post-detail-prose px-4 py-4 md:px-6 md:py-5 leading-relaxed text-left theme-text"
             dangerouslySetInnerHTML={{ __html: post.content_html || '' }}
           />
         </div>
 
         {VITE_UTTERANCES_REPO && (
-          <section className="post-detail__comments" aria-label="댓글">
+          <section className="mt-12 pt-8 border-t theme-border" aria-label="댓글">
             <div id="utterances-root" />
           </section>
         )}
 
         {post.attachments?.length > 0 && (
-          <section className="post-detail__attachments" aria-label="첨부 파일">
-            <div className="post-detail__attachments-card">
-              <div className="post-detail__attachments-header">
-                <span className="post-detail__attachments-icon" aria-hidden>
+          <section className="mt-8" aria-label="첨부 파일">
+            <div className="max-w-[720px] theme-bg-card theme-card-border rounded-xl shadow-sm overflow-hidden">
+              <div className="flex items-center gap-2 py-2.5 px-4 border-b theme-border">
+                <span className="flex items-center justify-center theme-text-secondary" aria-hidden>
                   <PaperclipIcon />
                 </span>
-                <h2 className="post-detail__attachments-title">첨부 파일</h2>
+                <h2 className="text-[0.9375rem] font-semibold theme-text m-0">첨부 파일</h2>
               </div>
-              <ul className="post-detail__attachments-list">
+              <ul className="list-none p-0 flex flex-col gap-2 py-2.5 px-4">
                 {post.attachments.map((a) => {
                   const ext = getFileExt(a.original_name);
                   const isPdf = ext === 'pdf';
                   return (
-                    <li key={a.id} className="post-detail__attachments-item">
-                      <span className="post-detail__attachments-item-inner">
-                        <span className={`post-detail__attachments-badge ${isPdf ? 'post-detail__attachments-badge--pdf' : ''}`}>
+                    <li key={a.id} className="flex items-center justify-between gap-3 p-2 px-3 rounded-lg border theme-bg-secondary theme-border">
+                      <span className="flex items-center gap-3 min-w-0">
+                        <span className={`shrink-0 text-[0.6875rem] font-bold py-1 px-2 rounded ${isPdf ? 'bg-red-600 text-white' : 'bg-[var(--ui-border)] theme-text-secondary'}`}>
                           {isPdf ? 'PDF' : (ext || 'FILE').toUpperCase().slice(0, 4)}
                         </span>
-                        <span className="post-detail__attachments-filename">{a.original_name}</span>
+                        <span className="text-[0.9375rem] theme-text truncate">{a.original_name}</span>
                         {a.size_bytes != null && (
-                          <span className="post-detail__attachments-size">{formatBytes(a.size_bytes)}</span>
+                          <span className="shrink-0 text-[0.8125rem] theme-text-secondary">{formatBytes(a.size_bytes)}</span>
                         )}
                       </span>
                       <a
@@ -216,7 +216,7 @@ export default function PostDetail() {
                         download={a.original_name}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="post-detail__attachments-download"
+                        className="shrink-0 inline-flex items-center justify-center min-w-9 min-h-9 p-1.5 text-[0.8125rem] font-semibold text-white rounded-lg no-underline transition-colors bg-[var(--ui-primary)] hover:bg-[var(--ui-primary-hover)] focus:outline-none focus:ring-2 focus:ring-[rgba(53,197,240,0.4)]"
                         aria-label="다운로드"
                       >
                         <DownloadIcon />
@@ -229,22 +229,22 @@ export default function PostDetail() {
           </section>
         )}
 
-        <nav className="post-detail__nav">
-          <div className="post-detail__nav-row">
-            <div className="post-detail__nav-cell">
-              <span className="post-detail__nav-label">이전글:</span>
+        <nav className="mt-8 py-4 px-4 theme-bg-card theme-card-border rounded-xl shadow-sm md:py-[0.9rem] md:px-[1.1rem]">
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[0.8125rem] font-semibold theme-text-secondary">이전글:</span>
               {neighbors.prev ? (
-                <Link to={`/posts/${neighbors.prev.id}`} className="post-detail__nav-link">{neighbors.prev.title}</Link>
+                <Link to={`/posts/${neighbors.prev.id}`} className="text-[0.875rem] text-[var(--ui-primary-hover)] underline underline-offset-2 hover:text-[var(--ui-primary)]">{neighbors.prev.title}</Link>
               ) : (
-                <span className="post-detail__nav-none">없음</span>
+                <span className="text-[0.875rem] theme-text-secondary">없음</span>
               )}
             </div>
-            <div className="post-detail__nav-cell">
-              <span className="post-detail__nav-label">다음글:</span>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[0.8125rem] font-semibold theme-text-secondary">다음글:</span>
               {neighbors.next ? (
-                <Link to={`/posts/${neighbors.next.id}`} className="post-detail__nav-link">{neighbors.next.title}</Link>
+                <Link to={`/posts/${neighbors.next.id}`} className="text-[0.875rem] text-[var(--ui-primary-hover)] underline underline-offset-2 hover:text-[var(--ui-primary)]">{neighbors.next.title}</Link>
               ) : (
-                <span className="post-detail__nav-none">없음</span>
+                <span className="text-[0.875rem] theme-text-secondary">없음</span>
               )}
             </div>
           </div>
