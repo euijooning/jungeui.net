@@ -15,6 +15,7 @@ import CareerList from "./pages/careers/CareerList";
 import ProjectList from "./pages/projects/ProjectList";
 import AssetList from "./pages/assets/AssetList";
 import CategoryList from "./pages/categories/CategoryList";
+import MessageList from "./pages/messages/MessageList";
 
 export default function AdminApp() {
   return (
@@ -35,6 +36,7 @@ export default function AdminApp() {
         <Route path="/posts/new" element={<PostNew />} />
         <Route path="/posts/:postId/edit" element={<PostEdit />} />
         <Route path="/posts/:postId" element={<PostDetail />} />
+        <Route path="/messages" element={<MessageList />} />
         <Route path="/careers" element={<CareerList />} />
         <Route path="/projects" element={<ProjectList />} />
         <Route path="/assets" element={<AssetList />} />

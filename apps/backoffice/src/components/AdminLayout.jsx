@@ -26,6 +26,7 @@ const AdminLayout = ({ children }) => {
   const [userName, setUserName] = useState("관리자");
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [postsAccordionOpen, setPostsAccordionOpen] = useState(false);
+  const [aboutAccordionOpen, setAboutAccordionOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
       return localStorage.getItem(STORAGE_KEY_SIDEBAR) === "true";
@@ -65,6 +66,13 @@ const AdminLayout = ({ children }) => {
   useEffect(() => {
     if (currentPath === "/posts" || currentPath === "/posts/new" || currentPath === "/posts/categories" || /^\/posts\/[^/]+(\/edit)?$/.test(currentPath)) {
       setPostsAccordionOpen(true);
+    }
+  }, [currentPath]);
+
+  // 소개(메시지/경력/프로젝트) 경로일 때 아코디언 열기
+  useEffect(() => {
+    if (currentPath === "/messages" || currentPath === "/careers" || currentPath === "/projects") {
+      setAboutAccordionOpen(true);
     }
   }, [currentPath]);
 
@@ -125,6 +133,7 @@ const AdminLayout = ({ children }) => {
       "/posts": "포스트 목록",
       "/posts/new": "새 포스트",
       "/posts/categories": "카테고리 관리",
+      "/messages": "메시지",
       "/careers": "경력",
       "/projects": "프로젝트",
       "/assets": "파일 보관함",
@@ -137,6 +146,8 @@ const AdminLayout = ({ children }) => {
 
   const postsAsSingleLink =
     (isDesktop && sidebarCollapsed) || (isTablet && !mobileOverlayOpen);
+  const aboutAsSingleLink =
+    (isDesktop && sidebarCollapsed) || (isTablet && !mobileOverlayOpen);
   const sidebarInOverlayMode =
     isMobile || (isTablet && mobileOverlayOpen);
   const sidebarWidth =
@@ -146,22 +157,34 @@ const AdminLayout = ({ children }) => {
         ? "4rem"
         : "15rem";
 
-  // 대메뉴 > 하위메뉴: 대시보드(단일), 글(아코디언 또는 단일 링크), 경력, 프로젝트, 파일 보관함
+  // 대메뉴 > 하위메뉴: 대시보드, 포스트 관리, 소개 관리, 파일 보관함
   const navSections = [
     { type: "single", href: "/", icon: "fa-desktop", label: "대시보드" },
     {
       type: "accordion",
-      title: "포스트",
+      title: "포스트 관리",
       icon: "fa-file-alt",
       open: postsAccordionOpen,
       setOpen: setPostsAccordionOpen,
+      singleLinkHref: "/posts",
       items: [
         { href: "/posts", icon: "fa-list", label: "포스트 목록" },
         { href: "/posts/categories", icon: "fa-paperclip", label: "카테고리 관리" },
       ],
     },
-    { type: "single", href: "/careers", icon: "fa-briefcase", label: "경력" },
-    { type: "single", href: "/projects", icon: "fa-project-diagram", label: "프로젝트" },
+    {
+      type: "accordion",
+      title: "소개 관리",
+      icon: "fa-user",
+      open: aboutAccordionOpen,
+      setOpen: setAboutAccordionOpen,
+      singleLinkHref: "/messages",
+      items: [
+        { href: "/messages", icon: "fa-envelope", label: "메시지" },
+        { href: "/careers", icon: "fa-briefcase", label: "경력" },
+        { href: "/projects", icon: "fa-project-diagram", label: "프로젝트" },
+      ],
+    },
     { type: "single", href: "/assets", icon: "fa-folder-open", label: "파일 보관함" },
   ];
 
@@ -220,12 +243,18 @@ const AdminLayout = ({ children }) => {
                   );
                 }
                 if (section.type === "accordion") {
-                  if (postsAsSingleLink) {
-                    const active = isActive("/posts");
+                  const singleHref = section.singleLinkHref;
+                  const showAsSingle =
+                    (section.title === "포스트 관리" && postsAsSingleLink) ||
+                    (section.title === "소개 관리" && aboutAsSingleLink);
+                  if (showAsSingle && singleHref) {
+                    const active =
+                      isActive(singleHref) ||
+                      (section.title === "소개 관리" && (currentPath === "/messages" || currentPath === "/careers" || currentPath === "/projects"));
                     return (
                       <Link
-                        key="posts-single"
-                        to="/posts"
+                        key={`${section.title}-single`}
+                        to={singleHref}
                         onClick={isMobile || isTablet ? closeOverlay : undefined}
                         className={`nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer ${
                           active ? "bg-green-200 text-green-800" : "text-gray-300"

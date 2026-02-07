@@ -14,8 +14,18 @@
 
 ## 문서
 
-- [05-server-run-guide.md](docs/common/05-server-run-guide.md) — 서버 실행·환경 변수(운영/스테이징 `ENV` 포함)
-- [01-db-schema.md](docs/01-db-schema.md) — DB 테이블 정의
-- [02-api-spec.md](docs/02-api-spec.md) — API 명세
-- [03-folder-structure.md](docs/03-folder-structure.md) — 폴더 구조 상세
-- [plans/backoffice-make/](plans/backoffice-make/) — 백오피스 구현 가이드 (Phase 01 완료)
+**공통 (docs/common/)**  
+- [01-db-schema.md](docs/common/01-db-schema.md) — DB 테이블 정의
+- [02-api-spec.md](docs/common/02-api-spec.md) — API 명세
+- [03-folder-structure.md](docs/common/03-folder-structure.md) — 폴더 구조 상세
+- [04-design-guide.md](docs/common/04-design-guide.md) — 디자인 가이드
+- [05-server-run-guide.md](docs/common/05-server-run-guide.md) — 서버 실행·환경 변수(운영/스테이징)
+- [06-ui-ux-guide.md](docs/common/06-ui-ux-guide.md) — UI/UX 가이드
+
+**기타**  
+- [docs/backoffice/](docs/backoffice/) — 백오피스 가이드
+- [docs/convention/](docs/convention/) — 컨벤션
+
+**구현 계획 (plans/)**  
+- [plans/backoffice-make/](plans/backoffice-make/) — 백오피스 Phase
+- [plans/client/](plans/client/) — 클라이언트 Phase

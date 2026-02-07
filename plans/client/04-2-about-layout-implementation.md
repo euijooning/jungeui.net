@@ -12,20 +12,20 @@
 
 **변경 후 navSections 구조:**
 - 대시보드 (단일)
-- 포스트 (아코디언: 포스트 목록, 카테고리 관리)
-- **소개** (아코디언, 신규)
+- **포스트 관리** (아코디언: 포스트 목록, 카테고리 관리)
+- **소개 관리** (아코디언, 신규)
   - 메시지 → `/messages`
   - 경력 → `/careers`
   - 프로젝트 → `/projects`
 - 파일 보관함 (단일)
 
 **체크리스트:**
-- [ ] `aboutAccordionOpen` state 추가
-- [ ] `/messages`, `/careers`, `/projects` 경로에서 소개 아코디언 자동 열기
-- [ ] `isActive`에서 `/messages`, `/careers`, `/projects` 소개 하위 반영
-- [ ] `getPageTitle`에 `/messages` → "메시지" 추가
-- [ ] careers/projects를 단일에서 제거, 소개 아코디언 하위로 이동
-- [ ] `singleLinkHref`, `aboutAsSingleLink` 처리 (사이드바 축소 시 단일 링크)
+- [x] `aboutAccordionOpen` state 추가
+- [x] `/messages`, `/careers`, `/projects` 경로에서 소개 아코디언 자동 열기
+- [x] `isActive`에서 `/messages`, `/careers`, `/projects` 소개 하위 반영
+- [x] `getPageTitle`에 `/messages` → "메시지" 추가
+- [x] careers/projects를 단일에서 제거, 소개 아코디언 하위로 이동
+- [x] `singleLinkHref`, `aboutAsSingleLink` 처리 (사이드바 축소 시 단일 링크)
 
 ---
 
