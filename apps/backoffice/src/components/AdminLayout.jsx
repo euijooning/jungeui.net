@@ -148,7 +148,7 @@ const AdminLayout = ({ children }) => {
 
   // 대메뉴 > 하위메뉴: 대시보드(단일), 글(아코디언 또는 단일 링크), 경력, 프로젝트, 파일 보관함
   const navSections = [
-    { type: "single", href: "/", icon: "fa-th", label: "대시보드" },
+    { type: "single", href: "/", icon: "fa-desktop", label: "대시보드" },
     {
       type: "accordion",
       title: "포스트",
@@ -157,7 +157,7 @@ const AdminLayout = ({ children }) => {
       setOpen: setPostsAccordionOpen,
       items: [
         { href: "/posts", icon: "fa-list", label: "포스트 목록" },
-        { href: "/posts/categories", icon: "fa-folder", label: "카테고리 관리" },
+        { href: "/posts/categories", icon: "fa-paperclip", label: "카테고리 관리" },
       ],
     },
     { type: "single", href: "/careers", icon: "fa-briefcase", label: "경력" },

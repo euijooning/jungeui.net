@@ -43,7 +43,7 @@ export default function PostList() {
       raw.forEach((node) => {
         flat.push({ id: node.id, name: node.name, label: node.name });
         (node.children || []).forEach((child) => {
-          flat.push({ id: child.id, name: child.name, label: `${node.name} > ${child.name}` });
+          flat.push({ id: child.id, name: child.name, label: ` — ${child.name}`, parentName: node.name });
         });
       });
       setCategories(flat);
@@ -174,7 +174,7 @@ export default function PostList() {
             >
               <option value="">전체 카테고리</option>
               {categories.map((c) => (
-                <option key={c.id} value={String(c.id)}>{c.label || c.name}</option>
+                <option key={c.id} value={String(c.id)}>{c.parentName ? `${c.parentName} > ${c.name}` : (c.label || c.name)}</option>
               ))}
             </select>
           </div>

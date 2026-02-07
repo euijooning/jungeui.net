@@ -179,7 +179,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         raw.forEach((node) => {
           flat.push({ id: node.id, name: node.name, label: node.name });
           (node.children || []).forEach((child) => {
-            flat.push({ id: child.id, name: child.name, label: `${node.name} > ${child.name}` });
+            flat.push({ id: child.id, name: child.name, label: ` — ${child.name}`, parentName: node.name });
           });
         });
         setCategories(flat);
@@ -606,7 +606,13 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-900 mb-2">카테고리 <span className="text-blue-600">*</span></label>
           <FormControl fullWidth size="small">
-            <Select value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))} displayEmpty renderValue={(v) => (v === '__select__' ? '선택' : v === '' ? '미지정' : (categories.find((c) => String(c.id) === v)?.label || categories.find((c) => String(c.id) === v)?.name || v))}>
+            <Select value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))} displayEmpty renderValue={(v) => {
+              if (v === '__select__') return '선택';
+              if (v === '') return '미지정';
+              const c = categories.find((x) => String(x.id) === v);
+              if (!c) return v;
+              return c.parentName ? `${c.parentName} > ${c.name}` : c.name;
+            }}>
               <MenuItem value="__select__" disabled>선택</MenuItem>
               <MenuItem value="">미지정</MenuItem>
               {categories.map((c) => (

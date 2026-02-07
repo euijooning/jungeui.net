@@ -7,10 +7,10 @@ import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import DashboardIcon from '@mui/icons-material/Dashboard';
+import Monitor from '@mui/icons-material/Monitor';
 import ArticleIcon from '@mui/icons-material/Article';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import CategoryIcon from '@mui/icons-material/Category';
+import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import WorkIcon from '@mui/icons-material/Work';
 import FolderIcon from '@mui/icons-material/Folder';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
@@ -18,11 +18,11 @@ import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 const postSubItems = [
   { to: '/posts', label: '포스트 목록', icon: <ArticleIcon /> },
   { to: '/posts/new', label: '새 포스트', icon: <EditNoteIcon /> },
-  { to: '/posts/categories', label: '카테고리 관리', icon: <CategoryIcon /> },
+  { to: '/posts/categories', label: '카테고리 관리', icon: <GroupWorkIcon /> },
 ];
 
 const topItems = [
-  { to: '/', label: '대시보드', icon: <DashboardIcon /> },
+  { to: '/', label: '대시보드', icon: <Monitor /> },
   { to: '/careers', label: '경력', icon: <WorkIcon /> },
   { to: '/projects', label: '프로젝트', icon: <FolderIcon /> },
   { to: '/assets', label: '파일 보관함', icon: <PhotoLibraryIcon /> },

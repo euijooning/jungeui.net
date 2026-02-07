@@ -165,10 +165,10 @@ def update_category(
             raise HTTPException(status_code=400, detail="카테고리명을 입력하세요.")
         updates.append("name = :name")
         params["name"] = name
-    if body.parent_id is not None:
+    if "parent_id" in body.model_fields_set:
         if body.parent_id == category_id:
             raise HTTPException(status_code=400, detail="자기 자신을 상위로 지정할 수 없습니다.")
-        if body.parent_id:
+        if body.parent_id is not None:
             r = db.execute(text("SELECT 1 FROM categories WHERE id = :id"), {"id": body.parent_id}).fetchone()
             if not r:
                 raise HTTPException(status_code=400, detail="상위 카테고리를 찾을 수 없습니다.")

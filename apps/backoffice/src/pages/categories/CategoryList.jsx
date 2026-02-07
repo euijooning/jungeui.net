@@ -26,12 +26,84 @@ function buildFlatOrder(tree) {
   return out;
 }
 
+/** 트리에서 노드 위치 찾기. 반환: { parentChildren, index } (root면 parentChildren === tree) */
+function findNodeInTree(tree, nodeId, parentChildren = null, list = tree) {
+  for (let i = 0; i < list.length; i++) {
+    if (list[i].id === nodeId) return { parentChildren: list, index: i };
+    const found = findNodeInTree(tree, nodeId, list, list[i].children || []);
+    if (found) return found;
+  }
+  return null;
+}
+
+/** 같은 부모 아래에서 fromIndex를 toIndex로 이동. 배열 복사 후 반환 */
+function moveInArray(arr, fromIndex, toIndex) {
+  const next = arr.slice();
+  const [item] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, item);
+  return next;
+}
+
+/** 트리 복제 후 한 노드를 같은 레벨의 다른 위치로 이동 */
+function reorderTreeById(tree, dragId, targetId, insertAfter) {
+  const treeCopy = JSON.parse(JSON.stringify(tree));
+  const drag = findNodeInTree(treeCopy, dragId);
+  const target = findNodeInTree(treeCopy, targetId);
+  if (!drag || !target || drag.parentChildren !== target.parentChildren) return treeCopy;
+  const siblings = drag.parentChildren;
+  const fromI = drag.index;
+  let toI = target.index;
+  if (insertAfter) toI += 1;
+  if (fromI === toI || fromI + 1 === toI) return treeCopy;
+  const reordered = moveInArray(siblings, fromI, toI > fromI ? toI - 1 : toI);
+  if (siblings === treeCopy) return reordered;
+  const parent = findParentChildren(treeCopy, siblings);
+  if (parent) parent.children = reordered;
+  return treeCopy;
+}
+
+/** 트리 복제 후 한 노드를 다른 부모(또는 root)로 이동. 반환: { tree, newParentId } */
+function moveNodeToParent(tree, dragId, targetParentId, targetSiblingIndex) {
+  const treeCopy = JSON.parse(JSON.stringify(tree));
+  const drag = findNodeInTree(treeCopy, dragId);
+  if (!drag) return { tree: treeCopy, newParentId: undefined };
+  let targetChildren;
+  if (targetParentId === null) {
+    targetChildren = treeCopy;
+  } else {
+    const parentLoc = findNodeInTree(treeCopy, targetParentId);
+    if (!parentLoc) return { tree: treeCopy, newParentId: undefined };
+    const parentNode = parentLoc.parentChildren[parentLoc.index];
+    if (!parentNode.children) parentNode.children = [];
+    targetChildren = parentNode.children;
+  }
+  const [draggedNode] = drag.parentChildren.splice(drag.index, 1);
+  draggedNode.parent_id = targetParentId;
+  targetChildren.splice(Math.min(targetSiblingIndex, targetChildren.length), 0, draggedNode);
+  return { tree: treeCopy, newParentId: targetParentId };
+}
+
+function findParentChildren(tree, childrenArr) {
+  if (tree === childrenArr) return null;
+  for (const n of tree) {
+    if (n.children === childrenArr) return n;
+    const found = findParentChildren(n.children || [], childrenArr);
+    if (found !== undefined) return found;
+  }
+  return undefined;
+}
+
 export default function CategoryList() {
   const [tree, setTree] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(new Set());
   const [dialog, setDialog] = useState({ open: false, mode: 'add', parentId: null, editId: null, name: '' });
   const [error, setError] = useState(null);
+  const [orderDirty, setOrderDirty] = useState(false);
+  const [dragId, setDragId] = useState(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [movedParents, setMovedParents] = useState({});
+  const [dropTarget, setDropTarget] = useState(null);
 
   const fetchTree = useCallback(async () => {
     setLoading(true);
@@ -108,28 +180,110 @@ export default function CategoryList() {
   };
 
   const reorder = async () => {
-    const order = buildFlatOrder(tree);
     try {
+      for (const [id, parentId] of Object.entries(movedParents)) {
+        await apiClient.put(`/api/categories/${id}`, { parent_id: parentId });
+      }
+      const order = buildFlatOrder(tree);
       await apiClient.request('/api/categories/reorder', {
         method: 'PATCH',
         body: JSON.stringify({ order }),
       });
+      setMovedParents({});
+      setOrderDirty(false);
+      setSaveSuccess(true);
       await fetchTree();
     } catch (e) {
       setError(e?.message || '순서 저장 실패');
     }
   };
 
-  const renderNode = (node, depth = 0) => {
+  // react-admin은 자체 라우터 사용 → useBlocker가 인앱 이동까지 막아서 사이드바가 안 먹힘. 탭/창 닫을 때만 경고.
+  useEffect(() => {
+    if (!orderDirty) return;
+    const onBeforeUnload = (e) => { e.preventDefault(); };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [orderDirty]);
+
+  const handleDragStart = (e, nodeId) => {
+    setDragId(nodeId);
+    setDropTarget(null);
+    e.dataTransfer.setData('application/json', JSON.stringify({ id: nodeId }));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+  const handleDragOver = (e, targetNodeId, insertAfter, targetParentId, targetIndex) => {
+    e.preventDefault();
+    if (!dragId || dragId === targetNodeId) return;
+    setDropTarget({ targetNodeId, insertAfter, targetParentId, targetIndex });
+  };
+  const handleDragLeave = () => setDropTarget(null);
+  const handleDragEnd = () => {
+    setDragId(null);
+    setDropTarget(null);
+  };
+  const handleDrop = (e, targetNodeId, insertAfter, targetParentId, targetIndex) => {
+    e.preventDefault();
+    setDropTarget(null);
+    if (!dragId || dragId === targetNodeId) return;
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      const dragIdNum = data.id;
+      const dragLoc = findNodeInTree(tree, dragIdNum);
+      const targetLoc = findNodeInTree(tree, targetNodeId);
+      if (!dragLoc || !targetLoc) {
+        setDragId(null);
+        return;
+      }
+      const sameParent = dragLoc.parentChildren === targetLoc.parentChildren;
+      const dropIndex = insertAfter ? targetIndex + 1 : targetIndex;
+      if (sameParent) {
+        setTree(reorderTreeById(tree, dragIdNum, targetNodeId, insertAfter));
+      } else {
+        const { tree: nextTree, newParentId } = moveNodeToParent(tree, dragIdNum, targetParentId, dropIndex);
+        setTree(nextTree);
+        setMovedParents((m) => ({ ...m, [dragIdNum]: newParentId }));
+      }
+      setOrderDirty(true);
+    } catch (_) {}
+    setDragId(null);
+  };
+
+  const renderNode = (node, depth = 0, indexInSiblings = 0) => {
     const hasChildren = (node.children || []).length > 0;
     const isExpanded = expanded.has(node.id);
+    const isDragging = dragId === node.id;
+    const targetParentId = node.parent_id ?? null;
+    const onDragOverRow = (e) => {
+      e.preventDefault();
+      if (!dragId || dragId === node.id) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const insertAfter = e.clientY - rect.top > rect.height / 2;
+      handleDragOver(e, node.id, insertAfter, targetParentId, indexInSiblings);
+    };
+    const onDropRow = (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const insertAfter = e.clientY - rect.top > rect.height / 2;
+      handleDrop(e, node.id, insertAfter, targetParentId, indexInSiblings);
+    };
+    const showDropAbove = dropTarget?.targetNodeId === node.id && !dropTarget?.insertAfter;
+    const showDropBelow = dropTarget?.targetNodeId === node.id && dropTarget?.insertAfter;
     return (
-      <div key={node.id} className="border-b border-gray-200 last:border-0">
+      <div key={node.id} className="border-b border-gray-200 last:border-0 relative">
+        {showDropAbove && (
+          <div className="absolute left-0 right-0 top-0 h-0.5 bg-green-500 z-10 pointer-events-none" aria-hidden />
+        )}
         <div
-          className="flex items-center gap-2 py-2 px-3 hover:bg-gray-50"
+          className={`flex items-center gap-2 py-2 px-3 hover:bg-gray-50 transition-opacity ${isDragging ? 'opacity-50' : ''}`}
           style={{ paddingLeft: 16 + depth * 24 }}
+          draggable
+          onDragStart={(e) => handleDragStart(e, node.id)}
+          onDragOver={onDragOverRow}
+          onDragLeave={handleDragLeave}
+          onDragEnd={handleDragEnd}
+          onDrop={onDropRow}
         >
-          <span className="text-gray-400" aria-hidden>
+          <span className="text-gray-400 cursor-grab active:cursor-grabbing" aria-hidden>
             <DragIndicator fontSize="small" />
           </span>
           {hasChildren ? (
@@ -141,9 +295,11 @@ export default function CategoryList() {
           )}
           <span className="flex-1 font-medium">{node.name}</span>
           <div className="flex gap-1">
-            <IconButton size="small" onClick={() => openAdd(node.id)} title="하위 카테고리 추가" aria-label="하위 추가">
-              <Add fontSize="small" />
-            </IconButton>
+            {depth === 0 && (
+              <IconButton size="small" onClick={() => openAdd(node.id)} title="하위 카테고리 추가" aria-label="하위 추가">
+                <Add fontSize="small" />
+              </IconButton>
+            )}
             <IconButton size="small" onClick={() => openEdit(node)} title="수정" aria-label="수정">
               <Edit fontSize="small" />
             </IconButton>
@@ -152,8 +308,11 @@ export default function CategoryList() {
             </IconButton>
           </div>
         </div>
+        {showDropBelow && (
+          <div className="absolute left-0 right-0 bottom-0 h-0.5 bg-green-500 z-10 pointer-events-none" aria-hidden />
+        )}
         {hasChildren && isExpanded && (
-          <div>{node.children.map((child) => renderNode(child, depth + 1))}</div>
+          <div>{node.children.map((child, j) => renderNode(child, depth + 1, j))}</div>
         )}
       </div>
     );
@@ -173,13 +332,14 @@ export default function CategoryList() {
             {error}
           </div>
         )}
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <Button variant="contained" startIcon={<Add />} onClick={() => openAdd(null)}>
             대카테고리 추가
           </Button>
-          <Button variant="outlined" onClick={reorder}>
+          <Button variant="contained" color="success" onClick={reorder} disabled={!orderDirty}>
             순서 저장
           </Button>
+          {orderDirty && <span className="text-sm text-amber-600">변경 후 저장하세요.</span>}
         </div>
       </div>
 
@@ -190,20 +350,28 @@ export default function CategoryList() {
           {tree.length === 0 ? (
             <div className="p-6 text-center text-gray-500">카테고리가 없습니다. 대카테고리를 추가해 보세요.</div>
           ) : (
-            tree.map((node) => renderNode(node))
+            tree.map((node, i) => renderNode(node, 0, i))
           )}
         </div>
       )}
 
       <Dialog open={dialog.open} onClose={closeDialog} maxWidth="sm" fullWidth>
         <DialogTitle>{dialog.mode === 'add' ? (dialog.parentId ? '소카테고리 추가' : '대카테고리 추가') : '카테고리 수정'}</DialogTitle>
-        <DialogContent className="flex flex-col gap-4 pt-2">
+        <DialogContent className="flex flex-col gap-4 pt-2" sx={{ overflow: 'visible' }}>
           <TextField
             label="이름"
             value={dialog.name}
             onChange={(e) => setDialog((d) => ({ ...d, name: e.target.value }))}
             fullWidth
             autoFocus
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+            InputProps={{
+              style: { paddingTop: 14, paddingBottom: 14, lineHeight: 1.5 },
+            }}
+            sx={{
+              '& .MuiInputBase-input': { minHeight: 24, boxSizing: 'content-box' },
+            }}
           />
         </DialogContent>
         <DialogActions>
@@ -213,6 +381,17 @@ export default function CategoryList() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* 저장 완료 메시지 */}
+      <Dialog open={saveSuccess} onClose={() => setSaveSuccess(false)}>
+        <DialogContent sx={{ pt: 3 }}>
+          <p className="text-gray-800 font-medium">순서가 저장되었습니다.</p>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={() => setSaveSuccess(false)}>확인</Button>
+        </DialogActions>
+      </Dialog>
+
     </div>
   );
 }
