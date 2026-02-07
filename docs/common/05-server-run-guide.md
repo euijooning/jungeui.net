@@ -11,7 +11,8 @@ API 명세는 [02-api-spec.md](02-api-spec.md)를 참조하세요.
 - **Python 3.x** · **가상환경** — API 서버
 - **루트 `.env`** — DB·API URL·포트 등(선택: MySQL 사용 시 필수)
 
-환경변수는 프로젝트 루트의 `.env`에서 로드됩니다. Vite 앱(백오피스·클라이언트)은 `envDir`로 루트를 사용합니다.
+환경변수는 프로젝트 루트의 `.env`에서 로드됩니다. Vite 앱(백오피스·클라이언트)은 `envDir`로 루트를 사용합니다.  
+운영: `ENV=production`(또는 생략), 스테이징: `ENV=staging`. systemd에서는 `Environment=`로 설정.
 
 ---
 
@@ -33,11 +34,11 @@ pip install -r requirements.txt
 
 ```bash
 # 프로젝트 루트로 이동 후 (예: jungeui.net 루트)
-uvicorn apps.api.main:app --reload --port 8009
+uvicorn apps.api.main:app --reload --port 8010
 ```
 
 - `--host 0.0.0.0`을 붙이면 같은 LAN의 다른 기기에서도 접속 가능(배포·다른 기기 테스트 시 유용). 로컬에서만 쓸 때는 생략해도 되며, 생략 시 기본값 `127.0.0.1`로 같은 PC에서만 접속됩니다.
-- API 베이스 URL: `http://localhost:8009`
+- API 베이스 URL: `http://localhost:8010`
 - 포트를 바꾸려면 `--port` 값을 변경하면 됩니다. 프론트에서 사용하는 `VITE_API_URL`도 같은 포트로 맞춰 주세요.
 
 ---
@@ -60,7 +61,7 @@ npm run dev
 ```
 
 - 기본 포트: **5181** (`VITE_BACKOFFICE_PORT`로 변경 가능)
-- API 연동: 루트 `.env`의 `VITE_API_URL`(예: `http://localhost:8009`) 사용. 백오피스 Vite 프록시가 `/api`를 해당 URL로 넘깁니다.
+- API 연동: 루트 `.env`의 `VITE_API_URL`(예: `http://localhost:8010`) 사용. 백오피스 Vite 프록시가 `/api`를 해당 URL로 넘깁니다.
 
 **프로덕션 빌드**
 
@@ -103,11 +104,11 @@ npm run build
 
 | 터미널 | 위치 | 명령 |
 |--------|------|------|
-| 1 | 프로젝트 루트 | `uvicorn apps.api.main:app --reload --port 8009` |
+| 1 | 프로젝트 루트 | `uvicorn apps.api.main:app --reload --port 8010` |
 | 2 | `apps/backoffice` | `npm run dev` |
 | 3 | `apps/client` | `npm run dev` |
 
-- API: http://localhost:8009  
+- API: http://localhost:8010  
 - 백오피스: http://localhost:5181  
 - 클라이언트: http://localhost:5182  
 

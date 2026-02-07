@@ -14,6 +14,7 @@
 
 ## 문서
 
+- [05-server-run-guide.md](docs/common/05-server-run-guide.md) — 서버 실행·환경 변수(운영/스테이징 `ENV` 포함)
 - [01-db-schema.md](docs/01-db-schema.md) — DB 테이블 정의
 - [02-api-spec.md](docs/02-api-spec.md) — API 명세
 - [03-folder-structure.md](docs/03-folder-structure.md) — 폴더 구조 상세

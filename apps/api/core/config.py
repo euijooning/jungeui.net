@@ -4,9 +4,11 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# 루트 기준 .env (jungeui/.env)
+# 루트 기준 .env / .env.staging — ENV에 따라 한 개만 로드
 _env_path = Path(__file__).resolve().parents[3]
-load_dotenv(_env_path / ".env")
+_env = os.getenv("ENV", "production").strip().lower()
+_env_file = ".env.staging" if _env == "staging" else ".env"
+load_dotenv(_env_path / _env_file)
 
 MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
 MYSQL_PORT = int(os.getenv("MYSQL_PORT", "3306"))
