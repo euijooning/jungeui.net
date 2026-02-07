@@ -29,7 +29,10 @@ pip install -r requirements.txt
 
 **개발 서버 실행 (코드 변경 시 자동 리로드)**
 
+반드시 **프로젝트 루트**에서 실행해야 합니다. `apps\api` 등 하위 폴더에서 실행하면 `ModuleNotFoundError: No module named 'apps'`가 납니다.
+
 ```bash
+# 프로젝트 루트로 이동 후 (예: jungeui.net 루트)
 uvicorn apps.api.main:app --reload --port 8009
 ```
 

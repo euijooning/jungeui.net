@@ -726,7 +726,7 @@ button.post-card__category-pill {
 
 .post-detail__body {
   padding: 1.25rem 1.5rem;
-  line-height: 1.75;
+  line-height: 1.7;
   text-align: left;
   color: var(--ui-text);
 }
