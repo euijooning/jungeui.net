@@ -7,7 +7,7 @@
   - **포트**: API 8011, 백오피스 5183, 클라이언트 5184.
   - **MYSQL_DATABASE**: `jungeuilab-log`.
   - **CORS_ORIGINS**: `https://logadmin.jungeui.net,https://log.jungeui.net`.
-  - **VITE_***: `VITE_API_URL`, `VITE_BACKOFFICE_PORT`, `VITE_CLIENT_PORT`, `VITE_BACKOFFICE_URL`, `VITE_CLIENT_URL` — 스테이징 포트(8011, 5183, 5184)로 설정.
+  - **VITE_***: `VITE_API_URL`, `VITE_BACKOFFICE_PORT`, `VITE_CLIENT_PORT` — 스테이징 포트(8011, 5183, 5184)로 설정.
 - DB 비밀번호·시드·SECRET_KEY 등은 서버/로컬에서만 채우거나, 운영과 다른 스테이징 전용 값 사용.
 
 ## 2. config.py 수정
