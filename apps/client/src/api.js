@@ -23,8 +23,10 @@ export async function fetchPosts({ page = 1, per_page = 5, category_id, q } = {}
   return request(`/api/posts?${params}`);
 }
 
-export async function fetchCategories() {
-  return request('/api/categories');
+/** @param {{ tree?: boolean }} opts - tree=true면 대/소 계층 구조로 반환 */
+export async function fetchCategories(opts = {}) {
+  const q = opts.tree ? '?tree=true' : '';
+  return request(`/api/categories${q}`);
 }
 
 /** 글 단건 조회 (공개용). 비공개 시 백엔드에서 404. */

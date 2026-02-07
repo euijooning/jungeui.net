@@ -55,7 +55,7 @@ export default function PostDetail() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchCategories()
+    fetchCategories({ tree: true })
       .then((list) => { if (!cancelled) setCategories(Array.isArray(list) ? list : []); })
       .catch(() => {});
     return () => { cancelled = true; };

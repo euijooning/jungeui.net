@@ -171,10 +171,18 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     (async () => {
       try {
         const [catRes, tagRes] = await Promise.all([
-          apiClient.get('/api/categories'),
+          apiClient.get('/api/categories?tree=true'),
           apiClient.get('/api/tags'),
         ]);
-        setCategories(Array.isArray(catRes.data) ? catRes.data : catRes.data?.items ?? []);
+        const raw = Array.isArray(catRes.data) ? catRes.data : catRes.data?.items ?? [];
+        const flat = [];
+        raw.forEach((node) => {
+          flat.push({ id: node.id, name: node.name, label: node.name });
+          (node.children || []).forEach((child) => {
+            flat.push({ id: child.id, name: child.name, label: `${node.name} > ${child.name}` });
+          });
+        });
+        setCategories(flat);
         setTags(Array.isArray(tagRes.data) ? tagRes.data : tagRes.data?.items ?? []);
       } catch (_) {}
     })();
@@ -598,11 +606,11 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-900 mb-2">카테고리 <span className="text-blue-600">*</span></label>
           <FormControl fullWidth size="small">
-            <Select value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))} displayEmpty renderValue={(v) => (v === '__select__' ? '선택' : v === '' ? '미지정' : (categories.find((c) => String(c.id) === v)?.name || categories.find((c) => String(c.id) === v)?.slug || v))}>
+            <Select value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))} displayEmpty renderValue={(v) => (v === '__select__' ? '선택' : v === '' ? '미지정' : (categories.find((c) => String(c.id) === v)?.label || categories.find((c) => String(c.id) === v)?.name || v))}>
               <MenuItem value="__select__" disabled>선택</MenuItem>
               <MenuItem value="">미지정</MenuItem>
               {categories.map((c) => (
-                <MenuItem key={c.id} value={String(c.id)}>{c.name || c.slug}</MenuItem>
+                <MenuItem key={c.id} value={String(c.id)}>{c.label || c.name}</MenuItem>
               ))}
             </Select>
           </FormControl>

@@ -36,6 +36,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
   const [overlayOpen, setOverlayOpen] = useState(false);
 
   const hasCategories = Array.isArray(categories) && categories.length > 0;
+  const isTree = hasCategories && categories[0]?.children !== undefined;
 
   const sidebarContent = hasCategories ? (
     <>
@@ -46,16 +47,43 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
           <li>
             <Link to="/" className={!currentCategoryId ? 'is-active' : ''}>전체</Link>
           </li>
-          {categories.map((cat) => (
-            <li key={cat.id}>
-              <Link
-                to={`/?category_id=${cat.id}`}
-                className={currentCategoryId === String(cat.id) ? 'is-active' : ''}
-              >
-                {cat.name}
-              </Link>
-            </li>
-          ))}
+          {isTree ? (
+            categories.map((root) => (
+              <li key={root.id}>
+                <Link
+                  to={`/?category_id=${root.id}`}
+                  className={currentCategoryId === String(root.id) ? 'is-active' : ''}
+                >
+                  {root.name}
+                </Link>
+                {root.children?.length > 0 && (
+                  <ul className="sidebar-categories__sub">
+                    {root.children.map((child) => (
+                      <li key={child.id}>
+                        <Link
+                          to={`/?category_id=${child.id}`}
+                          className={currentCategoryId === String(child.id) ? 'is-active' : ''}
+                        >
+                          {child.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))
+          ) : (
+            categories.map((cat) => (
+              <li key={cat.id}>
+                <Link
+                  to={`/?category_id=${cat.id}`}
+                  className={currentCategoryId === String(cat.id) ? 'is-active' : ''}
+                >
+                  {cat.name}
+                </Link>
+              </li>
+            ))
+          )}
         </ul>
       </nav>
     </>
@@ -182,17 +210,46 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
                 <li>
                   <Link to="/" className={!currentCategoryId ? 'is-active' : ''} onClick={() => setOverlayOpen(false)}>전체</Link>
                 </li>
-                {categories.map((cat) => (
-                  <li key={cat.id}>
-                    <Link
-                      to={`/?category_id=${cat.id}`}
-                      className={currentCategoryId === String(cat.id) ? 'is-active' : ''}
-                      onClick={() => setOverlayOpen(false)}
-                    >
-                      {cat.name}
-                    </Link>
-                  </li>
-                ))}
+                {isTree ? (
+                  categories.map((root) => (
+                    <li key={root.id}>
+                      <Link
+                        to={`/?category_id=${root.id}`}
+                        className={currentCategoryId === String(root.id) ? 'is-active' : ''}
+                        onClick={() => setOverlayOpen(false)}
+                      >
+                        {root.name}
+                      </Link>
+                      {root.children?.length > 0 && (
+                        <ul className="sidebar-categories__sub">
+                          {root.children.map((child) => (
+                            <li key={child.id}>
+                              <Link
+                                to={`/?category_id=${child.id}`}
+                                className={currentCategoryId === String(child.id) ? 'is-active' : ''}
+                                onClick={() => setOverlayOpen(false)}
+                              >
+                                {child.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  ))
+                ) : (
+                  categories.map((cat) => (
+                    <li key={cat.id}>
+                      <Link
+                        to={`/?category_id=${cat.id}`}
+                        className={currentCategoryId === String(cat.id) ? 'is-active' : ''}
+                        onClick={() => setOverlayOpen(false)}
+                      >
+                        {cat.name}
+                      </Link>
+                    </li>
+                  ))
+                )}
               </ul>
             </nav>
           </div>

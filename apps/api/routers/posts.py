@@ -60,7 +60,10 @@ def list_posts(
     filter_params = {}
     where = []
     if category_id is not None:
-        where.append("p.category_id = :category_id")
+        # 대카테고리 선택 시 해당 대+하위(소) 카테고리 글 모두 포함
+        where.append(
+            "p.category_id IN (SELECT id FROM categories WHERE id = :category_id OR parent_id = :category_id)"
+        )
         filter_params["category_id"] = category_id
     if status:
         where.append("p.status = :status")

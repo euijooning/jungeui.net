@@ -8,7 +8,7 @@ MySQL 8.0 / MariaDB 기준. utf8mb4 사용.
 |--------|------|
 | users | 관리자 (이메일 로그인, Bcrypt) |
 | assets | 파일 메타데이터 (업로드 자산) |
-| categories | 게시글 카테고리 (1 depth) |
+| categories | 게시글 카테고리 (대/소 계층, parent_id) |
 | tags | 공통 태그 (글·프로젝트 공용) |
 | posts | 블로그 게시글 |
 | post_tags | 글-태그 N:M |
@@ -49,11 +49,12 @@ CREATE TABLE assets (
 
 CREATE TABLE categories (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  parent_id BIGINT NULL COMMENT '상위 카테고리 ID (NULL=대카테고리)',
   name VARCHAR(50) NOT NULL COMMENT '카테고리명',
-  slug VARCHAR(50) NOT NULL UNIQUE COMMENT 'URL 별칭',
   sort_order INT DEFAULT 0 COMMENT '노출 순서',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-) COMMENT='게시글 카테고리';
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE
+) COMMENT='게시글 카테고리 (대/소 계층)';
 
 CREATE TABLE tags (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,

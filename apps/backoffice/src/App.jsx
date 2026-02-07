@@ -14,6 +14,7 @@ import PostEdit from "./pages/posts/PostEdit";
 import CareerList from "./pages/careers/CareerList";
 import ProjectList from "./pages/projects/ProjectList";
 import AssetList from "./pages/assets/AssetList";
+import CategoryList from "./pages/categories/CategoryList";
 
 export default function AdminApp() {
   return (
@@ -37,6 +38,7 @@ export default function AdminApp() {
         <Route path="/careers" element={<CareerList />} />
         <Route path="/projects" element={<ProjectList />} />
         <Route path="/assets" element={<AssetList />} />
+        <Route path="/posts/categories" element={<CategoryList />} />
       </CustomRoutes>
     </Admin>
   );

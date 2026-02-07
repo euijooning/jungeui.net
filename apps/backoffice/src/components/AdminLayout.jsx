@@ -61,9 +61,9 @@ const AdminLayout = ({ children }) => {
 
   const closeOverlay = () => setMobileOverlayOpen(false);
 
-  // 글(목록/상세/수정) 경로일 때 아코디언 열기
+  // 글(목록/상세/수정/카테고리) 경로일 때 아코디언 열기
   useEffect(() => {
-    if (currentPath === "/posts" || currentPath === "/posts/new" || /^\/posts\/[^/]+(\/edit)?$/.test(currentPath)) {
+    if (currentPath === "/posts" || currentPath === "/posts/new" || currentPath === "/posts/categories" || /^\/posts\/[^/]+(\/edit)?$/.test(currentPath)) {
       setPostsAccordionOpen(true);
     }
   }, [currentPath]);
@@ -112,7 +112,8 @@ const AdminLayout = ({ children }) => {
   const isActive = (href) => {
     const navPath = href.replace(/\/$/, "") || "/";
     if (navPath === "/posts") {
-      if (currentPath === "/posts/new" || currentPath.endsWith("/edit")) return false;
+      // 포스트 목록: 목록(/posts) 또는 글 상세(/posts/:id)일 때만. 새글/카테고리/수정은 제외
+      if (currentPath === "/posts/new" || currentPath === "/posts/categories" || currentPath.endsWith("/edit")) return false;
       return currentPath === "/posts" || /^\/posts\/[^/]+$/.test(currentPath);
     }
     return currentPath === navPath;
@@ -123,6 +124,7 @@ const AdminLayout = ({ children }) => {
       "/": "대시보드",
       "/posts": "포스트 목록",
       "/posts/new": "새 포스트",
+      "/posts/categories": "카테고리 관리",
       "/careers": "경력",
       "/projects": "프로젝트",
       "/assets": "파일 보관함",
@@ -153,7 +155,10 @@ const AdminLayout = ({ children }) => {
       icon: "fa-file-alt",
       open: postsAccordionOpen,
       setOpen: setPostsAccordionOpen,
-      items: [{ href: "/posts", icon: "fa-list", label: "포스트 목록" }],
+      items: [
+        { href: "/posts", icon: "fa-list", label: "포스트 목록" },
+        { href: "/posts/categories", icon: "fa-folder", label: "카테고리 관리" },
+      ],
     },
     { type: "single", href: "/careers", icon: "fa-briefcase", label: "경력" },
     { type: "single", href: "/projects", icon: "fa-project-diagram", label: "프로젝트" },

@@ -37,8 +37,16 @@ export default function PostList() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await apiClient.get('/api/categories');
-      setCategories(Array.isArray(res.data) ? res.data : res.data?.items || []);
+      const res = await apiClient.get('/api/categories?tree=true');
+      const raw = Array.isArray(res.data) ? res.data : res.data?.items || [];
+      const flat = [];
+      raw.forEach((node) => {
+        flat.push({ id: node.id, name: node.name, label: node.name });
+        (node.children || []).forEach((child) => {
+          flat.push({ id: child.id, name: child.name, label: `${node.name} > ${child.name}` });
+        });
+      });
+      setCategories(flat);
     } catch (e) {
       setCategories([]);
     }
@@ -166,7 +174,7 @@ export default function PostList() {
             >
               <option value="">전체 카테고리</option>
               {categories.map((c) => (
-                <option key={c.id} value={String(c.id)}>{c.name || c.slug}</option>
+                <option key={c.id} value={String(c.id)}>{c.label || c.name}</option>
               ))}
             </select>
           </div>

@@ -99,36 +99,79 @@ body {
   padding-left: 1.25rem;
 }
 .sidebar-divider {
-  height: 1px;
-  background: var(--ui-border);
+  height: 0;
+  background: transparent;
   border: 0;
   margin: 0 0 1rem 0;
 }
+/* 구분용 제목: 대카테고리와 같은 왼쪽 정렬 */
 .sidebar-categories__title {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--ui-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.02em;
   margin-bottom: 0.75rem;
+  padding-left: 0.75rem;
 }
-.sidebar-categories ul {
+/* 최상위 ul만 리셋 (서브 ul은 .sidebar-categories__sub로 따로 스타일) */
+.sidebar-categories > ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-.sidebar-categories li { margin: 0 0 0.5rem 0; }
+.sidebar-categories > ul > li {
+  margin-bottom: 0.25rem;
+}
+/* 대카테고리: 전체, 기획, 개발, 에세이, 아으 - 제목과 동일 라인(같은 왼쪽) */
 .sidebar-categories a {
-  font-size: 1rem;
+  display: block;
+  font-size: 0.9375rem;
   color: var(--ui-text-secondary);
   text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
 }
 .sidebar-categories a:hover {
   color: var(--ui-primary);
+  background: var(--ui-background-secondary);
 }
 .sidebar-categories a.is-active {
   color: var(--ui-primary);
   font-weight: 600;
+  background: rgba(53, 197, 240, 0.1);
+  border-left: 3px solid var(--ui-primary);
+  padding-left: calc(0.75rem - 3px);
+}
+/* 소카테고리만 계단형 들여쓰기 (오오오 진짜로되나? 등) */
+.sidebar-categories__sub {
+  list-style: none;
+  padding: 0 0 0 0.75rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  margin-left: 1.5rem;
+  border-left: 2px solid var(--ui-border);
+}
+.sidebar-categories__sub li {
+  margin-bottom: 0.125rem;
+}
+.sidebar-categories__sub a {
+  padding: 0.35rem 0;
+  padding-left: 0;
+  font-size: 0.9rem;
+  color: var(--ui-text-secondary);
+}
+.sidebar-categories__sub a:hover {
+  color: var(--ui-primary);
+  background: var(--ui-background-secondary);
+}
+.sidebar-categories__sub a.is-active {
+  color: var(--ui-primary);
+  font-weight: 600;
+  background: rgba(53, 197, 240, 0.1);
+  border-left: 3px solid var(--ui-primary);
+  padding-left: calc(0.75rem - 3px);
 }
 
 /* Header */

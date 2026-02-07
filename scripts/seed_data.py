@@ -64,18 +64,18 @@ def main():
 
             # 기본 카테고리 (없을 때만)
             categories = [
-                ("기획 (Planning)", "planning", 1),
-                ("개발 (Dev)", "dev", 2),
-                ("에세이 (Essay)", "essay", 3),
+                ("기획 (Planning)", 1),
+                ("개발 (Dev)", 2),
+                ("에세이 (Essay)", 3),
             ]
-            for name, slug, order in categories:
+            for name, order in categories:
                 cur.execute(
-                    "SELECT id FROM categories WHERE slug = %s", (slug,)
+                    "SELECT id FROM categories WHERE name = %s AND parent_id IS NULL", (name,)
                 )
                 if cur.fetchone() is None:
                     cur.execute(
-                        "INSERT INTO categories (name, slug, sort_order) VALUES (%s, %s, %s)",
-                        (name, slug, order),
+                        "INSERT INTO categories (parent_id, name, sort_order) VALUES (NULL, %s, %s)",
+                        (name, order),
                     )
                     print("카테고리 생성:", name)
         conn.commit()
