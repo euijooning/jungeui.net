@@ -39,6 +39,11 @@ export async function fetchPostNeighbors(postId) {
   return request(`/api/posts/${postId}/neighbors`);
 }
 
+/** 소개 페이지 메시지 목록 (sort_order 순). */
+export async function fetchAboutMessages() {
+  return request('/api/about/messages');
+}
+
 /** 첨부파일 등 정적 파일 전체 URL (프로덕션에서 API 도메인 사용). */
 export function getStaticUrl(path) {
   if (!path) return '';
