@@ -19,9 +19,8 @@ function useWindowWidth() {
 
 const AdminLayout = ({ children }) => {
   const width = useWindowWidth();
-  const isMobile = width < 1024;
-  const isTablet = width >= 1024 && width < 1280;
   const isDesktop = width >= 1280;
+  const isOverlayMode = !isDesktop; // 1280 미만: 사이드바 숨김, 햄버거로 오버레이만
 
   const [userName, setUserName] = useState("관리자");
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -47,10 +46,10 @@ const AdminLayout = ({ children }) => {
 
   // body에 sidebar-overlay-open 토글
   useEffect(() => {
-    const open = (isMobile || isTablet) && mobileOverlayOpen;
+    const open = isOverlayMode && mobileOverlayOpen;
     document.body.classList.toggle("sidebar-overlay-open", open);
     return () => document.body.classList.remove("sidebar-overlay-open");
-  }, [isMobile, isTablet, mobileOverlayOpen]);
+  }, [isOverlayMode, mobileOverlayOpen]);
 
   // 데스크톱에서 sidebarCollapsed localStorage 저장
   useEffect(() => {
@@ -144,18 +143,9 @@ const AdminLayout = ({ children }) => {
     return "JUNGEUI LAB ADMIN";
   };
 
-  const postsAsSingleLink =
-    (isDesktop && sidebarCollapsed) || (isTablet && !mobileOverlayOpen);
-  const aboutAsSingleLink =
-    (isDesktop && sidebarCollapsed) || (isTablet && !mobileOverlayOpen);
-  const sidebarInOverlayMode =
-    isMobile || (isTablet && mobileOverlayOpen);
-  const sidebarWidth =
-    isDesktop
-      ? (sidebarCollapsed ? "4rem" : "15rem")
-      : isTablet && !mobileOverlayOpen
-        ? "4rem"
-        : "15rem";
+  const postsAsSingleLink = isDesktop && sidebarCollapsed;
+  const aboutAsSingleLink = isDesktop && sidebarCollapsed;
+  const sidebarWidth = isDesktop ? (sidebarCollapsed ? "4rem" : "15rem") : "15rem";
 
   // 대메뉴 > 하위메뉴: 대시보드, 포스트 관리, 소개 관리, 파일 보관함
   const navSections = [
@@ -204,15 +194,15 @@ const AdminLayout = ({ children }) => {
         <aside
           id="sidebar"
           className={`lnb-container bg-primary shadow-lg flex-shrink-0 flex flex-col transition-[width] duration-200 ${
-            sidebarInOverlayMode ? "sidebar-overlay-mode" : ""
+            isOverlayMode ? "sidebar-overlay-mode" : ""
           } ${isDesktop && sidebarCollapsed ? "collapsed" : ""}`}
-          style={{ width: sidebarWidth }}
+          style={{ width: sidebarWidth, minWidth: sidebarWidth }}
         >
           {/* Logo Section */}
           <div className="lnb-header h-16 flex items-center justify-between px-4 border-b border-secondary flex-shrink-0">
             <Link
               to="/"
-              onClick={isMobile || isTablet ? closeOverlay : undefined}
+              onClick={isOverlayMode ? closeOverlay : undefined}
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity duration-200"
             >
               <img src="/favicon.png" alt="" className="w-8 h-8 object-contain flex-shrink-0" />
@@ -232,7 +222,7 @@ const AdminLayout = ({ children }) => {
                     <Link
                       key={section.href}
                       to={section.href}
-                      onClick={isMobile || isTablet ? closeOverlay : undefined}
+                      onClick={isOverlayMode ? closeOverlay : undefined}
                       className={`nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer ${
                         active ? "bg-green-200 text-green-800" : "text-gray-300"
                       }`}
@@ -255,7 +245,7 @@ const AdminLayout = ({ children }) => {
                       <Link
                         key={`${section.title}-single`}
                         to={singleHref}
-                        onClick={isMobile || isTablet ? closeOverlay : undefined}
+                        onClick={isOverlayMode ? closeOverlay : undefined}
                         className={`nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer ${
                           active ? "bg-green-200 text-green-800" : "text-gray-300"
                         }`}
@@ -292,7 +282,7 @@ const AdminLayout = ({ children }) => {
                               <Link
                                 key={sub.href}
                                 to={sub.href}
-                                onClick={isMobile || isTablet ? closeOverlay : undefined}
+                                onClick={isOverlayMode ? closeOverlay : undefined}
                                 className={`nav-item group flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer ${
                                   active ? "bg-green-200 text-green-800" : "text-gray-300"
                                 }`}
@@ -314,7 +304,7 @@ const AdminLayout = ({ children }) => {
         </aside>
 
         {/* 모바일/태블릿 오버레이 배경 */}
-        {(isMobile || isTablet) && mobileOverlayOpen && (
+        {(isOverlayMode) && mobileOverlayOpen && (
           <div
             className="fixed inset-0 bg-black/50 z-40 desktop:hidden"
             onClick={closeOverlay}
@@ -329,7 +319,7 @@ const AdminLayout = ({ children }) => {
             <div className="flex items-center justify-between px-4 tablet:px-6 h-full">
               {/* Left: 햄버거(모바일/태블릿) 또는 사이드바 토글(데스크톱) + 제목 */}
               <div className="flex items-center gap-3">
-                {isMobile || isTablet ? (
+                {isOverlayMode ? (
                   <button
                     type="button"
                     onClick={() => setMobileOverlayOpen((v) => !v)}

@@ -24,37 +24,27 @@ export default function About() {
     return () => { cancelled = true; };
   }, []);
 
-  const dotCount = Math.min(3, Math.max(1, messages.length || 1));
-
   return (
     <SharedLayout categories={[]}>
       <section className="relative left-1/2 -translate-x-1/2 w-screen pt-16 md:pt-20 pb-12 -mt-4 bg-[#F0F9FF]">
-        <div className="w-full px-6 py-8 md:px-10 md:py-12">
+        {/* 로고 좌측 ~ 다크모드 버튼 우측 기준선에 맞춤 (max-w-[1200px] mx-auto px-4 md:px-6) */}
+        <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6 py-8 md:py-12">
           <h1 className="text-4xl md:text-6xl font-bold italic mb-16 text-center tracking-tight">
             <span className="text-blue-500 tracking-normal whitespace-nowrap">"끝내는 기획자",</span>{' '}
             <span className="theme-text whitespace-nowrap">정의준입니다.</span>
           </h1>
 
-          {/* 녹색 점 (선 없음, 최대 3개, 가운데 정렬) */}
-          <div className="flex justify-center gap-3 mt-16 mb-8">
-            {Array.from({ length: dotCount }).map((_, i) => (
-              <span
-                key={i}
-                className="w-3 h-3 rounded-full bg-green-500"
-                aria-hidden
-              />
-            ))}
-          </div>
-
-          {/* API 메시지: 하늘색 소제목 + 내용, 최대 3개 */}
+          {/* API 메시지: 각 컬럼 위에 초록 점 + 소제목(끝내는 기획자 스타일) + 내용, 최대 3개 */}
           {messages.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center justify-items-center">
               {messages.map((m) => (
-                <div key={m.id} className="h-full space-y-2">
-                  <h2 className="text-lg font-semibold text-primary">
+                <div key={m.id} className="h-full flex flex-col items-center space-y-2">
+                  {/* 녹색 점: 각 텍스트 위쪽 */}
+                  <span className="w-3 h-3 rounded-full bg-green-500 shrink-0" aria-hidden />
+                  <h2 className="text-lg font-bold italic text-blue-500 tracking-tight">
                     {m.title}
                   </h2>
-                  <p className="theme-text-secondary text-[0.9375rem] leading-relaxed whitespace-pre-line">
+                  <p className="theme-text-secondary text-[14px] leading-relaxed whitespace-pre-line">
                     {m.content}
                   </p>
                 </div>

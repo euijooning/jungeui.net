@@ -78,6 +78,21 @@ def main():
                         (name, order),
                     )
                     print("카테고리 생성:", name)
+
+            # about_messages (없을 때만)
+            cur.execute("SELECT COUNT(*) FROM about_messages")
+            if cur.fetchone()[0] == 0:
+                messages = [
+                    ("과거", "이전 경험과 학습의 여정을 담았습니다.", 0),
+                    ("현재", "지금의 나와 관심사를 나눕니다.", 1),
+                    ("미래", "앞으로의 방향과 비전을 그립니다.", 2),
+                ]
+                for title, content, order in messages:
+                    cur.execute(
+                        "INSERT INTO about_messages (title, content, sort_order) VALUES (%s, %s, %s)",
+                        (title, content, order),
+                    )
+                    print("about_messages 시드 생성:", title)
         conn.commit()
         print("시드 데이터 적용 완료.")
     except Exception as e:

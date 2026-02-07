@@ -15,6 +15,7 @@ MySQL 8.0 / MariaDB 기준. utf8mb4 사용.
 | post_attachments | 글-첨부파일 N:M (다중) |
 | careers | 경력/이력 |
 | projects | 프로젝트 포트폴리오 |
+| about_messages | 소개 인사말 메시지 (과거/현재/미래 스타일) |
 | project_links | 프로젝트별 다중 링크 |
 | project_tags | 프로젝트-태그 N:M |
 | daily_stats | 일별 방문 통계 |
@@ -94,6 +95,15 @@ CREATE TABLE post_attachments (
   FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
   FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
 ) COMMENT='게시글 첨부파일 (다중)';
+
+CREATE TABLE about_messages (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(100) NOT NULL COMMENT '소제목 (예: 과거, 현재, 미래)',
+  content TEXT NOT NULL COMMENT '내용 (3문장 등)',
+  sort_order INT DEFAULT 0 COMMENT '노출 순서',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) COMMENT='소개 인사말 메시지 (과거/현재/미래 스타일)';
 
 CREATE TABLE careers (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,

@@ -20,6 +20,11 @@ API 베이스: `http://localhost:8010` (또는 환경변수 `VITE_API_URL` / 백
 | DELETE | /posts/{id} | 글 삭제 | Admin |
 | GET | /categories | 카테고리 목록 | 공개 |
 | GET | /tags | 태그 목록 (인기 상위 등) | 공개 |
+| GET | /about/messages | 소개 인사말 메시지 목록 | 공개 |
+| GET | /about_messages | 메시지 목록 | Admin |
+| POST | /about_messages | 메시지 생성 | Admin |
+| PUT | /about_messages/{id} | 메시지 수정 | Admin |
+| DELETE | /about_messages/{id} | 메시지 삭제 | Admin |
 | GET | /careers | 경력 목록 (sort_order) | 공개 |
 | POST | /careers | 경력 생성 | Admin |
 | PUT | /careers/{id} | 경력 수정 | Admin |
@@ -40,3 +45,4 @@ API 베이스: `http://localhost:8010` (또는 환경변수 `VITE_API_URL` / 백
 
 - 관리자 1명: `ej@jungeui.net` / 비밀번호는 시딩 후 변경.
 - 카테고리: 기획 (planning), 개발 (dev), 에세이 (essay).
+- about_messages: 과거, 현재, 미래 3개 (소개 인사말).

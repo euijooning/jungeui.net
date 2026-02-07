@@ -147,6 +147,15 @@ CREATE TABLE daily_stats (
   total_views INT DEFAULT 0 COMMENT '총 조회수',
   visitor_count INT DEFAULT 0 COMMENT '방문자수'
 ) COMMENT='일별 방문 통계';
+
+CREATE TABLE about_messages (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(100) NOT NULL COMMENT '소제목 (예: 과거, 현재, 미래)',
+  content TEXT NOT NULL COMMENT '내용 (3문장 등)',
+  sort_order INT DEFAULT 0 COMMENT '노출 순서',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) COMMENT='소개 인사말 메시지 (과거/현재/미래 스타일)';
 """
 
 

@@ -33,10 +33,10 @@
 
 ### 2-1. DB 스키마
 
-- [ ] `docs/common/01-db-schema.md`에 about_messages 테이블 문서화
-- [ ] `scripts/db_init.py`에 테이블 생성 로직 추가
-- [ ] `scripts/migrate_about_messages.py` 생성 (기존 DB용)
-- [ ] `scripts/seed_data.py`에 과거/현재/미래 3개 시드 추가
+- [x] `docs/common/01-db-schema.md`에 about_messages 테이블 문서화
+- [x] `scripts/db_init.py`에 테이블 생성 로직 추가
+- [x] `scripts/migrate_about_messages.py` 생성 (기존 DB용)
+- [x] `scripts/seed_data.py`에 과거/현재/미래 3개 시드 추가
 
 ```sql
 CREATE TABLE about_messages (
@@ -51,20 +51,20 @@ CREATE TABLE about_messages (
 
 ### 2-2. API
 
-- [ ] `apps/api/routers/about.py`: GET /api/about/messages (공개)
-- [ ] `apps/api/routers/about_messages.py`: GET/POST/PUT/DELETE /api/about_messages (Admin)
-- [ ] `apps/api/routers/__init__.py`에 라우터 등록
-- [ ] `docs/common/02-api-spec.md`에 엔드포인트 추가
+- [x] `apps/api/routers/about.py`: GET /api/about/messages (공개)
+- [x] `apps/api/routers/about_messages.py`: GET/POST/PUT/DELETE /api/about_messages (Admin)
+- [x] `apps/api/routers/__init__.py`에 라우터 등록
+- [x] `docs/common/02-api-spec.md`에 엔드포인트 추가
 
 ---
 
 ## 3. 백오피스 메시지 관리 페이지
 
-- [ ] `apps/backoffice/src/pages/messages/MessageList.jsx` 생성
+- [x] `apps/backoffice/src/pages/messages/MessageList.jsx` 생성
   - 목록: 제목, 내용 요약, sort_order, 수정/삭제
   - 모달 또는 인라인 편집으로 제목/내용/순서 수정
-- [ ] `apps/backoffice/src/App.jsx`에 `/messages` 라우트 추가
-- [ ] apiClient로 CRUD 연동
+- [x] `apps/backoffice/src/App.jsx`에 `/messages` 라우트 추가
+- [x] apiClient로 CRUD 연동
 
 ---
 
@@ -79,16 +79,16 @@ CREATE TABLE about_messages (
 | 3, 4 | API | GET /api/about/messages로 제목·내용 fetch → 하늘색 소제목 + 본문, 최대 3개 |
 | 5 | 하드코딩 | 메시지 아이콘 + ej@jungui.net, mailto:ej@jungui.net |
 
-- [ ] `apps/client/src/api.js`에 fetchAboutMessages() 추가
-- [ ] 인사말 섹션 마크업 (제목, 점, 메시지 그리드, 이메일 버튼)
+- [x] `apps/client/src/api.js`에 fetchAboutMessages() 추가
+- [x] 인사말 섹션 마크업 (제목, 점, 메시지 그리드, 이메일 버튼)
 
 ---
 
 ## 완료 점검
 
-- [ ] 백오피스: 소개 메뉴에서 메시지/경력/프로젝트 접근 가능
-- [ ] 백오피스: 메시지 CRUD 동작
-- [ ] 클라이언트: /about에서 인사말(제목, 점, 메시지 3개, 이메일) 표시
-- [ ] API: GET /api/about/messages 공개 조회 동작
+- [x] 백오피스: 소개 메뉴에서 메시지/경력/프로젝트 접근 가능
+- [x] 백오피스: 메시지 CRUD 동작
+- [x] 클라이언트: /about에서 인사말(제목, 점, 메시지 3개, 이메일) 표시
+- [x] API: GET /api/about/messages 공개 조회 동작
 
 **Phase 완료** (점검일: __________)

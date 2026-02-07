@@ -93,7 +93,20 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
-/* Sidebar styles */
+/* Sidebar styles - zoom(125%,150%)에서 찌그러짐 방지 (min-width는 AdminLayout inline으로 처리) */
+.lnb-content {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.lnb-content .nav-item {
+  min-height: 2.5rem;
+  flex-shrink: 0;
+}
+.lnb-content .space-y-1 > * {
+  flex-shrink: 0;
+}
+
 .lnb-container.collapsed .sidebar-text {
   display: none;
 }

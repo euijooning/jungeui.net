@@ -357,7 +357,7 @@ export default function CategoryList() {
 
       <Dialog open={dialog.open} onClose={closeDialog} maxWidth="sm" fullWidth>
         <DialogTitle>{dialog.mode === 'add' ? (dialog.parentId ? '소카테고리 추가' : '대카테고리 추가') : '카테고리 수정'}</DialogTitle>
-        <DialogContent className="flex flex-col gap-4 pt-2" sx={{ overflow: 'visible' }}>
+        <DialogContent className="flex flex-col gap-4" sx={{ overflow: 'visible', pt: 5, pb: 1 }}>
           <TextField
             label="이름"
             value={dialog.name}
@@ -366,12 +366,7 @@ export default function CategoryList() {
             autoFocus
             variant="outlined"
             InputLabelProps={{ shrink: true }}
-            InputProps={{
-              style: { paddingTop: 14, paddingBottom: 14, lineHeight: 1.5 },
-            }}
-            sx={{
-              '& .MuiInputBase-input': { minHeight: 24, boxSizing: 'content-box' },
-            }}
+            sx={{ mt: 1 }}
           />
         </DialogContent>
         <DialogActions>
