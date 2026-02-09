@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Card from '../components/Card';
 import SharedLayout from '../components/SharedLayout';
-import { fetchPosts, fetchCategories } from '../api';
+import { fetchPosts, fetchCategories, fetchTags } from '../api';
 
 const PER_PAGE = 5;
 
@@ -17,11 +17,13 @@ export default function Home() {
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
   const q = searchParams.get('q') || '';
   const categoryId = searchParams.get('category_id') || null;
+  const tagId = searchParams.get('tag') || null;
 
   const [posts, setPosts] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
+  const [tags, setTags] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,8 +35,26 @@ export default function Home() {
 
   useEffect(() => {
     let cancelled = false;
+    if (tagId) {
+      fetchTags().then((list) => {
+        if (!cancelled && Array.isArray(list)) setTags(list);
+      }).catch(() => {});
+    } else {
+      setTags([]);
+    }
+    return () => { cancelled = true; };
+  }, [tagId]);
+
+  useEffect(() => {
+    let cancelled = false;
     setLoading(true);
-    fetchPosts({ page, per_page: PER_PAGE, category_id: categoryId || undefined, q: q || undefined })
+    fetchPosts({
+      page,
+      per_page: PER_PAGE,
+      category_id: categoryId || undefined,
+      tag_id: tagId || undefined,
+      q: q || undefined,
+    })
       .then((res) => {
         if (cancelled) return;
         setPosts(res.items || []);
@@ -47,7 +67,7 @@ export default function Home() {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [page, q, categoryId]);
+  }, [page, q, categoryId, tagId]);
 
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 
@@ -80,7 +100,12 @@ export default function Home() {
   return (
     <SharedLayout categories={categories} currentCategoryId={categoryId || null}>
       <div className="mb-3 min-h-6">
-        {q && (
+        {tagId && (
+          <p className="m-0 text-[0.9375rem] theme-text-secondary">
+            {tags.find((t) => String(t.id) === tagId)?.name ?? '태그'} 검색 결과 {total}건
+          </p>
+        )}
+        {!tagId && q && (
           <p className="m-0 text-[0.9375rem] theme-text-secondary">
             &quot;{q}&quot; 검색 결과 {total}건
           </p>

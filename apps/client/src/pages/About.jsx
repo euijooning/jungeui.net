@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import SharedLayout from '../components/SharedLayout';
-import { fetchAboutMessages } from '../api';
+import { fetchAboutMessages, fetchTags } from '../api';
 
 const messageIcon = (
   <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -11,6 +12,7 @@ const messageIcon = (
 
 export default function About() {
   const [messages, setMessages] = useState([]);
+  const [tags, setTags] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -19,6 +21,16 @@ export default function About() {
         if (!cancelled && Array.isArray(list)) {
           setMessages(list.slice(0, 3));
         }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchTags({ used_in_posts: true })
+      .then((list) => {
+        if (!cancelled && Array.isArray(list)) setTags(list);
       })
       .catch(() => {});
     return () => { cancelled = true; };
@@ -63,6 +75,24 @@ export default function About() {
               </span>
               <span className="tracking-wider font-normal">ej<span className="mx-[0.05rem]">@</span>jungui.net</span>
             </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 태그 섹션: 흰색 배경 분리 영역, Posts 메뉴와 좌측 정렬 */}
+      <section className="relative left-1/2 -translate-x-1/2 w-screen py-8 md:py-10 bg-white dark:bg-(--ui-background)">
+        <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6">
+          <h1 className="text-3xl font-bold text-black dark:text-white mb-12 text-center">태그</h1>
+          <div className="flex flex-wrap gap-2 justify-start">
+            {tags.map((t) => (
+              <Link
+                key={t.id}
+                to={`/?tag=${t.id}`}
+                className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/30 text-gray-700 dark:text-gray-200 text-[0.9375rem] hover:bg-green-200 dark:hover:bg-green-800/40 transition-colors"
+              >
+                {t.post_count != null ? `${t.name} (${t.post_count})` : t.name}
+              </Link>
+            ))}
           </div>
         </div>
       </section>

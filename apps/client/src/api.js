@@ -13,12 +13,13 @@ async function request(path, options = {}) {
   return res.json();
 }
 
-export async function fetchPosts({ page = 1, per_page = 5, category_id, q } = {}) {
+export async function fetchPosts({ page = 1, per_page = 5, category_id, tag_id, q } = {}) {
   const params = new URLSearchParams();
   params.set('page', String(page));
   params.set('per_page', String(per_page));
   params.set('status', 'PUBLISHED');
   if (category_id != null && category_id !== '') params.set('category_id', String(category_id));
+  if (tag_id != null && tag_id !== '') params.set('tag_id', String(tag_id));
   if (q && q.trim()) params.set('q', q.trim());
   return request(`/api/posts?${params}`);
 }
@@ -42,6 +43,12 @@ export async function fetchPostNeighbors(postId) {
 /** 소개 페이지 메시지 목록 (sort_order 순). */
 export async function fetchAboutMessages() {
   return request('/api/about/messages');
+}
+
+/** 태그 목록. used_in_posts=true면 공개 포스트에 사용된 태그만 반환 (post_count 포함). */
+export async function fetchTags(opts = {}) {
+  const q = opts.used_in_posts ? '?used_in_posts=true' : '';
+  return request(`/api/tags${q}`);
 }
 
 /** 첨부파일 등 정적 파일 전체 URL (프로덕션에서 API 도메인 사용). */
