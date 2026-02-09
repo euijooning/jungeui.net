@@ -135,7 +135,6 @@ const AdminLayout = ({ children }) => {
       "/messages": "메시지",
       "/careers": "경력",
       "/projects": "프로젝트",
-      "/assets": "파일 보관함",
     };
     if (titles[currentPath]) return titles[currentPath];
     if (/^\/posts\/[^/]+\/edit$/.test(currentPath)) return "포스트 수정";
@@ -147,7 +146,7 @@ const AdminLayout = ({ children }) => {
   const aboutAsSingleLink = isDesktop && sidebarCollapsed;
   const sidebarWidth = isDesktop ? (sidebarCollapsed ? "4rem" : "15rem") : "15rem";
 
-  // 대메뉴 > 하위메뉴: 대시보드, 포스트 관리, 소개 관리, 파일 보관함
+  // 대메뉴 > 하위메뉴: 대시보드, 포스트 관리, 소개 관리
   const navSections = [
     { type: "single", href: "/", icon: "fa-desktop", label: "대시보드" },
     {
@@ -171,11 +170,10 @@ const AdminLayout = ({ children }) => {
       singleLinkHref: "/messages",
       items: [
         { href: "/messages", icon: "fa-envelope", label: "메시지" },
-        { href: "/careers", icon: "fa-briefcase", label: "경력" },
         { href: "/projects", icon: "fa-project-diagram", label: "프로젝트" },
+        { href: "/careers", icon: "fa-briefcase", label: "경력" },
       ],
     },
-    { type: "single", href: "/assets", icon: "fa-folder-open", label: "파일 보관함" },
   ];
 
   return (

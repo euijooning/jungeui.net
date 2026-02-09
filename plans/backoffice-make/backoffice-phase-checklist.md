@@ -10,9 +10,9 @@
 
 **파일**: `AdminLayout.jsx`, `Dashboard.jsx`, `authProvider.js`, `dataProvider.js`, `apiClient.js`
 
-- [x] **1** navSections: 회원/콘텐츠/교회소개/교적/설정/가족모임 관리 제거. Jungeui 6개만 유지 (대시보드, 글 관리, 글 쓰기, 경력, 프로젝트, 파일 보관함).
+- [x] **1** navSections: 회원/콘텐츠/교회소개/교적/설정/가족모임 관리 제거. Jungeui 5개만 유지 (대시보드, 글 관리, 글 쓰기, 경력, 프로젝트).
 - [x] **2** 아코디언 state 및 관련 useEffect 제거 (contentAccordionOpen, usersAccordionOpen, churchAccordionOpen, membershipAccordionOpen, settingsAccordionOpen).
-- [x] **3** getPageTitle: 레거시 specialCases 전부 제거. `/`, `/posts`, `/posts/new`, `/posts/:postId/edit`, `/careers`, `/projects`, `/assets` 만 매핑.
+- [x] **3** getPageTitle: 레거시 specialCases 전부 제거. `/`, `/posts`, `/posts/new`, `/posts/:postId/edit`, `/careers`, `/projects` 만 매핑.
 - [x] **4** loadUserInfo: `/api/auth/me` 응답을 Jungeui 스펙에 맞게 처리 (nickname → name 등).
 - [x] **5** authProvider: POST /api/auth/login, JWT 저장이 02-api-spec과 일치하는지 확인.
 - [x] **6** dataProvider: apiUrl = VITE_API_URL + `/api`, 리소스 경로(posts, categories, tags, careers, projects, assets) 스펙 일치 확인.
@@ -79,20 +79,9 @@
 
 ---
 
-## Phase 04: 파일 보관함 (Assets)
+## Phase 04: 파일 보관함 — 제거됨
 
-**파일**: `AssetsList.jsx`, Write/Careers/Projects 내 업로드 연동
-
-- [ ] **40** AssetsList: GET /api/assets, 갤러리 그리드 뷰.
-- [ ] **41** AssetsList: 썸네일(또는 아이콘), original_name, size_bytes, uploaded_at 표시.
-- [ ] **42** AssetsList: URL 복사 — 공개 URL 클립보드 복사.
-- [ ] **43** AssetsList: DELETE /api/assets/{id} (사용 여부 체크/경고 반영).
-- [ ] **44** Write/Careers/Projects에서 이미지·로고·썸네일 업로드 시 POST /api/assets/upload 사용, 응답 asset id 저장.
-
-### Phase 04 완료 점검 (구현 후 실행 후 보고)
-
-- [ ] **45** 파일 보관함 갤러리·URL 복사·삭제 동작.
-- [ ] **46** 글 쓰기/경력/프로젝트 화면에서 업로드 후 자산 목록과 연동.
+별도 파일 보관함 페이지·메뉴 없음. 업로드는 포스트/경력/프로젝트 편집 화면에서 POST /api/assets/upload 인라인 사용.
 
 ---
 
@@ -103,6 +92,5 @@
 | Phase 01 | 1~10      | 11~13          |
 | Phase 02 | 14~24     | 25~27          |
 | Phase 03 | 28~37     | 38~39          |
-| Phase 04 | 40~44     | 45~46          |
 
 **한 Phase 끝나면 해당 Phase의 완료 점검 항목을 체크하고 보고.**

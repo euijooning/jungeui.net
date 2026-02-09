@@ -13,7 +13,7 @@ import PostNew from "./pages/posts/PostNew";
 import PostEdit from "./pages/posts/PostEdit";
 import CareerList from "./pages/careers/CareerList";
 import ProjectList from "./pages/projects/ProjectList";
-import AssetList from "./pages/assets/AssetList";
+import ProjectNew from "./pages/projects/ProjectNew";
 import CategoryList from "./pages/categories/CategoryList";
 import MessageList from "./pages/messages/MessageList";
 
@@ -39,7 +39,7 @@ export default function AdminApp() {
         <Route path="/messages" element={<MessageList />} />
         <Route path="/careers" element={<CareerList />} />
         <Route path="/projects" element={<ProjectList />} />
-        <Route path="/assets" element={<AssetList />} />
+        <Route path="/projects/new" element={<ProjectNew />} />
         <Route path="/posts/categories" element={<CategoryList />} />
       </CustomRoutes>
     </Admin>

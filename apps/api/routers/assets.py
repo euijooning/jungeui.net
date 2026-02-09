@@ -47,6 +47,7 @@ def _is_image_ext(ext: str) -> bool:
 async def upload_file(
     file: UploadFile = File(...),
     post_id: str | None = Query(None, description="게시글 ID, 없으면 temp"),
+    folder: str | None = Query(None, description="projects일 때 projects/{subdir}/ 경로 사용"),
     db=Depends(get_db),
 ):
     """파일 업로드 (이미지 + 문서). multipart/form-data, 필드명 'file'. 허용: png, jpg, jpeg, gif, webp, pdf, ppt, pptx, hwp, hwpx, docx. 최대 10MB. assets 테이블에 저장 후 id 반환."""
@@ -65,14 +66,17 @@ async def upload_file(
                 detail="허용되지 않는 파일 형식입니다.",
             )
 
-    now = datetime.now()
-    year = now.strftime("%Y")
-    month = now.strftime("%m")
-    day = now.strftime("%d")
     pid = (post_id or "temp").strip() or "temp"
-    subdir = "images" if _is_image_ext(ext) else "documents"
     name = f"{uuid.uuid4().hex[:12]}.{ext}"
-    rel_path = f"{subdir}/{year}/{month}/{day}/{pid}/{name}"
+    if folder == "projects":
+        rel_path = f"projects/{pid}/{name}"
+    else:
+        now = datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        day = now.strftime("%d")
+        subdir = "images" if _is_image_ext(ext) else "documents"
+        rel_path = f"{subdir}/{year}/{month}/{day}/{pid}/{name}"
     dest = Path(UPLOAD_DIR) / rel_path
     dest.parent.mkdir(parents=True, exist_ok=True)
 

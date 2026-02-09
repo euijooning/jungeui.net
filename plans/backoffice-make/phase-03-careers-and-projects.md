@@ -19,10 +19,11 @@
 
 - **목록**: GET /api/projects. sort_order 순. 드래그앤드롭 → PATCH /api/projects/reorder.
 - **등록/수정 폼**:
-  - title, subtitle, description, start_date, end_date, sort_order.
-  - thumbnail_asset_id (대표 이미지).
-  - **project_links**: 링크명(link_name)·URL(link_url) 다중 입력 (예: GitHub, AppStore). sort_order.
-  - **project_tags**: 미리 등록된 tags 중 다중 선택 (기술 스택). GET /api/tags 사용.
+  - title, description, start_date(연·월), end_date(연·월), sort_order. (subtitle 제거)
+  - thumbnail_asset_id (대표 이미지, 정사각형 리사이즈), intro_image_asset_id (소개 이미지).
+  - **project_links**: 링크명·URL 다중 입력, 최대 5개. sort_order.
+  - **project_tags**: Enter로 추가, 최대 6개 (기술 스택).
+  - 날짜: 과거만 선택 가능.
 - **API**: POST /api/projects, PUT /api/projects/{id}, PATCH /api/projects/reorder. project_links·project_tags는 프로젝트 저장 시 함께 전송하거나 별도 엔드포인트.
 
 ## 완료 기준

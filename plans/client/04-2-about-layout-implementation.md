@@ -17,7 +17,6 @@
   - 메시지 → `/messages`
   - 경력 → `/careers`
   - 프로젝트 → `/projects`
-- 파일 보관함 (단일)
 
 **체크리스트:**
 - [x] `aboutAccordionOpen` state 추가

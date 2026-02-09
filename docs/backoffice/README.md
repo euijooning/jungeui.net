@@ -11,13 +11,12 @@
 | Phase 01 | 완료 | 레거시 제거, API·인증 연동, 대시보드 |
 | Phase 02 | 완료 | 글 목록·글 쓰기(Toast UI 에디터·설정 패널)·상세·첨부파일 |
 | Phase 03 | 미구현 | 경력·프로젝트 CRUD·드래그 정렬 |
-| Phase 04 | 미구현 | 파일 보관함 갤러리·업로드·삭제 |
 
 ---
 
 ## Phase 01 요약
 
-- **레거시 제거**: AdminLayout에서 은혜이음 전용 메뉴·경로·getPageTitle 제거. Jungeui 6개 메뉴만 유지(대시보드, 포스트 목록·새 포스트, 경력, 프로젝트, 파일 보관함).
+- **레거시 제거**: AdminLayout에서 은혜이음 전용 메뉴·경로·getPageTitle 제거. Jungeui 5개 메뉴만 유지(대시보드, 포스트 목록·새 포스트, 경력, 프로젝트).
 - **API·인증**: authProvider(dataProvider)가 `VITE_API_URL + /api` 기준. POST /api/auth/login, JWT 저장. loadUserInfo는 /api/auth/me Jungeui 스펙 처리.
 - **대시보드**: GET /api/dashboard/stats 연동(오늘/어제 방문자, 누적 조회수, 발행 포스트). Quick Action [새 글 쓰기] → /posts/new, [경력 추가] → /careers. Recent Activity(최근 글 5개 등) 영역.
 
@@ -68,8 +67,8 @@
 ## 기술 스택·주요 파일
 
 - **스택**: React, React Admin, Tailwind CSS, Toast UI Editor. API: FastAPI(JWT).
-- **페이지**: `apps/backoffice/src/pages/` — `dashboard/Dashboard.jsx`, `posts/PostList.jsx`, `PostDetail.jsx`, `PostNew.jsx`, `PostEdit.jsx`, `PostEditor.jsx`, `careers/CareerList.jsx`, `projects/ProjectList.jsx`, `assets/AssetList.jsx`.
-- **라우트** (App.jsx CustomRoutes): `/`(대시보드), `/posts`, `/posts/new`, `/posts/:postId/edit`, `/posts/:postId`, `/careers`, `/projects`, `/assets`.
+- **페이지**: `apps/backoffice/src/pages/` — `dashboard/Dashboard.jsx`, `posts/PostList.jsx`, `PostDetail.jsx`, `PostNew.jsx`, `PostEdit.jsx`, `PostEditor.jsx`, `careers/CareerList.jsx`, `projects/ProjectList.jsx`.
+- **라우트** (App.jsx CustomRoutes): `/`(대시보드), `/posts`, `/posts/new`, `/posts/:postId/edit`, `/posts/:postId`, `/careers`, `/projects`.
 
 ---
 

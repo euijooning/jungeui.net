@@ -122,7 +122,6 @@ CREATE TABLE projects (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   thumbnail_asset_id BIGINT NULL COMMENT '대표 이미지 ID',
   title VARCHAR(100) NOT NULL COMMENT '프로젝트명',
-  subtitle VARCHAR(200) NULL COMMENT '한줄 소개',
   description TEXT NULL COMMENT '상세 내용',
   start_date DATE NULL COMMENT '시작일',
   end_date DATE NULL COMMENT '종료일',

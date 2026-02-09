@@ -48,6 +48,7 @@
 html {
   scrollbar-gutter: stable;
   font-family: "NexonLv1Gothic", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
 }
 body {
   font-family: inherit;
@@ -55,6 +56,7 @@ body {
   line-height: 1.6;
   background-color: var(--ui-background);
   color: var(--ui-text);
+  overflow-x: hidden;
 }
 
 :root {
@@ -119,6 +121,15 @@ body {
   background: rgba(53, 197, 240, 0.28);
 }
 .theme-card-meta { font-size: 0.85rem; color: var(--ui-text-secondary); }
+
+/* 프로젝트 카로셀: 좌/우 오버플로우 페이드 (mask-image 베스트 프랙티스) */
+.carousel-fade {
+  --mask-width: 48px;
+  -webkit-mask-image: linear-gradient(to right, transparent, black var(--mask-width), black calc(100% - var(--mask-width)), transparent);
+  mask-image: linear-gradient(to right, transparent, black var(--mask-width), black calc(100% - var(--mask-width)), transparent);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
 .theme-card-border { border-width: 1px; border-style: solid; border-color: #C2CFDA; }
 [data-theme="dark"] .theme-card-border { border-color: var(--ui-border); }
 

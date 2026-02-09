@@ -10,7 +10,7 @@
 
 **파일**: `apps/backoffice/src/components/AdminLayout.jsx`
 
-- **navSections**: 회원 관리, 콘텐츠 관리, 교회소개, 교적, 설정, 가족모임 관리 전부 제거. Jungeui 6개만 유지: 대시보드(/), 글(아코디언·글 목록 /posts), 글 쓰기(/posts/new), 경력(/careers), 프로젝트(/projects), 파일 보관함(/assets).
+- **navSections**: 회원 관리, 콘텐츠 관리, 교회소개, 교적, 설정, 가족모임 관리 전부 제거. Jungeui 5개만 유지: 대시보드(/), 글(아코디언·글 목록 /posts), 글 쓰기(/posts/new), 경력(/careers), 프로젝트(/projects).
 - **아코디언 state**: `contentAccordionOpen`, `usersAccordionOpen`, `churchAccordionOpen`, `membershipAccordionOpen`, `settingsAccordionOpen` 및 관련 `useEffect` 제거.
 - **getPageTitle**: 레거시 경로 매핑 제거. `/`, `/posts`, `/write`, `/careers`, `/projects`, `/assets` 만 매핑.
 - **loadUserInfo**: `/api/auth/me` 호출 시 응답 필드가 Jungeui API 스펙(name 등)에 맞게 처리. nickname → name 등.

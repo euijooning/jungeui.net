@@ -45,6 +45,16 @@ export async function fetchAboutMessages() {
   return request('/api/about/messages');
 }
 
+/** 프로젝트 목록 (sort_order 순). 링크·태그·썸네일 URL 포함. */
+export async function fetchProjects() {
+  return request('/api/projects');
+}
+
+/** 경력 목록 (sort_order 순). */
+export async function fetchCareers() {
+  return request('/api/careers');
+}
+
 /** 태그 목록. used_in_posts=true면 공개 포스트에 사용된 태그만 반환 (post_count 포함). */
 export async function fetchTags(opts = {}) {
   const q = opts.used_in_posts ? '?used_in_posts=true' : '';

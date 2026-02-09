@@ -13,7 +13,6 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import WorkIcon from '@mui/icons-material/Work';
 import FolderIcon from '@mui/icons-material/Folder';
-import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 
 const postSubItems = [
   { to: '/posts', label: '포스트 목록', icon: <ArticleIcon /> },
@@ -25,7 +24,6 @@ const topItems = [
   { to: '/', label: '대시보드', icon: <Monitor /> },
   { to: '/careers', label: '경력', icon: <WorkIcon /> },
   { to: '/projects', label: '프로젝트', icon: <FolderIcon /> },
-  { to: '/assets', label: '파일 보관함', icon: <PhotoLibraryIcon /> },
 ];
 
 const linkSx = {

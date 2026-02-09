@@ -11,7 +11,6 @@ function getPageTitleByPath(path) {
 	if (/^\/posts\/[^/]+\/edit$/.test(path)) return '포스트 수정'
 	if (path === '/careers') return '경력'
 	if (path === '/projects') return '프로젝트'
-	if (path === '/assets') return '파일 보관함'
 	return 'JUNGEUI LAB ADMIN'
 }
 

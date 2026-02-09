@@ -110,6 +110,14 @@ const apiClient = {
   delete(url, options = {}) {
     return this.request(url, { ...options, method: 'DELETE' });
   },
+
+  patch(url, data, options = {}) {
+    return this.request(url, {
+      ...options,
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 export { getAccessToken };
