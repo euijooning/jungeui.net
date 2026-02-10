@@ -121,7 +121,7 @@ export default function About() {
 
   return (
     <SharedLayout categories={[]}>
-      <section className="relative left-1/2 -translate-x-1/2 w-screen pt-16 md:pt-20 pb-12 -mt-4 bg-[#F0F9FF] dark:bg-[var(--ui-background)]">
+      <section className="relative left-1/2 -translate-x-1/2 w-screen pt-16 md:pt-20 pb-12 -mt-4 bg-[#F0F9FF] dark:bg-(--ui-background)">
         <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6 py-8 md:py-12">
           <h1 className="text-4xl md:text-6xl font-bold italic mb-16 text-center tracking-tight">
             <span className="text-blue-500 tracking-normal whitespace-nowrap">"끝내는 기획자",</span>{' '}
@@ -173,7 +173,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="relative left-1/2 -translate-x-1/2 w-screen py-10 md:py-14 bg-[#F0F9FF] dark:bg-[var(--ui-background)] overflow-hidden -mb-8">
+      <section className="relative left-1/2 -translate-x-1/2 w-screen py-10 md:py-14 bg-[#F0F9FF] dark:bg-(--ui-background) overflow-hidden -mb-8">
         <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6">
           <div className="flex justify-center items-center gap-4 mb-12">
             <h1 className="text-3xl font-bold text-black dark:text-white">프로젝트</h1>
@@ -192,12 +192,12 @@ export default function About() {
             
             {/* 블러 효과: 카드가 패딩 영역으로 지나갈 때 흐릿하게 보이도록 */}
             <div
-              className={`hidden md:block absolute left-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-linear-to-r from-[#F0F9FF] dark:from-[var(--ui-background)] to-transparent pointer-events-none transition-opacity duration-300 ${
+              className={`hidden md:block absolute left-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-linear-to-r from-[#F0F9FF] dark:from-(--ui-background) to-transparent pointer-events-none transition-opacity duration-300 ${
                 carouselIndex === 0 ? 'opacity-0' : 'opacity-100'
               }`}
             />
             <div
-              className={`hidden md:block absolute right-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-linear-to-l from-[#F0F9FF] dark:from-[var(--ui-background)] to-transparent pointer-events-none transition-opacity duration-300 ${
+              className={`hidden md:block absolute right-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-linear-to-l from-[#F0F9FF] dark:from-(--ui-background) to-transparent pointer-events-none transition-opacity duration-300 ${
                 !canNext ? 'opacity-0' : 'opacity-100'
               }`}
             />
