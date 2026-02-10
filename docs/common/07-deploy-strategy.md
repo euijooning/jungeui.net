@@ -105,7 +105,24 @@
 
 ---
 
-## 6. 문서·README 연계
+## 6. 스테이징 접근 제한
+
+스테이징은 넷에 공개되므로, **스테이징 백오피스·스테이징 클라이언트** 접근 시 Basic Auth를 걸어 두는 것을 권장한다. 검색엔진 인덱싱·무단 접속·디버그 정보 노출·테스트 데이터 오염을 막을 수 있다.
+
+**하는 방법 (Nginx Basic Auth)**
+
+1. **서버**에서 `htpasswd`로 비밀번호 파일 한 개 생성 (예: `/etc/nginx/.htpasswd.staging`). ID/비밀번호는 **.env나 저장소에 넣지 말고** 서버에서만 관리.
+2. **Nginx**에서 스테이징 도메인용 server block에 아래 두 줄 추가:
+   - `auth_basic "Staging";`
+   - `auth_basic_user_file /경로/.htpasswd.staging;`
+3. `nginx -t`로 문법 검사 후 `systemctl reload nginx`로 적용.
+4. 브라우저에서 스테이징 URL 접속 시 ID/비밀번호 팝업이 뜨면 적용된 것.
+
+상세(htpasswd 설치·명령 예시, server block 전체 예시)는 [sample/nginx-staging-basic-auth.md](sample/nginx-staging-basic-auth.md) 참고.
+
+---
+
+## 7. 문서·README 연계
 
 - **서버 실행·로컬 실행**: [05-server-run-guide.md](05-server-run-guide.md) 참조.
 - **루트 README**: 배포/환경 문단이 있으면 "환경별 .env 및 배포 구조는 docs/common/07-deploy-strategy.md 참고"로 안내하면 된다.
