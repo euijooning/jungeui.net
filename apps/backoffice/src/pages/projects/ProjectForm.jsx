@@ -348,7 +348,9 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
     }
   };
 
-  const inputCls = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
+  // [수정] 기본 스타일과 block 스타일 분리
+  const baseInputCls = 'px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
+  const blockInputCls = `w-full ${baseInputCls}`; // w-full이 필요한 경우 사용
   const labelCls = 'block text-sm font-medium text-gray-700 mb-1';
 
   if (loadError) {
@@ -381,7 +383,13 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
+        }}
+        className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      >
         <div>
           <label htmlFor="title" className={labelCls}>프로젝트명 * (최대 10자)</label>
           <input
@@ -389,7 +397,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
             type="text"
             value={form.title}
             onChange={(e) => setForm((f) => ({ ...f, title: e.target.value.slice(0, 10) }))}
-            className={inputCls}
+            className={blockInputCls}
             placeholder="프로젝트명"
             maxLength={10}
             required
@@ -405,7 +413,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
             id="description"
             value={form.description}
             onChange={(e) => setForm((f) => ({ ...f, description: e.target.value.slice(0, 100) }))}
-            className={`${inputCls} min-h-[120px]`}
+            className={`${blockInputCls} min-h-[120px]`}
             placeholder="상세 내용"
             rows={5}
             maxLength={100}
@@ -439,19 +447,27 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
               const n = new Date();
               return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}`;
             })()}
-            onChange={(e) => setForm((f) => ({ ...f, start_date: e.target.value || '' }))}
-            className={inputCls}
+            onChange={(e) => {
+              const v = e.target.value || '';
+              setForm((f) => ({
+                ...f,
+                start_date: v,
+                end_date: v && f.end_date && f.end_date.slice(0, 7) < v ? '' : f.end_date,
+              }));
+            }}
+            className={blockInputCls}
           />
           <input
             id="end_date"
             type="month"
             value={form.end_date?.slice(0, 7) || ''}
+            min={form.start_date?.slice(0, 7) || undefined}
             max={(() => {
               const n = new Date();
               return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}`;
             })()}
             onChange={(e) => setForm((f) => ({ ...f, end_date: e.target.value || '' }))}
-            className={inputCls}
+            className={blockInputCls}
             disabled={isOngoing}
           />
         </div>
@@ -546,11 +562,13 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
               </div>
               <div className="space-y-2">
                 {form.project_links.map((link, idx) => (
-                  <div key={idx} className="flex gap-2 items-center">
+                  // 부모 컨테이너: flex-row, w-full 유지
+                  <div key={idx} className="flex gap-2 items-center w-full">
                     <select
                       value={link.link_name || '웹사이트'}
                       onChange={(e) => updateLink(idx, 'link_name', e.target.value)}
-                      className={`${inputCls} w-28`}
+                      // [수정] w-28(112px) 고정, shrink-0, w-full 제거
+                      className={`${baseInputCls} w-28 shrink-0 px-2`}
                     >
                       {LINK_TYPES.map((t) => (
                         <option key={t.value} value={t.value}>{t.label}</option>
@@ -560,13 +578,15 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
                       type="url"
                       value={link.link_url}
                       onChange={(e) => updateLink(idx, 'link_url', e.target.value)}
-                      className={`${inputCls} flex-1`}
+                      // [수정] flex-1 (남은 공간 차지), min-w-0 (넘침 방지), w-full 제거
+                      className={`${baseInputCls} flex-1 min-w-0`}
                       placeholder="https://..."
                     />
                     <button
                       type="button"
                       onClick={() => removeLink(idx)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded"
+                      // 삭제 버튼: 크기 고정
+                      className="p-2 text-red-600 hover:bg-red-50 rounded shrink-0"
                       aria-label="삭제"
                     >
                       ×
@@ -604,7 +624,8 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
                 placeholder="태그 입력 후 Enter"
-                className={`${inputCls} w-40`}
+                // [수정] w-40 등으로 너비 고정
+                className={`${baseInputCls} w-40`}
               />
             )}
           </div>
@@ -613,7 +634,11 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
         <div className="flex gap-3 pt-4">
           <button
             type="submit"
-            disabled={saving || !(form.title?.trim() && form.description?.trim() && form.start_date)}
+            disabled={
+              saving ||
+              !(form.title?.trim() && form.description?.trim() && form.start_date) ||
+              (form.start_date && !isOngoing && !(form.end_date && form.end_date.trim()))
+            }
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? '저장 중...' : (isEdit ? '저장' : '등록')}

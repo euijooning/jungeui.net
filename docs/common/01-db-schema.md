@@ -14,6 +14,9 @@ MySQL 8.0 / MariaDB 기준. utf8mb4 사용.
 | post_tags | 글-태그 N:M |
 | post_attachments | 글-첨부파일 N:M (다중) |
 | careers | 경력/이력 |
+| career_links | 경력별 다중 링크 |
+| career_highlights | 경력 한 일 개조식 (최대 5) |
+| career_tags | 경력-태그 N:M |
 | projects | 프로젝트 포트폴리오 |
 | about_messages | 소개 인사말 메시지 (과거/현재/미래 스타일) |
 | project_links | 프로젝트별 다중 링크 |
@@ -117,6 +120,31 @@ CREATE TABLE careers (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (logo_asset_id) REFERENCES assets(id) ON DELETE SET NULL
 ) COMMENT='경력 포트폴리오';
+
+CREATE TABLE career_links (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  career_id BIGINT NOT NULL COMMENT '경력 ID',
+  link_name VARCHAR(50) NOT NULL COMMENT '버튼명 (웹사이트/깃허브/유튜브/인스타그램/기타)',
+  link_url VARCHAR(500) NOT NULL COMMENT '이동 URL',
+  sort_order INT DEFAULT 0 COMMENT '버튼 순서',
+  FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
+) COMMENT='경력 관련 링크들';
+
+CREATE TABLE career_highlights (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  career_id BIGINT NOT NULL COMMENT '경력 ID',
+  content VARCHAR(500) NOT NULL COMMENT '한 일 항목 (개조식)',
+  sort_order INT DEFAULT 0 COMMENT '노출 순서',
+  FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
+) COMMENT='경력 한 일 (최대 5개)';
+
+CREATE TABLE career_tags (
+  career_id BIGINT NOT NULL,
+  tag_id BIGINT NOT NULL,
+  PRIMARY KEY (career_id, tag_id),
+  FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE,
+  FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+) COMMENT='경력-태그 N:M (최대 5개)';
 
 CREATE TABLE projects (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,

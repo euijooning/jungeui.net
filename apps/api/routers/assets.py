@@ -70,6 +70,8 @@ async def upload_file(
     name = f"{uuid.uuid4().hex[:12]}.{ext}"
     if folder == "projects":
         rel_path = f"projects/{pid}/{name}"
+    elif folder == "careers":
+        rel_path = f"careers/{pid}/{name}"
     else:
         now = datetime.now()
         year = now.strftime("%Y")

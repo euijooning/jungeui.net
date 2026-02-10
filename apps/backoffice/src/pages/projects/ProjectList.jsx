@@ -29,7 +29,6 @@ export default function ProjectList() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedIds, setSelectedIds] = useState(new Set());
   const [dragId, setDragId] = useState(null);
   const [dropTargetIdx, setDropTargetIdx] = useState(null);
 
@@ -104,20 +103,6 @@ export default function ProjectList() {
     setDragId(null);
   };
 
-  const allSelected = projects.length > 0 && projects.every((p) => selectedIds.has(p.id));
-  const toggleAll = () => {
-    if (allSelected) setSelectedIds(new Set());
-    else setSelectedIds(new Set(projects.map((p) => p.id)));
-  };
-  const toggleOne = (id) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
   const openDetail = (project) => setDetailModal({ open: true, project });
   const closeDetail = () => setDetailModal({ open: false, project: null });
   const openFormAdd = () => navigate('/projects/new');
@@ -166,9 +151,6 @@ export default function ProjectList() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">순서</th>
-                  <th className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
-                    <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded border-gray-300" />
-                  </th>
                   <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-14">번호</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">제목</th>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[220px] whitespace-nowrap">기간</th>
@@ -178,7 +160,7 @@ export default function ProjectList() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {projects.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-gray-500">
+                    <td colSpan={5} className="px-4 py-12 text-center text-gray-500">
                       등록된 프로젝트가 없습니다.
                     </td>
                   </tr>
@@ -200,15 +182,6 @@ export default function ProjectList() {
                       >
                         <td className="px-2 py-3 text-gray-400 cursor-grab active:cursor-grabbing">
                           <DragIndicator fontSize="small" />
-                        </td>
-                        <td className="px-2 py-3 text-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.has(row.id)}
-                            onChange={() => toggleOne(row.id)}
-                            className="rounded border-gray-300"
-                            onClick={(e) => e.stopPropagation()}
-                          />
                         </td>
                         <td className="px-2 py-3 text-sm text-gray-500">{displayNo}</td>
                         <td className="px-4 py-3 text-sm font-medium text-gray-900 min-w-[200px]">

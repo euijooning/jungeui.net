@@ -175,10 +175,10 @@ def _create_project_impl(body: ProjectBody, db):
                 "sort_order": sort_order,
             },
         )
-        db.commit()
         row = db.execute(text("SELECT LAST_INSERT_ID()")).fetchone()
         new_id = row[0] if row else None
         if not new_id:
+            db.rollback()
             raise HTTPException(status_code=500, detail="프로젝트 생성 실패")
         upload_dir = Path(UPLOAD_DIR)
         _relocate_temp_asset(body.thumbnail_asset_id, new_id, db, upload_dir)

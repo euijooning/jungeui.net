@@ -25,9 +25,10 @@ API 베이스: `http://localhost:8010` (또는 환경변수 `VITE_API_URL` / 백
 | POST | /about_messages | 메시지 생성 | Admin |
 | PUT | /about_messages/{id} | 메시지 수정 | Admin |
 | DELETE | /about_messages/{id} | 메시지 삭제 | Admin |
-| GET | /careers | 경력 목록 (sort_order) | 공개 |
+| GET | /careers | 경력 목록 (sort_order). 응답에 logo(URL), career_links, career_highlights, career_tags 포함 | 공개 |
 | POST | /careers | 경력 생성 | Admin |
 | PUT | /careers/{id} | 경력 수정 | Admin |
+| DELETE | /careers/{id} | 경력 삭제 | Admin |
 | PATCH | /careers/reorder | 경력 정렬 변경 | Admin |
 | GET | /projects | 프로젝트 목록 | 공개 |
 | POST | /projects | 프로젝트 생성 | Admin |
@@ -39,7 +40,7 @@ API 베이스: `http://localhost:8010` (또는 환경변수 `VITE_API_URL` / 백
 | GET | /dashboard/stats | 대시보드 통계 (방문자/조회수) | Admin |
 | GET | /sitemap.xml | 사이트맵 (동적 생성) | 공개 |
 
-상세 요청/응답 스키마는 구현 시 `apps/api/routers/` 내 각 라우터에 맞춰 확정.
+상세 요청/응답 스키마는 구현 시 `apps/api/routers/` 내 각 라우터에 맞춰 확정. GET /careers 응답 항목: id, logo_asset_id, logo(URL), company_name, role, start_date, end_date, description, sort_order, links, highlights, tags.
 
 ## 시드 데이터
 

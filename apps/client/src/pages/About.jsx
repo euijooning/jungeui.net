@@ -5,7 +5,7 @@ import ProjectCard, { CARD_WIDTH, CARD_GAP } from '../components/ProjectCard';
 import { fetchAboutMessages, fetchTags, fetchProjects, fetchCareers } from '../api';
 import CareerModal from '../components/CareerModal';
 
-const ARROW_BTN = 'absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+const ARROW_BTN = 'absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-blue-600 dark:bg-blue-800 shadow-lg flex items-center justify-center text-white hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
 
 const ArrowLeft = () => (
   <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
@@ -24,6 +24,15 @@ const messageIcon = (
     <polyline points="22,6 12,13 2,6" />
   </svg>
 );
+
+function sortCareersByPeriodDesc(list) {
+  return [...list].sort((a, b) => {
+    const endA = a.end_date || '9999-12';
+    const endB = b.end_date || '9999-12';
+    if (endB !== endA) return endB.localeCompare(endA);
+    return (b.start_date || '').localeCompare(a.start_date || '');
+  });
+}
 
 export default function About() {
   const [messages, setMessages] = useState([]);
@@ -65,7 +74,7 @@ export default function About() {
   useEffect(() => {
     let cancelled = false;
     fetchCareers().then((list) => { 
-      if (!cancelled && Array.isArray(list)) setCareers(list); 
+      if (!cancelled && Array.isArray(list)) setCareers(sortCareersByPeriodDesc(list)); 
     }).catch(() => {});
     return () => { cancelled = true; };
   }, []);
@@ -247,8 +256,8 @@ export default function About() {
                     key={i}
                     type="button"
                     onClick={() => setCarouselIndex(i)}
-                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                      i === carouselIndex ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                    className={`w-4 h-4 rounded-full transition-colors ${
+                      i === carouselIndex ? 'bg-sky-500' : 'bg-sky-200 dark:bg-sky-800/60'
                     }`}
                   />
                 ))}
