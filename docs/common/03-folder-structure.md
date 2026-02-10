@@ -17,9 +17,9 @@ jungeui/
 ├── README.md
 │
 ├── docs/                  # 구현 가이드 및 명세서 (.md)
-│   ├── 01-db-schema.md
-│   ├── 02-api-spec.md
-│   ├── 03-folder-structure.md
+│   ├── common/            # 공통 명세 (01-db-schema, 02-api-spec, 03~06)
+│   ├── backoffice/        # 백오피스 가이드 (01-implementation-guide ~ 06-phase-checklist)
+│   ├── client/            # 클라이언트 가이드 (01-implementation-guide ~ 07-project-card-layout)
 │   └── convention/        # 코딩 컨벤션, 커밋 메시지 규칙 등
 │
 ├── scripts/               # 자동화·유틸 스크립트
@@ -50,7 +50,7 @@ jungeui/
 ## 폴더별 역할
 
 - **루트**: `requirements.txt`, `.venv` 로 API·스크립트 공통 환경.
-- **docs**: 스펙 확인 시 코드보다 `docs/01-db-schema.md` 등 참고.
+- **docs**: 스펙 확인 시 코드보다 `docs/` 참고. `common/`(DB·API·폴더구조·디자인·UI 가이드), `backoffice/`(Phase별 구현 가이드), `client/`(Phase별 구현 가이드).
 - **scripts**: `python scripts/db_init.py`, `python scripts/seed_data.py` 등.
 - **shared/ui-kit**: Button, Card, Modal, Layout 등; client·backoffice 에서 import.
 - **apps/api**: FastAPI 앱, DB 접근, 인증.
