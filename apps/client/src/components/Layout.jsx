@@ -16,14 +16,14 @@ export default function Layout({ header, footer, sidebar, children }) {
   );
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-h-screen">
       {header && (
         <header className="theme-border-b theme-bg-card py-3">
           <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6">{header}</div>
         </header>
       )}
 
-      <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6 pt-4 pb-8">
+      <div className="flex-1 w-full max-w-[1200px] mx-auto px-4 md:px-6 pt-4 pb-8">
         {mainContent}
       </div>
 
