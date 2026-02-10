@@ -24,6 +24,7 @@ export default function AdminApp() {
       authProvider={authProvider}
       dataProvider={dataProvider}
       loginPage={LoginPage}
+      requireAuth
       layout={(props) => (
         <AdminLayout {...props} theme={adminTheme}>
           {props.children}

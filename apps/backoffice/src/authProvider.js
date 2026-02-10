@@ -5,8 +5,8 @@ if (!API_BASE) console.error('VITE_API_URL is required in .env');
 const STORAGE_USER = 'user';
 const STORAGE_TOKEN = 'access_token';
 
-function getStorage(rememberMe) {
-  return rememberMe ? localStorage : sessionStorage;
+function getStorage() {
+  return localStorage;
 }
 
 function getToken() {
@@ -42,7 +42,7 @@ export const authProvider = {
         });
       })
       .then((data) => {
-        const storage = getStorage(rememberMe);
+        const storage = getStorage();
         storage.setItem(STORAGE_TOKEN, data.access_token);
         storage.setItem(STORAGE_USER, JSON.stringify(data.user));
         return Promise.resolve();
