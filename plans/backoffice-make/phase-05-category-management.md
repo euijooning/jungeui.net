@@ -12,7 +12,7 @@ UI 참고: 사용자 제공 이미지(티스토리 스타일 카테고리 관리
 
 ## 1. DB 스키마 변경
 
-**파일**: [docs/common/01-db-schema.md](../../docs/common/01-db-schema.md), `scripts/db_init.py` (실제 DDL 사용 시).
+**파일**: [docs/common/01-db-schema.md](../../docs/common/01-db-schema.md), `scripts/db_reset.py` (실제 DDL 사용 시).
 
 - `categories` 테이블에 **`parent_id`** 추가.
   - `parent_id BIGINT NULL` + `FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE`

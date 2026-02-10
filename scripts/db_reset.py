@@ -1,6 +1,7 @@
 """
-Jungeui Lab - DB 초기화 및 테이블 생성.
-사용: python scripts/db_init.py
+Jungeui Lab - DB 전체 리셋 (DROP 후 재생성).
+사용: python scripts/db_reset.py
+주의: 기존 DB를 삭제하고 새로 만듭니다. 데이터 손실에 유의하세요.
 환경변수: MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE (기본 jungeui)
 """
 import os
@@ -180,7 +181,7 @@ def main():
             with conn.cursor() as cur:
                 cur.execute(stmt)
         conn.commit()
-        print(f"DB 초기화 및 테이블 생성 완료: {MYSQL_DATABASE}")
+        print(f"DB 리셋 완료: {MYSQL_DATABASE} (서버 재시작 시 시드 자동 적용)")
     except Exception as e:
         print("오류:", e)
         sys.exit(1)

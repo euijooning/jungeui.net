@@ -33,7 +33,7 @@
 ### 2-1. DB 스키마
 
 - [x] `docs/common/01-db-schema.md`에 about_messages 테이블 문서화
-- [x] `scripts/db_init.py`에 테이블 생성 로직 추가
+- [x] `scripts/db_reset.py`에 테이블 생성 로직 추가
 - [x] `scripts/migrate_about_messages.py` 생성 (기존 DB용)
 - [x] `scripts/seed_data.py`에 과거/현재/미래 3개 시드 추가
 

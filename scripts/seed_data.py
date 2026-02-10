@@ -1,7 +1,7 @@
 """
 Jungeui Lab - 초기 데이터 시딩 (관리자, 카테고리).
 사용: python scripts/seed_data.py
-실행 전 scripts/db_init.py 로 테이블 생성 필요.
+실행 전 scripts/db_reset.py 로 DB 리셋 가능. 평소에는 서버 기동 시 자동으로 테이블·시드가 적용됨.
 환경변수: MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
 """
 import os

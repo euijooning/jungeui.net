@@ -48,7 +48,7 @@
 
 ### 스크립트 (scripts)
 
-**파일**: [../../scripts/db_init.py](../../scripts/db_init.py), [../../scripts/seed_data.py](../../scripts/seed_data.py)
+**파일**: [../../scripts/db_reset.py](../../scripts/db_reset.py), [../../scripts/seed_data.py](../../scripts/seed_data.py)
 
 - 현재는 CWD 기준 `.env`만 로드하며 ENV를 읽지 않는다.
 - 스테이징 DB를 쓰려면 해당 스테이징 디렉터리에서 실행하거나, 추후 ENV에 따라 `.env`/`.env.staging`을 로드하는 공통 헬퍼를 적용할 수 있다.

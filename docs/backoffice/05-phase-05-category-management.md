@@ -11,7 +11,7 @@
 
 ## 1. DB 스키마 변경
 
-**파일**: [../common/01-db-schema.md](../common/01-db-schema.md), `scripts/db_init.py`
+**파일**: [../common/01-db-schema.md](../common/01-db-schema.md), `scripts/db_reset.py`
 
 - `categories` 테이블에 **`parent_id`** 추가.
   - `parent_id BIGINT NULL` + `FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE`

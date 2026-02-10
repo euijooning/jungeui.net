@@ -25,7 +25,7 @@ MySQL 8.0 / MariaDB 기준. utf8mb4 사용.
 
 ## 실행 SQL
 
-`scripts/db_init.py`에서 사용하거나, 아래 SQL을 DB 도구에 붙여넣어 실행.
+`scripts/db_reset.py`에서 사용하거나, 아래 SQL을 DB 도구에 붙여넣어 실행.
 
 ```sql
 DROP DATABASE IF EXISTS jungeui;

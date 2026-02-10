@@ -23,7 +23,7 @@ jungeui/
 │   └── convention/        # 코딩 컨벤션, 커밋 메시지 규칙 등
 │
 ├── scripts/               # 자동화·유틸 스크립트
-│   ├── db_init.py         # DB 테이블 생성 (SQL 실행)
+│   ├── db_reset.py        # DB 전체 리셋 (DROP 후 재생성)
 │   ├── seed_data.py       # 초기 관리자/카테고리 시딩
 │   └── deploy.sh         # 배포 자동화
 │
@@ -51,7 +51,7 @@ jungeui/
 
 - **루트**: `requirements.txt`, `.venv` 로 API·스크립트 공통 환경.
 - **docs**: 스펙 확인 시 코드보다 `docs/` 참고. `common/`(DB·API·폴더구조·디자인·UI 가이드), `backoffice/`(Phase별 구현 가이드), `client/`(Phase별 구현 가이드).
-- **scripts**: `python scripts/db_init.py`, `python scripts/seed_data.py` 등.
+- **scripts**: `python scripts/db_reset.py`, `python scripts/seed_data.py` 등.
 - **shared/ui-kit**: Button, Card, Modal, Layout 등; client·backoffice 에서 import.
 - **apps/api**: FastAPI 앱, DB 접근, 인증.
 - **apps/client**: 읽기 위주 블로그/About/프로젝트.
@@ -60,7 +60,7 @@ jungeui/
 ## 개발 워크플로우
 
 1. 문서 작성 (docs) → 기능 스펙을 md 로 정리.
-2. DB/스크립트 (scripts) → 스키마 변경 시 `db_init.py` 등 업데이트.
+2. DB/스크립트 (scripts) → 스키마 변경 시 `db_reset.py` 등 업데이트.
 3. 디자인 컴포넌트 (shared/ui-kit) → 공통 UI 먼저 제작.
 4. API 개발 (apps/api) → 엔드포인트 구현.
 5. 앱 조립 (apps/client, apps/backoffice) → API·UI 연결.

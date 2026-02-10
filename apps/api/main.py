@@ -1,4 +1,5 @@
 """Jungeui LabREST API - FastAPI 진입점."""
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -11,12 +12,22 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from apps.api.core import CORS_ORIGINS, UPLOAD_DIR
 from apps.api.core.config import NAKED_HOST, REDIRECT_WWW_TO_NAKED, WWW_HOST
+from apps.api.core.db_init import init_on_startup
 from apps.api.routers import api_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """서버 시작 시 DB 테이블·시드 자동 초기화."""
+    init_on_startup()
+    yield
+
 
 app = FastAPI(
     title="Jungeui LabAPI",
     description="블로그·포트폴리오 백엔드",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 
