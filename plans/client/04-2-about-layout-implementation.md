@@ -90,4 +90,4 @@ CREATE TABLE about_messages (
 - [x] 클라이언트: /about에서 인사말(제목, 점, 메시지 3개, 이메일) 표시
 - [x] API: GET /api/about/messages 공개 조회 동작
 
-**Phase 완료** (점검일: __________)
+**Phase 완료** (점검일: 2025-02-10)

@@ -30,3 +30,9 @@
 
 - 경력 목록·드래그 정렬·등록/수정(로고 업로드 포함) 동작.
 - 프로젝트 목록·드래그 정렬·등록/수정(썸네일·링크 여러 개·태그) 동작.
+
+---
+
+## Phase 03 완료
+
+경력(CareerList·CareerForm·CareerFormModal·/careers/new)·프로젝트(ProjectList·ProjectForm·ProjectFormModal·/projects/new) 목록·드래그 reorder·등록/수정 동작. 경력은 기간순 정렬·번호 역순·날짜 검증(미래/종료일 min)·엔터 제출 방지·career_links/highlights/tags API·DB 반영. 프로젝트는 생성 시 단일 트랜잭션 FK 수정·필수값 및 종료일/진행중 검사·시작일 기준 종료일 min·목록 체크박스 제거 반영됨.

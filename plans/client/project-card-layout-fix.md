@@ -88,3 +88,9 @@
   mask-repeat: no-repeat;
 }
 ```
+
+---
+
+## 다크모드
+
+About 페이지 인사말·프로젝트 섹션은 라이트에서 `bg-[#F0F9FF]`, 다크에서 `dark:bg-[var(--ui-background)]` 적용. 좌우 페이드 그라데이션은 `dark:from-[var(--ui-background)]`로 다크모드 시 테마 배경과 일치시켜 다크모드 일관성 및 가독성을 확보함.
