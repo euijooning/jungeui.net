@@ -15,10 +15,25 @@ function formatDate(iso) {
 }
 
 function statusBadge(status) {
-  if (status === 'PUBLISHED') return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">공개</span>;
-  if (status === 'UNLISTED') return <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">일부공개</span>;
-  if (status === 'PRIVATE') return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">비공개</span>;
-  return <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">임시저장</span>;
+  const styles = {
+    PUBLISHED: 'bg-green-100 text-green-800 border-green-200',
+    UNLISTED: 'bg-blue-100 text-blue-800 border-blue-200',
+    PRIVATE: 'bg-gray-100 text-gray-800 border-gray-200',
+    TEMP: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  };
+  const labels = {
+    PUBLISHED: '공개',
+    UNLISTED: '일부공개',
+    PRIVATE: '비공개',
+    TEMP: '임시저장',
+  };
+  const style = styles[status] || styles.TEMP;
+  const label = labels[status] || '임시저장';
+  return (
+    <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border ${style}`}>
+      {label}
+    </span>
+  );
 }
 
 export default function PostDetail() {
@@ -42,7 +57,7 @@ export default function PostDetail() {
   }, [postId]);
 
   const handleDelete = async () => {
-    if (!window.confirm('정말로 이 글을 삭제하시겠습니까?')) return;
+    if (!window.confirm('정말로 이 글을 삭제하시겠습니까? \n삭제된 데이터는 복구할 수 없습니다.')) return;
     try {
       await apiClient.delete(`/api/posts/${postId}`);
       navigate('/posts');
@@ -77,10 +92,10 @@ export default function PostDetail() {
 
   if (loading) {
     return (
-      <div className="w-full flex items-center justify-center py-16">
-        <div className="text-center">
-          <div className="loading-spinner mx-auto mb-4" />
-          <p className="text-gray-500">로딩 중...</p>
+      <div className="w-full h-[60vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="loading-spinner" />
+          <p className="text-gray-500 font-medium">로딩 중...</p>
         </div>
       </div>
     );
@@ -88,198 +103,251 @@ export default function PostDetail() {
 
   if (error || !post) {
     return (
-      <div className="w-full">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <i className="fas fa-exclamation-circle text-red-600 text-2xl mb-2" />
-          <p className="text-red-700">{error || '글이 없습니다.'}</p>
+      <div className="max-w-2xl mx-auto mt-10">
+        <div className="bg-white border border-red-200 rounded-xl p-8 text-center shadow-sm">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="fas fa-exclamation-triangle text-red-600 text-xl" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">글을 찾을 수 없습니다</h3>
+          <p className="text-gray-500 mb-6">{error || '요청하신 글이 존재하지 않거나 삭제되었습니다.'}</p>
           <Link
             to="/posts"
-            className="mt-4 inline-block px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 transition-colors"
           >
-            목록으로
+            목록으로 돌아가기
           </Link>
         </div>
       </div>
     );
   }
 
+  const categoryName = post.category?.name ?? post.category_name ?? null;
+
   return (
-    <div className="w-full">
-      {/* Header: 페이지 제목 + 글 제목 한 번만 */}
-      <div className="mb-6 flex items-center justify-between">
+    <div className="w-full pb-20">
+      {/* Top Header & Actions */}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-sm text-gray-500 mb-1">포스트 상세</p>
-          <h1 className="text-2xl font-bold text-gray-900">{post.title || '(제목 없음)'}</h1>
+          <nav className="flex items-center text-sm text-gray-500 mb-1">
+            <Link to="/posts" className="hover:text-gray-900 transition-colors">포스트 관리</Link>
+            <span className="mx-2">/</span>
+            <span className="text-gray-900 font-medium">상세 정보</span>
+          </nav>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">포스트 상세</h1>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex items-center gap-2">
           <Link
             to="/posts"
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm transition-all"
           >
-            목록으로
+            목록
           </Link>
           <Link
             to={`/posts/${postId}/edit`}
-            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+            className="px-4 py-2 text-sm font-medium text-white bg-[#35C5F0] hover:bg-[#2BB8E3] rounded-lg shadow-sm transition-all flex items-center gap-2"
           >
-            수정하기
+            <i className="fas fa-edit text-xs" /> 수정
           </Link>
           <button
             type="button"
             onClick={handleDelete}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+            className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-all flex items-center gap-2"
           >
-            삭제하기
+            <i className="fas fa-trash text-xs" /> 삭제
           </button>
         </div>
       </div>
 
-      {/* Info Card */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">카테고리</label>
-            <p className="text-sm text-gray-900">{post.category_name || post.category?.name || '미지정'}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">상태</label>
-            <div>{statusBadge(post.status)}</div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">등록일</label>
-            <p className="text-sm text-gray-900">{formatDate(post.created_at)}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">발행일</label>
-            <p className="text-sm text-gray-900">{post.published_at ? formatDate(post.published_at) : '-'}</p>
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-500 mb-1">태그</label>
-            {post.tags?.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {post.tags.map((t) => (
-                  <span
-                    key={t.id}
-                    className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800"
-                  >
-                    {t.name}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Main Content (Left Column) */}
+        <div className="lg:col-span-9 space-y-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+              <div className="flex flex-wrap gap-2 mb-3">
+                {categoryName && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    {categoryName}
                   </span>
-                ))}
+                )}
+                {statusBadge(post.status)}
               </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight break-keep">
+                {post.title || '(제목 없음)'}
+              </h2>
+            </div>
+            <div className="p-6 sm:p-8">
+              <div
+                className="admin-prose"
+                dangerouslySetInnerHTML={{ __html: post.content_html || '<p class="text-gray-400 italic">작성된 내용이 없습니다.</p>' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar Info (Right Column) */}
+        <div className="space-y-6 lg:col-span-3">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
+              메타 정보
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-medium text-gray-500 block mb-1">작성일</label>
+                <div className="text-sm text-gray-900 font-medium">{formatDate(post.created_at)}</div>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-500 block mb-1">발행일</label>
+                <div className="text-sm text-gray-900 font-medium">
+                  {post.published_at ? formatDate(post.published_at) : <span className="text-gray-400">-</span>}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-500 block mb-1">태그</label>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {post.tags?.length > 0 ? (
+                    post.tags.map((t) => (
+                      <span key={t.id} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
+                        # {t.name}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-sm text-gray-400">태그 없음</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2 flex items-center justify-between">
+              <span>첨부 파일</span>
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{post.attachments?.length || 0}</span>
+            </h3>
+            {(!post.attachments || post.attachments.length === 0) ? (
+              <p className="text-sm text-gray-400 py-2">첨부된 파일이 없습니다.</p>
             ) : (
-              <p className="text-sm text-gray-500">없음</p>
+              <ul className="space-y-2">
+                {post.attachments.map((a) => {
+                  const label = a.original_name || `파일 ${a.id}`;
+                  return (
+                    <li key={a.id} className="flex items-center justify-between p-2 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-100 transition-colors group">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <i className="fas fa-paperclip text-gray-400 text-xs group-hover:text-blue-500" />
+                        <span className="text-sm text-gray-700 truncate font-medium group-hover:text-blue-700">{label}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDownload(a.id, label)}
+                        className="text-gray-400 hover:text-blue-600 p-1 rounded hover:bg-blue-100 transition-colors"
+                        title="다운로드"
+                      >
+                        <i className="fas fa-download text-sm" />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
           </div>
         </div>
       </div>
 
-      {/* 본문: 라벨은 컨테이너 밖 */}
-      <h3 className="text-md font-medium text-gray-900 mb-3">본문</h3>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div
-          className="prose max-w-none toastui-editor-contents"
-          dangerouslySetInnerHTML={{ __html: post.content_html || '<p>내용 없음</p>' }}
-        />
-      </div>
-
-      {/* 첨부 파일 */}
-      <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">첨부 파일</h3>
-        {(function () {
-          const attachments = post.attachments ?? [];
-          if (attachments.length === 0) {
-            return <p className="text-sm text-gray-500">첨부된 파일이 없습니다.</p>;
-          }
-          const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-          const isDev = import.meta.env.DEV;
-          const linkBase = isDev ? '' : apiBase;
-          return (
-            <ul className="space-y-2">
-              {attachments.map((a) => {
-                const href = a.url ? (a.url.startsWith('http') ? a.url : linkBase ? `${linkBase}${a.url}` : a.url) : null;
-                const label = a.original_name || `파일 ${a.id}`;
-                return (
-                  <li key={a.id} className="flex items-center gap-3 flex-wrap">
-                    {href ? (
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline"
-                      >
-                        {label}
-                      </a>
-                    ) : (
-                      <span className="text-gray-700">{label}</span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => handleDownload(a.id, label)}
-                      className="text-sm text-gray-500 hover:text-gray-700 underline"
-                    >
-                      다운로드
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          );
-        })()}
-      </div>
-
-      {/* Toast UI Editor Contents 스타일 */}
       <style>{`
-        .toastui-editor-contents {
-          font-family: 'Pretendard', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif';
-          font-size: 16px;
-          line-height: 1.8;
-          color: #2E3140;
+        .admin-prose {
+          font-family: 'Pretendard', 'NexonLv1Gothic', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+          font-size: 1.0625rem;
+          line-height: 1.75;
+          color: #374151;
+          word-break: keep-all;
+          overflow-wrap: break-word;
+          letter-spacing: -0.02em;
         }
-        .dark .toastui-editor-contents { color: #e2e8f0; }
-        .toastui-editor-contents h1, .toastui-editor-contents h2, .toastui-editor-contents h3,
-        .toastui-editor-contents h4, .toastui-editor-contents h5, .toastui-editor-contents h6 {
-          margin-top: 2em; margin-bottom: 1em; font-weight: 700; line-height: 1.4; color: #2E3140; border-bottom: none !important;
+        .admin-prose p { margin-bottom: 1.125em; }
+        .admin-prose p:empty,
+        .admin-prose div:empty,
+        .admin-prose br { display: none; }
+        .admin-prose h1, .admin-prose h2, .admin-prose h3,
+        .admin-prose h4, .admin-prose h5, .admin-prose h6 {
+          color: #111827;
+          font-weight: 700;
+          margin-top: 2.5rem;
+          margin-bottom: 1rem;
+          line-height: 1.3;
         }
-        .toastui-editor-contents h1:first-child, .toastui-editor-contents h2:first-child, .toastui-editor-contents h3:first-child,
-        .toastui-editor-contents h4:first-child, .toastui-editor-contents h5:first-child, .toastui-editor-contents h6:first-child { margin-top: 0.5em; }
-        .dark .toastui-editor-contents h1, .dark .toastui-editor-contents h2, .dark .toastui-editor-contents h3,
-        .dark .toastui-editor-contents h4, .dark .toastui-editor-contents h5, .dark .toastui-editor-contents h6 { color: #f7fafc; }
-        .toastui-editor-contents h1 { font-size: 2em; }
-        .toastui-editor-contents h2 { font-size: 1.5em; }
-        .toastui-editor-contents h3 { font-size: 1.25em; }
-        .toastui-editor-contents p { margin: 1.2em 0; color: #2E3140; }
-        .toastui-editor-contents p:first-child { margin-top: 0.5em; }
-        .dark .toastui-editor-contents p { color: #e2e8f0; }
-        .toastui-editor-contents img { max-width: 100%; height: auto; border-radius: 8px; margin: 2em 0; }
-        .toastui-editor-contents iframe { max-width: 100%; margin: 2em 0; border-radius: 8px; }
-        .toastui-editor-contents blockquote {
-          border-left: 4px solid #3b82f6; background-color: #f8f9fa; color: #2E3140;
-          margin: 1.5em 0; padding: 1em 1.5em; border-radius: 4px;
+        .admin-prose h1:first-child, .admin-prose h2:first-child { margin-top: 0; }
+        .admin-prose h1 { font-size: 1.75rem; }
+        .admin-prose h2 { font-size: 1.5rem; border-bottom: 1px solid #E5E7EB; padding-bottom: 0.5rem; }
+        .admin-prose h3 { font-size: 1.25rem; }
+        .admin-prose ul {
+          list-style-type: disc;
+          padding-left: 1.5rem;
+          margin-bottom: 1.5rem;
         }
-        .dark .toastui-editor-contents blockquote { border-left-color: #60a5fa; background-color: #1f2937; color: #e2e8f0; }
-        .toastui-editor-contents code { background-color: #f1f3f4; color: #e83e8c; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
-        .dark .toastui-editor-contents code { background-color: #374151; color: #f472b6; }
-        .toastui-editor-contents pre {
-          background-color: #f8f9fa; color: #2E3140; padding: 1.5em; border-radius: 8px; overflow-x: auto; margin: 2em 0;
+        .admin-prose ol {
+          list-style-type: decimal;
+          padding-left: 1.5rem;
+          margin-bottom: 1.5rem;
         }
-        .dark .toastui-editor-contents pre { background-color: #1f2937; color: #e2e8f0; }
-        .toastui-editor-contents pre code { background-color: transparent; color: inherit; padding: 0; }
-        .toastui-editor-contents table { width: 100%; border-collapse: collapse; margin: 2em 0; }
-        .toastui-editor-contents table th, .toastui-editor-contents table td { border: 1px solid #e2e8f0; padding: 12px; }
-        .dark .toastui-editor-contents table th, .dark .toastui-editor-contents table td { border-color: #4a5568; }
-        .toastui-editor-contents table th { background-color: #f8f9fa; color: #2E3140; font-weight: 600; }
-        .dark .toastui-editor-contents table th { background-color: #374151; color: #e2e8f0; }
-        .toastui-editor-contents a { color: #3b82f6; text-decoration: underline; }
-        .dark .toastui-editor-contents a { color: #60a5fa; }
-        .toastui-editor-contents a:hover { color: #2563eb; }
-        .dark .toastui-editor-contents a:hover { color: #93c5fd; }
-        .toastui-editor-contents ul, .toastui-editor-contents ol { margin: 1.2em 0; padding-left: 2em; }
-        .toastui-editor-contents li { margin: 0.5em 0; color: #2E3140; }
-        .dark .toastui-editor-contents li { color: #e2e8f0; }
-        .toastui-editor-contents strong { font-weight: 600; color: #2E3140; }
-        .dark .toastui-editor-contents strong { color: #f7fafc; }
-        .toastui-editor-contents em { font-style: italic; color: #2E3140; }
-        .dark .toastui-editor-contents em { color: #e2e8f0; }
+        .admin-prose li { margin-bottom: 0.5em; }
+        .admin-prose ul > li > ul,
+        .admin-prose ol > li > ol { margin-bottom: 0; margin-top: 0.5rem; }
+        .admin-prose blockquote {
+          margin: 2rem 0;
+          padding: 1rem 1.5rem;
+          border-left: 4px solid #35C5F0;
+          background: #F3F4F6;
+          border-radius: 0 8px 8px 0;
+          color: #4B5563;
+        }
+        .admin-prose pre {
+          background-color: #1F2937;
+          color: #F3F4F6;
+          padding: 1.25rem;
+          border-radius: 0.5rem;
+          overflow-x: auto;
+          margin: 1.5rem 0;
+          font-family: ui-monospace, monospace;
+          font-size: 0.9em;
+        }
+        .admin-prose code {
+          background-color: #F3F4F6;
+          padding: 0.2em 0.4em;
+          border-radius: 0.25rem;
+          font-size: 0.9em;
+          color: #DB2777;
+          font-family: ui-monospace, monospace;
+        }
+        .admin-prose pre code { background-color: transparent; color: inherit; padding: 0; }
+        .admin-prose table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 2rem 0;
+          font-size: 0.95em;
+        }
+        .admin-prose th, .admin-prose td {
+          border: 1px solid #E5E7EB;
+          padding: 0.75rem 1rem;
+          text-align: left;
+        }
+        .admin-prose th { background-color: #F9FAFB; font-weight: 600; }
+        .admin-prose img, .admin-prose iframe, .admin-prose video {
+          max-width: 100%;
+          height: auto;
+          display: block;
+          margin: 2rem auto;
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .admin-prose a {
+          color: #35C5F0;
+          text-decoration: underline;
+          text-underline-offset: 4px;
+          text-decoration-color: rgba(53, 197, 240, 0.3);
+        }
+        .admin-prose a:hover {
+          text-decoration-color: #2BB8E3;
+          background-color: rgba(53, 197, 240, 0.05);
+        }
       `}</style>
     </div>
   );
