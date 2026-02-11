@@ -46,3 +46,30 @@ def get_dashboard_stats(db=Depends(get_db)):
         "total_views": total_views,
         "published_posts": published_posts,
     }
+
+
+@router.get("/recent-activity")
+def get_recent_activity(db=Depends(get_db)):
+    """
+    최근 수정된 글 5건 (id, title, slug, status, updated_at).
+    백오피스 대시보드 '최근 활동'용.
+    """
+    rows = db.execute(
+        text("""
+            SELECT id, title, slug, status, updated_at
+            FROM posts
+            ORDER BY updated_at DESC
+            LIMIT 5
+        """),
+    ).fetchall()
+    recent_posts = [
+        {
+            "id": r[0],
+            "title": r[1],
+            "slug": r[2],
+            "status": r[3],
+            "updated_at": r[4].isoformat() if r[4] else None,
+        }
+        for r in rows
+    ]
+    return {"recent_posts": recent_posts}

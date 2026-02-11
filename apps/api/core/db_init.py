@@ -1,7 +1,7 @@
 """
 서버 시작 시 DB 테이블 자동 생성 및 시드 데이터 초기화.
 - DB 없으면 생성, 테이블 없으면 생성 (CREATE TABLE IF NOT EXISTS)
-- 최초 시 사용자/카테고리/about_messages 비어 있으면 시드 삽입
+- 최초 시 사용자/카테고리/about_messages 시드 삽입
 """
 import logging
 import os
@@ -195,7 +195,7 @@ def _ensure_tables():
 
 
 def _ensure_seed_data():
-    """최초 시 사용자/카테고리/about_messages 비어 있으면 시드 삽입."""
+    """최초 시 사용자/카테고리/about_messages 시드 삽입."""
     password_hash = bcrypt.hashpw(
         SEED_ADMIN_PASSWORD.encode("utf-8"), bcrypt.gensalt()
     ).decode("utf-8")
