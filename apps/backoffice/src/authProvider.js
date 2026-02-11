@@ -1,6 +1,6 @@
 // Jungeui Lab- Python FastAPI 인증 (루트 .env 의 VITE_API_URL)
-const API_BASE = import.meta.env.VITE_API_URL;
-if (!API_BASE) console.error('VITE_API_URL is required in .env');
+// 빈 값이면 same-origin 상대 경로 사용 (/api/...)
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
 const STORAGE_USER = 'user';
 const STORAGE_TOKEN = 'access_token';

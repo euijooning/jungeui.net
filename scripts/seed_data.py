@@ -9,6 +9,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from pathlib import Path
+
 try:
     import pymysql
     import bcrypt
@@ -17,7 +19,12 @@ except ImportError:
     print("pip install pymysql bcrypt python-dotenv 후 실행하세요.")
     sys.exit(1)
 
-load_dotenv()
+# ENV에 따라 .env 또는 .env.staging 로드
+_env = os.getenv("ENV", "production").strip().lower()
+_env_file = ".env.staging" if _env == "staging" else ".env"
+_env_path = Path(__file__).resolve().parent.parent / _env_file
+load_dotenv(_env_path)
+print(f"[seed_data] ENV={_env}, 로드: {_env_file}")
 
 MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
 MYSQL_USER = os.getenv("MYSQL_USER", "ejlab")

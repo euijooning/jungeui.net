@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useLogin, useNotify } from 'react-admin';
-import { Box, Card, TextField, Button, Checkbox, FormControlLabel, Typography } from '@mui/material';
-import { LockOutlined } from '@mui/icons-material';
+import { Box, Card, TextField, Button, Checkbox, FormControlLabel, Typography, InputAdornment, IconButton } from '@mui/material';
+import { LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const login = useLogin();
   const notify = useNotify();
@@ -92,7 +93,7 @@ const LoginPage = () => {
           <TextField
             fullWidth
             label="비밀번호"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -102,6 +103,19 @@ const LoginPage = () => {
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2,
               },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
             }}
           />
 
