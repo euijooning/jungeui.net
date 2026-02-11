@@ -188,12 +188,6 @@ export default function PostDetail() {
           />
         </div>
 
-        {VITE_UTTERANCES_REPO && (
-          <section className="mt-12 pt-8 border-t theme-border" aria-label="댓글">
-            <div id="utterances-root" />
-          </section>
-        )}
-
         {post.attachments?.length > 0 && (
           <section className="mt-8" aria-label="첨부 파일">
             <div className="theme-bg-card theme-card-border rounded-xl shadow-sm overflow-hidden">
@@ -233,6 +227,12 @@ export default function PostDetail() {
                 })}
               </ul>
             </div>
+          </section>
+        )}
+
+        {VITE_UTTERANCES_REPO && (
+          <section className="mt-12 pt-8 border-t theme-border" aria-label="댓글">
+            <div id="utterances-root" />
           </section>
         )}
 

@@ -45,6 +45,7 @@
 | 3 | [03-post-detail.md](03-post-detail.md) | 글 상세 (/posts/:postId), TOC, Utterances 댓글 |
 | 4 | [04-about.md](04-about.md) | 소개 페이지·경력 타임라인·프로젝트 그리드 |
 | 5 | [05-common-layout-seo-footer.md](05-common-layout-seo-footer.md) | 헤더·푸터·SEO·sitemap |
+| 6 | [06-github-utterances-comments.md](06-github-utterances-comments.md) | GitHub Utterances 댓글 위치 조정·연동 |
 
 요약 체크리스트: [client-phase-checklist.md](client-phase-checklist.md)
 
