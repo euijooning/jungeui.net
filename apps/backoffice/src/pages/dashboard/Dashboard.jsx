@@ -6,6 +6,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [statsError, setStatsError] = useState(false);
+  const [recentPosts, setRecentPosts] = useState([]);
+  const [recentActivityError, setRecentActivityError] = useState(false);
+  const [recentActivityLoading, setRecentActivityLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -16,6 +19,23 @@ export default function Dashboard() {
       })
       .catch(() => {
         if (!cancelled) setStatsError(true);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRecentActivityLoading(true);
+    apiClient
+      .get('/api/dashboard/recent-activity')
+      .then((res) => {
+        if (!cancelled && res.data?.recent_posts) setRecentPosts(res.data.recent_posts);
+      })
+      .catch(() => {
+        if (!cancelled) setRecentActivityError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setRecentActivityLoading(false);
       });
     return () => { cancelled = true; };
   }, []);
@@ -32,7 +52,7 @@ export default function Dashboard() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900"> 정의랩 대시보드</h1>
+              <h1 className="text-2xl font-bold text-gray-900">정의랩 대시보드</h1>
               <p className="mt-2 text-gray-600">사이트 현황을 한눈에 파악합니다.</p>
             </div>
           </div>
@@ -91,6 +111,7 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">바로가기</h3>
           <div className="space-y-3">
             <button
+              type="button"
               onClick={() => navigate('/posts')}
               className="w-full flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
             >
@@ -108,6 +129,7 @@ export default function Dashboard() {
               </div>
             </button>
             <button
+              type="button"
               onClick={() => navigate('/careers')}
               className="w-full flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
             >
@@ -128,10 +150,34 @@ export default function Dashboard() {
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">최근 활동</h3>
-          <div className="text-center py-8 text-gray-500">
-            <i className="fas fa-newspaper text-4xl mb-3 opacity-50" />
-            <p className="text-sm">최근 글·댓글은 API 연동 후 표시됩니다.</p>
-          </div>
+          {recentActivityLoading ? (
+            <div className="text-center py-6 text-gray-500 text-sm">로딩 중...</div>
+          ) : recentActivityError ? (
+            <div className="text-center py-6 text-gray-500 text-sm">최근 활동을 불러오지 못했습니다.</div>
+          ) : recentPosts.length === 0 ? (
+            <div className="text-center py-6 text-gray-500 text-sm">최근 수정된 글이 없습니다.</div>
+          ) : (
+            <ul className="space-y-2">
+              {recentPosts.map((post) => (
+                <li key={post.id}>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/posts/${post.id}/edit`)}
+                    className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 text-left transition-colors"
+                  >
+                    <span className="text-sm font-medium text-gray-900 truncate flex-1 mr-2">{post.title || '(제목 없음)'}</span>
+                    <span className="text-xs text-gray-500 shrink-0">
+                      {post.updated_at ? new Date(post.updated_at).toLocaleDateString('ko-KR') : '-'}
+                    </span>
+                  </button>
+                  <div className="flex items-center gap-2 px-3 pb-2">
+                    <span className="text-xs text-gray-400">{post.slug}</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{post.status}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
