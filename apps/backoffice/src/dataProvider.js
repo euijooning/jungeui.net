@@ -2,9 +2,9 @@ import { fetchUtils } from 'react-admin';
 import { stringify } from 'query-string';
 import { getAccessToken } from './lib/apiClient';
 
-const apiBase = import.meta.env.VITE_API_URL;
-if (!apiBase) console.error('VITE_API_URL is required in .env');
-const apiUrl = `${apiBase || ''}/api`;
+// 빈 값이면 same-origin 상대 경로 사용 (/api/...)
+const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const apiUrl = `${apiBase}/api`;
 
 const getAuthHeaders = () => {
   const token = getAccessToken();
