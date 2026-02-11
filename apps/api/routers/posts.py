@@ -1,13 +1,17 @@
 """게시글 API."""
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError, ProgrammingError, SQLAlchemyError
 
 from apps.api.core import get_db
+from apps.api.core.config import get_today_iso
 from apps.api.routers.auth import get_optional_user
 
 router = APIRouter(tags=["posts"])
+logger = logging.getLogger(__name__)
 
 
 class PostBody(BaseModel):
@@ -172,8 +176,29 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
     ).fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
-    if not current_user and row[3] != "PUBLISHED":
+    (pid, title, slug, status, published_at, category_id, thumbnail_asset_id,
+     content_html, content_json, created_at, updated_at, category_name) = row
+    if not current_user and status != "PUBLISHED":
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
+
+    # 퍼블릭 조회 시 daily_stats 집계 (비로그인 + PUBLISHED만). 실패해도 글 조회는 정상 반환.
+    if current_user is None and status == "PUBLISHED":
+        try:
+            today = get_today_iso()
+            db.execute(
+                text("""
+                    INSERT INTO daily_stats (date, total_views, visitor_count)
+                    VALUES (:dt, 1, 1)
+                    ON DUPLICATE KEY UPDATE
+                        total_views = total_views + 1,
+                        visitor_count = visitor_count + 1
+                """),
+                {"dt": today},
+            )
+            db.commit()
+        except (OperationalError, ProgrammingError, SQLAlchemyError) as e:
+            logger.warning("daily_stats 갱신 실패: %s", e)
+
     tag_rows = db.execute(
         text("SELECT t.id, t.name FROM post_tags pt JOIN tags t ON t.id = pt.tag_id WHERE pt.post_id = :id"),
         {"id": post_id},
@@ -202,18 +227,18 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
             "size_bytes": a[3],
         })
     return {
-        "id": row[0],
-        "title": row[1],
-        "slug": row[2],
-        "status": row[3],
-        "published_at": row[4].isoformat() if row[4] else None,
-        "category_id": row[5],
-        "thumbnail_asset_id": row[6],
-        "content_html": row[7],
-        "content_json": row[8],
-        "created_at": row[9].isoformat() if row[9] else None,
-        "updated_at": row[10].isoformat() if row[10] else None,
-        "category_name": row[11],
+        "id": pid,
+        "title": title,
+        "slug": slug,
+        "status": status,
+        "published_at": published_at.isoformat() if published_at else None,
+        "category_id": category_id,
+        "thumbnail_asset_id": thumbnail_asset_id,
+        "content_html": content_html,
+        "content_json": content_json,
+        "created_at": created_at.isoformat() if created_at else None,
+        "updated_at": updated_at.isoformat() if updated_at else None,
+        "category_name": category_name,
         "post_tags": [r[0] for r in tag_rows],
         "tags": [{"id": r[0], "name": r[1]} for r in tag_rows],
         "attachments": attachments,

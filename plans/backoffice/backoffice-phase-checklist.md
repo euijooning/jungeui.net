@@ -12,14 +12,14 @@
 
 - [x] **1** navSections: 회원/콘텐츠/교회소개/교적/설정/가족모임 관리 제거. Jungeui 5개만 유지 (대시보드, 글 관리, 글 쓰기, 경력, 프로젝트).
 - [x] **2** 아코디언 state 및 관련 useEffect 제거 (contentAccordionOpen, usersAccordionOpen, churchAccordionOpen, membershipAccordionOpen, settingsAccordionOpen).
-- [x] **3** getPageTitle: 레거시 specialCases 전부 제거. `/`, `/posts`, `/posts/new`, `/posts/:postId/edit`, `/careers`, `/projects` 만 매핑.
+- [x] **3** getPageTitle: 레거시 specialCases 전부 제거. `/`, `/posts`, `/posts/new`, `/posts/:postId/edit`, `/careers`, `/projects`, `/notifications` 매핑.
 - [x] **4** loadUserInfo: `/api/auth/me` 응답을 Jungeui 스펙에 맞게 처리 (nickname → name 등).
 - [x] **5** authProvider: POST /api/auth/login, JWT 저장이 02-api-spec과 일치하는지 확인.
 - [x] **6** dataProvider: apiUrl = VITE_API_URL + `/api`, 리소스 경로(posts, categories, tags, careers, projects, assets) 스펙 일치 확인.
 - [x] **7** apiClient: VITE_API_URL 사용 확인.
-- [x] **8** 대시보드: GET /api/dashboard/stats 연동 (오늘/어제 방문자, 누적 조회수). 미구현 시 플레이스홀더.
-- [x] **9** 대시보드: Quick Action [새 글 쓰기] → `/posts/new`, [경력 추가] → `/careers`.
-- [x] **10** 대시보드: Recent Activity 영역 (최근 글 5개 등, API 준비 시 연동).
+- [x] **8** 대시보드: GET /api/dashboard/stats 연동 (오늘 방문자, 누적 조회수, 발행 포스트). daily_stats는 퍼블릭 조회 시 자동 갱신.
+- [x] **9** 대시보드: 바로가기 — 포스트 목록, 경력 관리, 프로젝트 관리.
+- [x] **10** 대시보드: 최근 활동 — GET /api/dashboard/recent-activity, 클릭 시 상세 이동.
 
 ### Phase 01 완료 점검 (구현 후 실행 후 보고)
 

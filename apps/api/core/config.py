@@ -1,5 +1,6 @@
 """API 설정 - 환경변수 기반."""
 import os
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -38,3 +39,12 @@ CORS_ORIGINS = os.getenv(
 REDIRECT_WWW_TO_NAKED = os.getenv("REDIRECT_WWW_TO_NAKED", "false").lower() in ("true", "1")
 WWW_HOST = os.getenv("WWW_HOST", "www.jungeui.net")
 NAKED_HOST = os.getenv("NAKED_HOST", "jungeui.net")
+
+# 타임존 (방문 통계 등 날짜 기준)
+TIMEZONE_OFFSET_HOURS = int(os.getenv("TIMEZONE_OFFSET_HOURS", "9"))
+
+
+def get_today_iso() -> str:
+    """현재 날짜를 TIMEZONE_OFFSET_HOURS 기준 ISO 문자열로 반환."""
+    tz = timezone(timedelta(hours=TIMEZONE_OFFSET_HOURS))
+    return datetime.now(tz).date().isoformat()

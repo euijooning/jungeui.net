@@ -48,7 +48,7 @@
 
 ### 스크립트 (scripts)
 
-**파일**: [../../scripts/db_reset.py](../../scripts/db_reset.py), [../../scripts/seed_data.py](../../scripts/seed_data.py)
+**파일**: [../../scripts/db_reset.py](../../scripts/db_reset.py). (관리자 계정은 서버 기동 시 `apps/api/core/db_init.py`에서 env 기반으로 없을 때만 자동 생성)
 
 - 현재는 CWD 기준 `.env`만 로드하며 ENV를 읽지 않는다.
 - 스테이징 DB를 쓰려면 해당 스테이징 디렉터리에서 실행하거나, 추후 ENV에 따라 `.env`/`.env.staging`을 로드하는 공통 헬퍼를 적용할 수 있다.
@@ -69,7 +69,8 @@
 | `UPLOAD_DIR` | 업로드 디렉터리(기본 `uploads`, 상대 경로면 해당 디렉터리 기준) |
 | `REDIRECT_WWW_TO_NAKED`, `WWW_HOST`, `NAKED_HOST` | www → naked 리다이렉트(선택) |
 | `VITE_API_URL`, `VITE_BACKOFFICE_PORT`, `VITE_CLIENT_PORT` | 프론트 API URL·포트 |
-| `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_NAME` | 시드 스크립트용 |
+| `TIMEZONE_OFFSET_HOURS` | 방문 통계 날짜 기준 (기본 9=KST) |
+| `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_NAME` | db_init._ensure_admin에서 관리자 없을 때만 사용 |
 
 비밀값은 문서에 기입하지 않고, 서버·로컬에서만 채운다.
 

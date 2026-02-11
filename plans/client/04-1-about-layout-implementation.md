@@ -35,7 +35,7 @@
 - [x] `docs/common/01-db-schema.md`에 about_messages 테이블 문서화
 - [x] `scripts/db_reset.py`에 테이블 생성 로직 추가
 - [x] `scripts/migrate_about_messages.py` 생성 (기존 DB용)
-- [x] `scripts/seed_data.py`에 과거/현재/미래 3개 시드 추가
+- [ ] `scripts/seed_data.py`에 과거/현재/미래 3개 시드 추가 (해당 없음. 시드 제거됨. about_messages는 백오피스에서 직접 추가)
 
 ```sql
 CREATE TABLE about_messages (

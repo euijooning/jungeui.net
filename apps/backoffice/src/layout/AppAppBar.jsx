@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import { useRedirect, useLogout } from 'react-admin'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
@@ -11,6 +11,7 @@ function getPageTitleByPath(path) {
 	if (/^\/posts\/[^/]+\/edit$/.test(path)) return '포스트 수정'
 	if (path === '/careers') return '경력'
 	if (path === '/projects') return '프로젝트'
+	if (path === '/notifications') return '알림'
 	return 'JUNGEUI LAB ADMIN'
 }
 
@@ -54,6 +55,13 @@ export default function AppAppBar({ onMenuClick, height = 56 }) {
 
 					{/* Right side */}
 					<div className="flex items-center space-x-2">
+						<Link
+							to="/notifications"
+							className="flex items-center justify-center w-10 h-10 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+							aria-label="알림"
+						>
+							<i className="fas fa-bell" />
+						</Link>
 						{/* User menu */}
 						<div className="relative">
 							<button

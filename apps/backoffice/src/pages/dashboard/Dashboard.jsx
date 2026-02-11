@@ -146,6 +146,24 @@ export default function Dashboard() {
                 <i className="fas fa-chevron-right text-gray-400" />
               </div>
             </button>
+            <button
+              type="button"
+              onClick={() => navigate('/projects')}
+              className="w-full flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            >
+              <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
+                  <i className="fas fa-folder text-white" />
+                </div>
+              </div>
+              <div className="ml-3 text-left">
+                <h4 className="text-sm font-medium text-gray-900">프로젝트 관리</h4>
+                <p className="text-sm text-gray-500">프로젝트 추가·수정</p>
+              </div>
+              <div className="ml-auto">
+                <i className="fas fa-chevron-right text-gray-400" />
+              </div>
+            </button>
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -162,7 +180,7 @@ export default function Dashboard() {
                 <li key={post.id}>
                   <button
                     type="button"
-                    onClick={() => navigate(`/posts/${post.id}/edit`)}
+                    onClick={() => navigate(`/posts/${post.id}`)}
                     className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 text-left transition-colors"
                   >
                     <span className="text-sm font-medium text-gray-900 truncate flex-1 mr-2">{post.title || '(제목 없음)'}</span>

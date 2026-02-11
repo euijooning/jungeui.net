@@ -1,23 +1,23 @@
 """대시보드 통계 API."""
-from datetime import date
-
 from fastapi import APIRouter, Depends
 from sqlalchemy import text
 
 from apps.api.core import get_db
+from apps.api.core.config import get_today_iso
+from apps.api.routers.auth import get_current_user
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
 @router.get("/stats")
-def get_dashboard_stats(db=Depends(get_db)):
+def get_dashboard_stats(db=Depends(get_db), user=Depends(get_current_user)):
     """
     대시보드 통계.
     - today_visits: 오늘 방문자 수 (daily_stats.visitor_count)
     - total_views: 전일까지 누적 조회수 (daily_stats SUM total_views)
     - published_posts: 발행된 글 수 (PUBLISHED + UNLISTED)
     """
-    today = date.today().isoformat()
+    today = get_today_iso()
 
     # 오늘 방문자
     row_today = db.execute(
@@ -49,7 +49,7 @@ def get_dashboard_stats(db=Depends(get_db)):
 
 
 @router.get("/recent-activity")
-def get_recent_activity(db=Depends(get_db)):
+def get_recent_activity(db=Depends(get_db), user=Depends(get_current_user)):
     """
     최근 수정된 글 5건 (id, title, slug, status, updated_at).
     백오피스 대시보드 '최근 활동'용.
