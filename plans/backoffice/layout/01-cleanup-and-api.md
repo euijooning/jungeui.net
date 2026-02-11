@@ -1,4 +1,4 @@
-# Phase 01: 백오피스 정리·API 연동·대시보드
+# 백오피스 정리·API 연동·대시보드
 
 ## 목표
 
@@ -11,7 +11,7 @@
 **파일**: `apps/backoffice/src/components/AdminLayout.jsx`
 
 - **navSections**: 회원 관리, 콘텐츠 관리, 교회소개, 교적, 설정, 가족모임 관리 전부 제거. Jungeui 5개만 유지: 대시보드(/), 글(아코디언·글 목록 /posts), 글 쓰기(/posts/new), 경력(/careers), 프로젝트(/projects).
-- **아코디언 state**: `contentAccordionOpen`, `usersAccordionOpen`, `churchAccordionOpen`, `membershipAccordionOpen`, `settingsAccordionOpen` 및 관련 `useEffect` 제거.
+- **아코디언 state**: contentAccordionOpen, usersAccordionOpen, churchAccordionOpen, membershipAccordionOpen, settingsAccordionOpen 및 관련 useEffect 제거.
 - **getPageTitle**: 레거시 경로 매핑 제거. `/`, `/posts`, `/write`, `/careers`, `/projects`, `/assets` 만 매핑.
 - **loadUserInfo**: `/api/auth/me` 호출 시 응답 필드가 Jungeui API 스펙(name 등)에 맞게 처리. nickname → name 등.
 - 기타 레거시 경로 참조(특수 케이스 매핑 등) 전부 제거.
@@ -19,8 +19,8 @@
 ## 2. API·인증 연동
 
 - **authProvider**: 이미 POST /api/auth/login, JWT 저장. 02-api-spec과 일치하는지 확인.
-- **dataProvider**: `apiUrl` = `VITE_API_URL` + `/api`. getList/getOne/create/update/delete 시 리소스명을 API 경로와 맞춤 (posts, categories, tags, careers, projects, assets). 02-api-spec 엔드포인트와 동일한 prefix 사용.
-- **apiClient**: 루트 .env의 `VITE_API_URL` 사용 (이미 반영된 경우 유지).
+- **dataProvider**: apiUrl = VITE_API_URL + `/api`. getList/getOne/create/update/delete 시 리소스명을 API 경로와 맞춤 (posts, categories, tags, careers, projects, assets). 02-api-spec 엔드포인트와 동일한 prefix 사용.
+- **apiClient**: 루트 .env의 VITE_API_URL 사용 (이미 반영된 경우 유지).
 
 ## 3. 대시보드
 

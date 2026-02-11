@@ -1,7 +1,7 @@
-# Jungeui Lab
+# JUNGEUI LAB
 
-사고 과정(Process)과 결과물(Output)을 보여주는 브랜딩 채널.  
-기술 블로그 + 포트폴리오(경력/프로젝트) + 커스텀 백오피스.
+브랜딩 개인 채널.  
+기획자 블로그 + 포트폴리오 소개 + 커스텀 백오피스.
 
 ## 구조 (Monorepo)
 
@@ -14,6 +14,8 @@
 
 ## 문서
 
+환경별 .env 및 배포 구조는 [docs/common/07-deploy-strategy.md](docs/common/07-deploy-strategy.md) 참고.
+
 **공통 (docs/common/)**  
 - [01-db-schema.md](docs/common/01-db-schema.md) — DB 테이블 정의
 - [02-api-spec.md](docs/common/02-api-spec.md) — API 명세
@@ -21,11 +23,13 @@
 - [04-design-guide.md](docs/common/04-design-guide.md) — 디자인 가이드
 - [05-server-run-guide.md](docs/common/05-server-run-guide.md) — 서버 실행·환경 변수(운영/스테이징)
 - [06-ui-ux-guide.md](docs/common/06-ui-ux-guide.md) — UI/UX 가이드
+- [07-deploy-strategy.md](docs/common/07-deploy-strategy.md) — 배포 전략 (ENV·.env, 운영/스테이징)
 
 **기타**  
+- [docs/deploy/](docs/deploy/00-deploy-index.md) — 배포 매뉴얼 (systemd, Nginx Basic Auth)
 - [docs/backoffice/](docs/backoffice/) — 백오피스 가이드
 - [docs/convention/](docs/convention/) — 컨벤션
 
 **구현 계획 (plans/)**  
-- [plans/backoffice-make/](plans/backoffice-make/) — 백오피스 Phase
+- [plans/backoffice/](plans/backoffice/00-backoffice-implementation-guide.md) — 백오피스 (레이아웃·포스트·카테고리·메시지·프로젝트·경력)
 - [plans/client/](plans/client/) — 클라이언트 Phase
