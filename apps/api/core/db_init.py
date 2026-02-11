@@ -1,7 +1,7 @@
 """
-서버 시작 시 DB 테이블 자동 생성 및 시드 데이터 초기화.
+서버 시작 시 DB 테이블 자동 생성 및 관리자 계정 초기화.
 - DB 없으면 생성, 테이블 없으면 생성 (CREATE TABLE IF NOT EXISTS)
-- 최초 시 사용자/카테고리/about_messages 시드 삽입
+- env 관리자 계정이 없을 때만 생성 (있으면 건드리지 않음)
 """
 import logging
 import os
@@ -194,74 +194,32 @@ def _ensure_tables():
         conn.close()
 
 
-def _ensure_seed_data():
-    """최초 시 사용자/카테고리/about_messages 시드 삽입."""
-    password_hash = bcrypt.hashpw(
-        SEED_ADMIN_PASSWORD.encode("utf-8"), bcrypt.gensalt()
-    ).decode("utf-8")
-
+def _ensure_admin():
+    """env 관리자 계정이 없을 때만 생성. 있으면 아무것도 하지 않음."""
     conn = _get_conn(use_db=True)
     try:
         with conn.cursor() as cur:
-            # 관리자 (없으면 생성, 있으면 .env 비밀번호/이름으로 갱신)
             cur.execute("SELECT id FROM users WHERE email = %s", (SEED_ADMIN_EMAIL,))
             if cur.fetchone() is None:
+                password_hash = bcrypt.hashpw(
+                    SEED_ADMIN_PASSWORD.encode("utf-8"), bcrypt.gensalt()
+                ).decode("utf-8")
                 cur.execute(
                     "INSERT INTO users (email, password_hash, name) VALUES (%s, %s, %s)",
                     (SEED_ADMIN_EMAIL, password_hash, SEED_ADMIN_NAME),
                 )
+                conn.commit()
                 logger.info("관리자 계정 생성: %s", SEED_ADMIN_EMAIL)
-            else:
-                cur.execute(
-                    "UPDATE users SET password_hash = %s, name = %s WHERE email = %s",
-                    (password_hash, SEED_ADMIN_NAME, SEED_ADMIN_EMAIL),
-                )
-                logger.info("관리자 계정 비밀번호/이름 갱신: %s", SEED_ADMIN_EMAIL)
-
-            # 기본 카테고리 (없을 때만)
-            categories = [
-                ("기획 (Planning)", 1),
-                ("개발 (Dev)", 2),
-                ("에세이 (Essay)", 3),
-            ]
-            for name, order in categories:
-                cur.execute(
-                    "SELECT id FROM categories WHERE name = %s AND parent_id IS NULL",
-                    (name,),
-                )
-                if cur.fetchone() is None:
-                    cur.execute(
-                        "INSERT INTO categories (parent_id, name, sort_order) VALUES (NULL, %s, %s)",
-                        (name, order),
-                    )
-                    logger.info("카테고리 생성: %s", name)
-
-            # about_messages (없을 때만)
-            cur.execute("SELECT COUNT(*) FROM about_messages")
-            if cur.fetchone()[0] == 0:
-                messages = [
-                    ("과거", "이전 경험과 학습의 여정을 담았습니다.", 0),
-                    ("현재", "지금의 나와 관심사를 나눕니다.", 1),
-                    ("미래", "앞으로의 방향과 비전을 그립니다.", 2),
-                ]
-                for title, content, order in messages:
-                    cur.execute(
-                        "INSERT INTO about_messages (title, content, sort_order) VALUES (%s, %s, %s)",
-                        (title, content, order),
-                    )
-                    logger.info("about_messages 시드 생성: %s", title)
-
-        conn.commit()
     finally:
         conn.close()
 
 
 def init_on_startup():
-    """서버 시작 시 호출: DB·테이블·시드 자동 초기화."""
+    """서버 시작 시 호출: DB·테이블 생성, 관리자 없으면 생성."""
     try:
         _ensure_database()
         _ensure_tables()
-        _ensure_seed_data()
+        _ensure_admin()
     except Exception as e:
         logger.exception("DB 초기화 실패: %s", e)
         raise

@@ -38,12 +38,12 @@ API 베이스: `http://localhost:8010` (또는 환경변수 `VITE_API_URL` / 백
 | GET | /assets | 자산 목록 (갤러리) | Admin |
 | DELETE | /assets/{id} | 자산 삭제 (사용 여부 체크) | Admin |
 | GET | /dashboard/stats | 대시보드 통계 (방문자/조회수) | Admin |
+| GET | /dashboard/recent-activity | 최근 수정 글 5건 | Admin |
 | GET | /sitemap.xml | 사이트맵 (동적 생성) | 공개 |
 
 상세 요청/응답 스키마는 구현 시 `apps/api/routers/` 내 각 라우터에 맞춰 확정. GET /careers 응답 항목: id, logo_asset_id, logo(URL), company_name, role, start_date, end_date, description, sort_order, links, highlights, tags.
 
 ## 시드 데이터
 
-- 관리자 1명: `ej@jungeui.net` / 비밀번호는 시딩 후 변경.
-- 카테고리: 기획 (planning), 개발 (dev), 에세이 (essay).
-- about_messages: 과거, 현재, 미래 3개 (소개 인사말).
+- 관리자: 서버 기동 시 `db_init._ensure_admin`에서 env(SEED_ADMIN_EMAIL 등)로 **없을 때만** 생성. `ej@jungeui.net` / 비밀번호는 .env에서 설정.
+- 카테고리·about_messages: 수동 또는 백오피스에서 추가.

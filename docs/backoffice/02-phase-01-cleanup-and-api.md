@@ -30,9 +30,9 @@
 
 **파일**: `apps/backoffice/src/pages/Dashboard.jsx`
 
-- **통계**: GET /api/dashboard/stats (또는 동일 스펙) 연동. 오늘/어제 방문자, 누적 조회수 등 표시. API 미구현 시 플레이스홀더 유지.
-- **Quick Action**: [새 글 쓰기] → `/posts/new`, [경력 추가] → `/careers`.
-- **Recent Activity**: 최근 글 5개, 최근 댓글(Utterances 연동 시) 영역. API 준비되면 연동.
+- **통계**: GET /api/dashboard/stats — `today_visits`, `total_views`, `published_posts`. 인증 필수. daily_stats는 퍼블릭 post 조회 시 자동 갱신.
+- **바로가기**: 포스트 목록, 경력 관리, 프로젝트 관리.
+- **최근 활동**: GET /api/dashboard/recent-activity. 클릭 시 상세(`/posts/:id`)로 이동.
 
 ## 4. Phase 01-2 추가 기능
 
@@ -42,9 +42,9 @@
 - **백엔드**: `apps/api/core/config.py` — `ACCESS_TOKEN_EXPIRE_DAYS_REMEMBER = 30`. `apps/api/routers/auth.py` — `LoginRequest.remember_me`, `create_access_token(..., remember_me)` 분기.
 - **프론트**: `LoginPage.jsx` — `rememberMe` 체크 시 `login({ ..., rememberMe })` 전달. `authProvider.js` — `remember_me` API 전달, `rememberMe`면 `localStorage`, 아니면 `sessionStorage`. `apiClient.js` — `getAccessToken()` (localStorage + sessionStorage).
 
-### 4.2 시드 관리자 비밀번호 갱신
+### 4.2 관리자 계정 초기화
 
-- **파일**: `scripts/seed_data.py`. 관리자 계정이 이미 있으면 INSERT 대신 `UPDATE users SET password_hash = %s, name = %s WHERE email = %s` 실행.
+- **파일**: `apps/api/core/db_init.py`의 `_ensure_admin()`. 서버 기동 시 env(SEED_ADMIN_EMAIL 등)로 관리자 조회 → 없을 때만 INSERT. 있으면 아무것도 하지 않음.
 
 ### 4.3 브랜딩·메뉴 라벨
 
@@ -63,8 +63,12 @@
 
 ### 4.6 대시보드 통계·발행 포스트
 
-- **API**: GET /api/dashboard/stats — `today_visits`, `yesterday_visits`, `total_views`, `published_posts`.
+- **API**: GET /api/dashboard/stats — `today_visits`, `total_views`, `published_posts`. GET /api/dashboard/recent-activity — 최근 글 5건. 둘 다 인증 필수.
 - **UI**: 두 번째 카드 "발행 포스트"(PUBLISHED + UNLISTED).
+
+### 4.7 알림
+
+- **AppAppBar**: 프로필 왼쪽 종 아이콘 → `/notifications`.
 
 ## 완료 기준
 
@@ -76,4 +80,4 @@
 
 ## Phase 01 완료
 
-위 완료 기준 충족. AdminLayout Jungeui 6개 메뉴만 유지, getPageTitle 레거시 제거, loadUserInfo Jungeui 스펙(name 등), apiClient/dataProvider/authProvider VITE_API_URL·02-api-spec 연동, 대시보드 GET /api/dashboard/stats·바로가기(/posts/new, /careers)·Recent Activity 플레이스홀더 반영됨.
+위 완료 기준 충족. AdminLayout Jungeui 6개 메뉴만 유지, getPageTitle 레거시 제거, loadUserInfo Jungeui 스펙(name 등), apiClient/dataProvider/authProvider VITE_API_URL·02-api-spec 연동, 대시보드 GET /api/dashboard/stats·바로가기(포스트 목록·경력·프로젝트)·Recent Activity(클릭 시 상세)·알림(/notifications) 반영됨.

@@ -17,6 +17,7 @@ import ProjectList from "./pages/projects/ProjectList";
 import ProjectNew from "./pages/projects/ProjectNew";
 import CategoryList from "./pages/categories/CategoryList";
 import MessageList from "./pages/messages/MessageList";
+import NotificationsPage from "./pages/notifications/NotificationsPage";
 
 export default function AdminApp() {
   return (
@@ -44,6 +45,7 @@ export default function AdminApp() {
         <Route path="/projects" element={<ProjectList />} />
         <Route path="/projects/new" element={<ProjectNew />} />
         <Route path="/posts/categories" element={<CategoryList />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
       </CustomRoutes>
     </Admin>
   );

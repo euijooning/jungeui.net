@@ -182,4 +182,4 @@ CREATE TABLE daily_stats (
 ) COMMENT='일별 방문 통계';
 ```
 
-초기 데이터(시드)는 `scripts/seed_data.py` 또는 `02-api-spec.md` 시드 섹션 참고.
+관리자 계정은 서버 기동 시 `apps/api/core/db_init.py`의 `_ensure_admin()`에서 env(SEED_ADMIN_EMAIL 등)로 없을 때만 생성. 기타 초기 데이터는 `02-api-spec.md` 시드 섹션 참고.

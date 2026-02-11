@@ -24,7 +24,6 @@ jungeui/
 │
 ├── scripts/               # 자동화·유틸 스크립트
 │   ├── db_reset.py        # DB 전체 리셋 (DROP 후 재생성)
-│   ├── seed_data.py       # 초기 관리자/카테고리 시딩
 │   └── deploy.sh         # 배포 자동화
 │
 ├── shared/                # 앱 간 재사용 리소스
@@ -51,7 +50,7 @@ jungeui/
 
 - **루트**: `requirements.txt`, `.venv` 로 API·스크립트 공통 환경.
 - **docs**: 스펙 확인 시 코드보다 `docs/` 참고. `common/`(DB·API·폴더구조·디자인·UI 가이드), `backoffice/`(Phase별 구현 가이드), `client/`(Phase별 구현 가이드).
-- **scripts**: `python scripts/db_reset.py`, `python scripts/seed_data.py` 등.
+- **scripts**: `python scripts/db_reset.py` 등. (관리자 계정은 서버 기동 시 `apps/api/core/db_init.py`에서 없을 때만 자동 생성)
 - **shared/ui-kit**: Button, Card, Modal, Layout 등; client·backoffice 에서 import.
 - **apps/api**: FastAPI 앱, DB 접근, 인증.
 - **apps/client**: 읽기 위주 블로그/About/프로젝트.
