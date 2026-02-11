@@ -160,23 +160,30 @@ export default function PostDetail() {
 
   return (
     <SharedLayout categories={categories} currentCategoryId={currentCategoryId}>
-      <article className="max-w-[720px] mt-6 md:mt-9">
-        <header className="theme-bg-card theme-card-border rounded-xl px-4 py-4 md:p-6 md:px-7 mb-6 shadow-sm">
+      <article className="max-w-[680px] mx-auto mt-8 md:mt-12 px-4 md:px-0">
+        <header className="mb-10 text-center md:text-left">
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-3">
+            <div className="flex flex-wrap gap-2 mb-4 justify-center md:justify-start">
               {tags.map((t) => (
-                <span key={t.id} className="inline-block py-1 px-2.5 text-[0.8125rem] rounded-md theme-bg-secondary theme-text-secondary border theme-border">{t.name}</span>
+                <span key={t.id} className="inline-block px-2.5 py-0.5 text-[0.8125rem] font-medium rounded-full bg-[var(--ui-background-secondary)] text-[var(--ui-text-secondary)]">
+                  #{t.name}
+                </span>
               ))}
             </div>
           )}
-          <h1 className="text-2xl font-bold leading-tight mb-2 mt-0 theme-text">{post.title}</h1>
-          {dateStr && <time className="text-[0.9375rem] theme-text-secondary block" dateTime={post.published_at || post.created_at}>{dateStr}</time>}
+          <h1 className="text-3xl md:text-4xl font-bold leading-tight tracking-tight mb-4 theme-text break-keep">
+            {post.title}
+          </h1>
+          <div className="flex items-center justify-center md:justify-start gap-3 text-[0.9375rem] theme-text-secondary">
+            {dateStr && <time dateTime={post.published_at || post.created_at}>{dateStr}</time>}
+          </div>
+          <hr className="mt-8 border-t theme-border opacity-60" />
         </header>
 
-        <div className="max-w-[720px] mb-6 theme-bg-card theme-card-border rounded-xl shadow-sm overflow-hidden">
+        <div className="mb-12">
           <div
             ref={bodyRef}
-            className="post-detail-prose px-4 py-4 md:px-6 md:py-5 leading-relaxed text-left theme-text"
+            className="post-detail-prose"
             dangerouslySetInnerHTML={{ __html: post.content_html || '' }}
           />
         </div>
@@ -189,7 +196,7 @@ export default function PostDetail() {
 
         {post.attachments?.length > 0 && (
           <section className="mt-8" aria-label="첨부 파일">
-            <div className="max-w-[720px] theme-bg-card theme-card-border rounded-xl shadow-sm overflow-hidden">
+            <div className="theme-bg-card theme-card-border rounded-xl shadow-sm overflow-hidden">
               <div className="flex items-center gap-2 py-2.5 px-4 border-b theme-border">
                 <span className="flex items-center justify-center theme-text-secondary" aria-hidden>
                   <PaperclipIcon />
