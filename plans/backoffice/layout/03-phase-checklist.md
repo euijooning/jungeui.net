@@ -2,7 +2,7 @@
 
 구현 후 해당 항목을 체크. **한 Phase 끝날 때마다 해당 Phase의 "완료 점검" 항목을 실행하고 보고.**
 
-참조: [00-backoffice-implementation-guide.md](00-backoffice-implementation-guide.md), [docs/02-api-spec.md](../docs/02-api-spec.md)
+참조: [../00-backoffice-implementation-guide.md](../00-backoffice-implementation-guide.md), [docs/02-api-spec.md](../../../docs/common/02-api-spec.md)
 
 ---
 
@@ -21,7 +21,7 @@
 - [x] **9** 대시보드: 바로가기 — 포스트 목록, 경력 관리, 프로젝트 관리.
 - [x] **10** 대시보드: 최근 활동 — GET /api/dashboard/recent-activity, 클릭 시 상세 이동.
 
-### Phase 01 완료 점검 (구현 후 실행 후 보고)
+### Phase 01 완료 점검
 
 - [x] **11** AdminLayout에 은혜이음 전용 메뉴·경로·getPageTitle 없음.
 - [x] **12** 대시보드에서 통계 API 호출 또는 연동 가능한 구조.
@@ -47,7 +47,7 @@
 - [x] **23** PostEditor: 설정 패널 — Status, Publish Date, URL Slug, Category(GET /api/categories), Tags(칩), Thumbnail.
 - [x] **24** PostEditor: POST /api/posts(신규), PUT /api/posts/{id}(수정), GET /api/posts/{id}(수정 시 content_json 복원). 라우트: `/posts/new`, `/posts/:postId/edit`.
 
-### Phase 02 완료 점검 (구현 후 실행 후 보고)
+### Phase 02 완료 점검
 
 - [x] **25** 글 목록에서 필터·페이지네이션·수정/삭제 동작.
 - [x] **26** PostEditor에서 Toast UI 에디터·설정 패널·이미지 업로드·유튜브 임베드 동작.
@@ -61,21 +61,21 @@
 
 **파일**: `CareersList.jsx`, `ProjectsList.jsx`
 
-- [ ] **28** CareersList: GET /api/careers, sort_order 순 목록.
-- [ ] **29** CareersList: 드래그앤드롭 순서 변경 → PATCH /api/careers/reorder.
-- [ ] **30** CareersList: 등록/수정 폼 — company_name, role, start_date, end_date(NULL=재직중), description, logo_asset_id(POST /api/assets/upload), sort_order.
-- [ ] **31** CareersList: POST /api/careers, PUT /api/careers/{id}.
-- [ ] **32** ProjectsList: GET /api/projects, sort_order 순 목록.
-- [ ] **33** ProjectsList: 드래그앤드롭 → PATCH /api/projects/reorder.
-- [ ] **34** ProjectsList: 등록/수정 폼 — title, subtitle, description, start_date, end_date, sort_order, thumbnail_asset_id.
-- [ ] **35** ProjectsList: project_links(link_name, link_url 다중, sort_order).
-- [ ] **36** ProjectsList: project_tags — GET /api/tags 다중 선택.
-- [ ] **37** ProjectsList: POST/PUT /api/projects (project_links·project_tags 포함).
+- [x] **28** CareersList: GET /api/careers, sort_order 순 목록.
+- [x] **29** CareersList: 드래그앤드롭 순서 변경 → PATCH /api/careers/reorder.
+- [x] **30** CareersList: 등록/수정 폼 — company_name, role, start_date, end_date(NULL=재직중), description, logo_asset_id(POST /api/assets/upload), sort_order.
+- [x] **31** CareersList: POST /api/careers, PUT /api/careers/{id}.
+- [x] **32** ProjectsList: GET /api/projects, sort_order 순 목록.
+- [x] **33** ProjectsList: 드래그앤드롭 → PATCH /api/projects/reorder.
+- [x] **34** ProjectsList: 등록/수정 폼 — title, description, start_date, end_date, sort_order, thumbnail_asset_id, intro_image_asset_id.
+- [x] **35** ProjectsList: project_links(link_name, link_url 다중, sort_order).
+- [x] **36** ProjectsList: project_tags — Enter로 추가, 최대 6개.
+- [x] **37** ProjectsList: POST/PUT /api/projects (project_links·project_tags 포함).
 
-### Phase 03 완료 점검 (구현 후 실행 후 보고)
+### Phase 03 완료 점검
 
-- [ ] **38** 경력 목록·드래그 정렬·등록/수정(로고 업로드 포함) 동작.
-- [ ] **39** 프로젝트 목록·드래그 정렬·등록/수정(썸네일·링크 여러 개·태그) 동작.
+- [x] **38** 경력 목록·드래그 정렬·등록/수정(로고 업로드 포함) 동작.
+- [x] **39** 프로젝트 목록·드래그 정렬·등록/수정(썸네일·링크 여러 개·태그) 동작.
 
 ---
 
