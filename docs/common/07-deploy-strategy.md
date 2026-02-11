@@ -17,7 +17,7 @@
 
 - 각 서비스의 **WorkingDirectory**를 해당 디렉터리로 두고, **Environment=ENV=production** 또는 **Environment=ENV=staging**만 지정하면 된다.
 - **상대 경로**(`UPLOAD_DIR=uploads` 등)는 디렉터리별로 해석되므로, 운영과 스테이징의 업로드·로그 등이 섞이지 않는다. 한 디렉터리만 쓰면 두 환경이 같은 `uploads/`를 바라보게 되어 꼬이므로, 디렉터리를 나누는 방식을 권장한다.
-- **systemd 유닛 예시**(복사 후 경로·포트 수정, 실제 .service 파일은 커밋하지 않음): [sample/systemd-api-production.md](sample/systemd-api-production.md), [sample/systemd-api-staging.md](sample/systemd-api-staging.md).
+- **systemd 유닛 예시**(복사 후 경로·포트 수정, 실제 .service 파일은 커밋하지 않음): [../deploy/01-systemd-api-service.md](../deploy/01-systemd-api-service.md).
 
 ---
 
@@ -119,7 +119,7 @@
 3. `nginx -t`로 문법 검사 후 `systemctl reload nginx`로 적용.
 4. 브라우저에서 스테이징 URL 접속 시 ID/비밀번호 팝업이 뜨면 적용된 것.
 
-상세(htpasswd 설치·명령 예시, server block 전체 예시)는 [sample/nginx-staging-basic-auth.md](sample/nginx-staging-basic-auth.md) 참고.
+상세(htpasswd 설치·명령 예시, server block 전체 예시)는 [../deploy/02-nginx-staging-basic-auth.md](../deploy/02-nginx-staging-basic-auth.md) 참고.
 
 ---
 
