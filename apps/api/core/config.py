@@ -26,9 +26,14 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24h (로그인 유지 미선택 시)
 ACCESS_TOKEN_EXPIRE_DAYS_REMEMBER = 30  # 로그인 유지 선택 시 최대 30일
 
-UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "uploads")).resolve()
+# docs/guides/common/07-deploy-strategy.md: 전부 프로젝트 루트의 uploads 하위. 상대 경로면 해당 디렉터리(루트) 기준. 없으면 생성.
+_upload_dir_env = (os.getenv("UPLOAD_DIR", "uploads") or "uploads").strip() or "uploads"
+UPLOAD_DIR = Path(_upload_dir_env)
 if not UPLOAD_DIR.is_absolute():
-    UPLOAD_DIR = _env_path / UPLOAD_DIR
+    UPLOAD_DIR = (_env_path / _upload_dir_env).resolve()
+else:
+    UPLOAD_DIR = UPLOAD_DIR.resolve()
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 CORS_ORIGINS = os.getenv(
     "CORS_ORIGINS",

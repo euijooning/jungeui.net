@@ -1,5 +1,7 @@
 """경력 API."""
 import logging
+import shutil
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, field_validator
@@ -7,10 +9,31 @@ from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 
-from apps.api.core import get_db
+from apps.api.core import get_db, UPLOAD_DIR
 from apps.api.routers.auth import get_current_user
 
 router = APIRouter(tags=["careers"])
+
+
+def _relocate_temp_asset(asset_id: int | None, career_id: int, db, upload_dir: Path) -> None:
+    """temp에 있는 asset 파일을 careers/{career_id}/로 이동하고 assets.file_path 갱신."""
+    if not asset_id:
+        return
+    row = db.execute(text("SELECT id, file_path FROM assets WHERE id = :id"), {"id": asset_id}).fetchone()
+    if not row:
+        return
+    file_path = (row[1] or "").strip().replace("\\", "/")
+    if not file_path.startswith("careers/temp/"):
+        return
+    src = upload_dir / file_path
+    if not src.is_file():
+        return
+    filename = Path(file_path).name
+    new_rel_path = f"careers/{career_id}/{filename}"
+    dest = upload_dir / new_rel_path
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.move(str(src), str(dest))
+    db.execute(text("UPDATE assets SET file_path = :path WHERE id = :id"), {"path": new_rel_path, "id": asset_id})
 
 
 def _file_path_to_url(fp) -> str | None:
@@ -158,6 +181,8 @@ def create_career(body: CareerBody, db=Depends(get_db)):
         if not new_id:
             db.rollback()
             raise HTTPException(status_code=500, detail="경력 생성 실패")
+        upload_dir = Path(UPLOAD_DIR)
+        _relocate_temp_asset(body.logo_asset_id, new_id, db, upload_dir)
         for idx, link in enumerate((body.career_links or [])[:5]):
             if not (link.link_name and link.link_url):
                 continue
@@ -223,6 +248,8 @@ def update_career(career_id: int, body: CareerBody, db=Depends(get_db)):
             "sort_order": body.sort_order if body.sort_order is not None else 0,
         },
     )
+    upload_dir = Path(UPLOAD_DIR)
+    _relocate_temp_asset(body.logo_asset_id, career_id, db, upload_dir)
     try:
         db.execute(text("DELETE FROM career_links WHERE career_id = :id"), {"id": career_id})
         db.execute(text("DELETE FROM career_highlights WHERE career_id = :id"), {"id": career_id})

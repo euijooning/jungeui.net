@@ -35,6 +35,7 @@ const apiClient = {
     const fullUrl = resolveUrl(url);
     const init = {
       ...options,
+      credentials: 'include',
       headers: { ...getAuthHeaders(), ...(options.headers || {}) },
     };
 
@@ -83,6 +84,7 @@ const apiClient = {
     const response = await fetch(fullUrl, {
       ...options,
       method: 'POST',
+      credentials: 'include',
       headers: { ...headers, ...(options.headers || {}) },
       body: formData,
     });
