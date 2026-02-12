@@ -20,11 +20,11 @@ from apps.api.core.config import (
 logger = logging.getLogger(__name__)
 
 # 시드용 환경변수
-SEED_ADMIN_EMAIL = os.getenv("SEED_ADMIN_EMAIL", "ej@jungeui.net")
+SEED_ADMIN_EMAIL = os.getenv("SEED_ADMIN_EMAIL", "me@jungeui.net")
 SEED_ADMIN_PASSWORD = os.getenv("SEED_ADMIN_PASSWORD", "changeme")
-SEED_ADMIN_NAME = os.getenv("SEED_ADMIN_NAME", "정의준")
+SEED_ADMIN_NAME = os.getenv("SEED_ADMIN_NAME", "JungeuiLab")
 
-# CREATE TABLE IF NOT EXISTS (docs/common/01-db-schema.md 동기화)
+# CREATE TABLE IF NOT EXISTS (docs/guides/common/01-db-schema.md 동기화)
 TABLES_SQL = """
 CREATE TABLE IF NOT EXISTS users (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
