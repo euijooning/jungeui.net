@@ -1,12 +1,14 @@
 """게시글 API."""
 import logging
+import shutil
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError, ProgrammingError, SQLAlchemyError
 
-from apps.api.core import get_db
+from apps.api.core import get_db, UPLOAD_DIR
 from apps.api.core.config import get_today_iso
 from apps.api.routers.auth import get_optional_user
 
@@ -25,6 +27,26 @@ class PostBody(BaseModel):
     content_json: str | None = None
     post_tags: list[int] = []
     attachment_asset_ids: list[int] = []
+
+
+def _relocate_post_temp_asset(asset_id: int | None, post_id: int, db, upload_dir: Path) -> None:
+    """연/월/일/temp에 있는 asset을 연/월/일/{post_id}로 이동하고 assets.file_path 갱신."""
+    if not asset_id:
+        return
+    row = db.execute(text("SELECT id, file_path FROM assets WHERE id = :id"), {"id": asset_id}).fetchone()
+    if not row:
+        return
+    file_path = (row[1] or "").strip().replace("\\", "/")
+    if "/temp/" not in file_path:
+        return
+    src = upload_dir / file_path
+    if not src.is_file():
+        return
+    new_rel_path = file_path.replace("/temp/", f"/{post_id}/", 1)
+    dest = upload_dir / new_rel_path
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.move(str(src), str(dest))
+    db.execute(text("UPDATE assets SET file_path = :path WHERE id = :id"), {"path": new_rel_path, "id": asset_id})
 
 
 def _slug_exists(db, slug: str, exclude_id: int | None = None) -> bool:
@@ -284,6 +306,17 @@ def create_post(body: PostBody, db=Depends(get_db)):
                 text("INSERT INTO post_attachments (post_id, asset_id, sort_order) VALUES (:pid, :aid, :ord)"),
                 {"pid": new_id, "aid": aid, "ord": idx},
             )
+    if new_id:
+        upload_dir = Path(UPLOAD_DIR)
+        _relocate_post_temp_asset(body.thumbnail_asset_id, new_id, db, upload_dir)
+        for aid in body.attachment_asset_ids or []:
+            if aid:
+                _relocate_post_temp_asset(aid, new_id, db, upload_dir)
+        # 본문 내 이미지 URL도 temp → 게시물ID로 갱신
+        db.execute(
+            text("UPDATE posts SET content_html = REPLACE(content_html, '/temp/', :pid_slash), content_json = REPLACE(COALESCE(content_json, ''), '/temp/', :pid_slash) WHERE id = :id"),
+            {"pid_slash": f"/{new_id}/", "id": new_id},
+        )
     db.commit()
     return {"id": new_id, "slug": slug}
 
@@ -333,6 +366,16 @@ def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
                 text("INSERT INTO post_attachments (post_id, asset_id, sort_order) VALUES (:pid, :aid, :ord)"),
                 {"pid": post_id, "aid": aid, "ord": idx},
             )
+    upload_dir = Path(UPLOAD_DIR)
+    _relocate_post_temp_asset(body.thumbnail_asset_id, post_id, db, upload_dir)
+    for aid in body.attachment_asset_ids or []:
+        if aid:
+            _relocate_post_temp_asset(aid, post_id, db, upload_dir)
+    # 본문 내 이미지 URL도 temp → 게시물ID로 갱신
+    db.execute(
+        text("UPDATE posts SET content_html = REPLACE(content_html, '/temp/', :pid_slash), content_json = REPLACE(COALESCE(content_json, ''), '/temp/', :pid_slash) WHERE id = :id"),
+        {"pid_slash": f"/{post_id}/", "id": post_id},
+    )
     db.commit()
     return {"id": post_id, "slug": slug}
 

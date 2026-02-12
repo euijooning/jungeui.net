@@ -243,6 +243,9 @@ def update_project(project_id: int, body: ProjectBody, db=Depends(get_db)):
     for tid in body.project_tags or []:
         if tid:
             db.execute(text("INSERT INTO project_tags (project_id, tag_id) VALUES (:pid, :tid)"), {"pid": project_id, "tid": tid})
+    upload_dir = Path(UPLOAD_DIR)
+    _relocate_temp_asset(body.thumbnail_asset_id, project_id, db, upload_dir)
+    _relocate_temp_asset(body.intro_image_asset_id, project_id, db, upload_dir)
     db.commit()
     return {"id": project_id}
 

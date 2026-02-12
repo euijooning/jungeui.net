@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import apiClient from '../../lib/apiClient';
+import apiClient, { getAccessToken } from '../../lib/apiClient';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
@@ -33,6 +33,11 @@ export default function MessageList() {
   });
 
   const fetchList = useCallback(async () => {
+    if (!getAccessToken()) {
+      setError('인증이 필요합니다.');
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
