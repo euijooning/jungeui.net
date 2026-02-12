@@ -266,7 +266,6 @@ def create_post(body: PostBody, db=Depends(get_db)):
             "content_json": body.content_json,
         },
     )
-    db.commit()
     new_id_row = db.execute(text("SELECT LAST_INSERT_ID()")).fetchone()
     new_id = new_id_row[0] if new_id_row else None
     if new_id and body.post_tags:
@@ -277,7 +276,6 @@ def create_post(body: PostBody, db=Depends(get_db)):
                 text("INSERT INTO post_tags (post_id, tag_id) VALUES (:pid, :tid)"),
                 {"pid": new_id, "tid": tid},
             )
-        db.commit()
     if new_id and body.attachment_asset_ids:
         for idx, aid in enumerate(body.attachment_asset_ids):
             if not aid:
@@ -286,7 +284,7 @@ def create_post(body: PostBody, db=Depends(get_db)):
                 text("INSERT INTO post_attachments (post_id, asset_id, sort_order) VALUES (:pid, :aid, :ord)"),
                 {"pid": new_id, "aid": aid, "ord": idx},
             )
-        db.commit()
+    db.commit()
     return {"id": new_id, "slug": slug}
 
 
