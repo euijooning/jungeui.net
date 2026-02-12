@@ -16,10 +16,10 @@ function formatDate(iso) {
 
 function statusBadge(status) {
   const styles = {
-    PUBLISHED: 'bg-green-100 text-green-800 border-green-200',
-    UNLISTED: 'bg-blue-100 text-blue-800 border-blue-200',
-    PRIVATE: 'bg-gray-100 text-gray-800 border-gray-200',
-    TEMP: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    PUBLISHED: 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800',
+    UNLISTED: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+    PRIVATE: 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-500',
+    TEMP: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
   };
   const labels = {
     PUBLISHED: '공개',
@@ -95,7 +95,7 @@ export default function PostDetail() {
       <div className="w-full h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="loading-spinner" />
-          <p className="text-gray-500 font-medium">로딩 중...</p>
+          <p className="text-gray-500 dark:text-gray-400 font-medium">로딩 중...</p>
         </div>
       </div>
     );
@@ -104,12 +104,12 @@ export default function PostDetail() {
   if (error || !post) {
     return (
       <div className="max-w-2xl mx-auto mt-10">
-        <div className="bg-white border border-red-200 rounded-xl p-8 text-center shadow-sm">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i className="fas fa-exclamation-triangle text-red-600 text-xl" />
+        <div className="bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-xl p-8 text-center shadow-sm">
+          <div className="w-12 h-12 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-xl" />
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">글을 찾을 수 없습니다</h3>
-          <p className="text-gray-500 mb-6">{error || '요청하신 글이 존재하지 않거나 삭제되었습니다.'}</p>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">글을 찾을 수 없습니다</h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{error || '요청하신 글이 존재하지 않거나 삭제되었습니다.'}</p>
           <Link
             to="/posts"
             className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 transition-colors"
@@ -128,30 +128,30 @@ export default function PostDetail() {
       {/* Top Header & Actions */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <nav className="flex items-center text-sm text-gray-500 mb-1">
-            <Link to="/posts" className="hover:text-gray-900 transition-colors">포스트 관리</Link>
+          <nav className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-1">
+            <Link to="/posts" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">포스트 관리</Link>
             <span className="mx-2">/</span>
-            <span className="text-gray-900 font-medium">상세 정보</span>
+            <span className="text-gray-900 dark:text-gray-100 font-medium">상세 정보</span>
           </nav>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">포스트 상세</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">포스트 상세</h1>
         </div>
         <div className="flex items-center gap-2">
           <Link
             to="/posts"
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm transition-all"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 shadow-sm transition-all"
           >
             목록
           </Link>
           <Link
             to={`/posts/${postId}/edit`}
-            className="px-4 py-2 text-sm font-medium text-white bg-[#35C5F0] hover:bg-[#2BB8E3] rounded-lg shadow-sm transition-all flex items-center gap-2"
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-sm transition-all flex items-center gap-2"
           >
             <i className="fas fa-edit text-xs" /> 수정
           </Link>
           <button
             type="button"
             onClick={handleDelete}
-            className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-all flex items-center gap-2"
+            className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-all flex items-center gap-2"
           >
             <i className="fas fa-trash text-xs" /> 삭제
           </button>
@@ -161,17 +161,17 @@ export default function PostDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Main Content (Left Column) */}
         <div className="lg:col-span-9 space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/30">
               <div className="flex flex-wrap gap-2 mb-3">
                 {categoryName && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
                     {categoryName}
                   </span>
                 )}
                 {statusBadge(post.status)}
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight break-keep">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight break-keep">
                 {post.title || '(제목 없음)'}
               </h2>
             </div>
@@ -186,59 +186,59 @@ export default function PostDetail() {
 
         {/* Sidebar Info (Right Column) */}
         <div className="space-y-6 lg:col-span-3">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4 border-b border-gray-100 dark:border-gray-600 pb-2">
               메타 정보
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-gray-500 block mb-1">작성일</label>
-                <div className="text-sm text-gray-900 font-medium">{formatDate(post.created_at)}</div>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">작성일</label>
+                <div className="text-sm text-gray-900 dark:text-gray-100 font-medium">{formatDate(post.created_at)}</div>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-500 block mb-1">발행일</label>
-                <div className="text-sm text-gray-900 font-medium">
-                  {post.published_at ? formatDate(post.published_at) : <span className="text-gray-400">-</span>}
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">발행일</label>
+                <div className="text-sm text-gray-900 dark:text-gray-100 font-medium">
+                  {post.published_at ? formatDate(post.published_at) : <span className="text-gray-400 dark:text-gray-500">-</span>}
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-500 block mb-1">태그</label>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">태그</label>
                 <div className="flex flex-wrap gap-1.5 mt-1">
                   {post.tags?.length > 0 ? (
                     post.tags.map((t) => (
-                      <span key={t.id} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
+                      <span key={t.id} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300">
                         # {t.name}
                       </span>
                     ))
                   ) : (
-                    <span className="text-sm text-gray-400">태그 없음</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500">태그 없음</span>
                   )}
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2 flex items-center justify-between">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4 border-b border-gray-100 dark:border-gray-600 pb-2 flex items-center justify-between">
               <span>첨부 파일</span>
-              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{post.attachments?.length || 0}</span>
+              <span className="text-xs bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full">{post.attachments?.length || 0}</span>
             </h3>
             {(!post.attachments || post.attachments.length === 0) ? (
-              <p className="text-sm text-gray-400 py-2">첨부된 파일이 없습니다.</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 py-2">첨부된 파일이 없습니다.</p>
             ) : (
               <ul className="space-y-2">
                 {post.attachments.map((a) => {
                   const label = a.original_name || `파일 ${a.id}`;
                   return (
-                    <li key={a.id} className="flex items-center justify-between p-2 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 hover:border-blue-100 transition-colors group">
+                    <li key={a.id} className="flex items-center justify-between p-2 rounded-lg border border-gray-100 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 hover:bg-green-50 dark:hover:bg-gray-700 hover:border-green-100 dark:hover:border-gray-600 transition-colors group">
                       <div className="flex items-center gap-2 min-w-0">
-                        <i className="fas fa-paperclip text-gray-400 text-xs group-hover:text-blue-500" />
-                        <span className="text-sm text-gray-700 truncate font-medium group-hover:text-blue-700">{label}</span>
+                        <i className="fas fa-paperclip text-gray-400 dark:text-gray-500 text-xs group-hover:text-green-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-200 truncate font-medium group-hover:text-green-700 dark:group-hover:text-green-400">{label}</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleDownload(a.id, label)}
-                        className="text-gray-400 hover:text-blue-600 p-1 rounded hover:bg-blue-100 transition-colors"
+                        className="text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-100 dark:hover:bg-gray-600 transition-colors"
                         title="다운로드"
                       >
                         <i className="fas fa-download text-sm" />
@@ -266,8 +266,7 @@ export default function PostDetail() {
         .admin-prose p:empty,
         .admin-prose div:empty,
         .admin-prose br { display: none; }
-        .admin-prose h1, .admin-prose h2, .admin-prose h3,
-        .admin-prose h4, .admin-prose h5, .admin-prose h6 {
+        .admin-prose h1, .admin-prose h2, .admin-prose h3, .admin-prose h4 {
           color: #111827;
           font-weight: 700;
           margin-top: 2.5rem;
@@ -278,6 +277,7 @@ export default function PostDetail() {
         .admin-prose h1 { font-size: 1.75rem; }
         .admin-prose h2 { font-size: 1.5rem; border-bottom: 1px solid #E5E7EB; padding-bottom: 0.5rem; }
         .admin-prose h3 { font-size: 1.25rem; }
+        .admin-prose h4 { font-size: 1.125rem; }
         .admin-prose ul {
           list-style-type: disc;
           padding-left: 1.5rem;
@@ -348,6 +348,20 @@ export default function PostDetail() {
           text-decoration-color: #2BB8E3;
           background-color: rgba(53, 197, 240, 0.05);
         }
+        /* 다크 모드: 본문 컨테이너 */
+        .dark .admin-prose { color: #d1d5db; }
+        .dark .admin-prose h1, .dark .admin-prose h2, .dark .admin-prose h3, .dark .admin-prose h4 { color: #f3f4f6; }
+        .dark .admin-prose h2 { border-bottom-color: #4b5563; }
+        .dark .admin-prose blockquote {
+          border-left-color: #10b981;
+          background: #374151;
+          color: #d1d5db;
+        }
+        .dark .admin-prose code { background-color: #4b5563; color: #f9a8d4; }
+        .dark .admin-prose th, .dark .admin-prose td { border-color: #4b5563; }
+        .dark .admin-prose th { background-color: #374151; }
+        .dark .admin-prose a { color: #34d399; text-decoration-color: rgba(52, 211, 153, 0.4); }
+        .dark .admin-prose a:hover { text-decoration-color: #10b981; background-color: rgba(52, 211, 153, 0.1); }
       `}</style>
     </div>
   );

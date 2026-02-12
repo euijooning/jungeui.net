@@ -269,12 +269,12 @@ export default function CategoryList() {
     const showDropAbove = dropTarget?.targetNodeId === node.id && !dropTarget?.insertAfter;
     const showDropBelow = dropTarget?.targetNodeId === node.id && dropTarget?.insertAfter;
     return (
-      <div key={node.id} className="border-b border-gray-200 last:border-0 relative">
+      <div key={node.id} className="border-b border-gray-200 dark:border-gray-700 last:border-0 relative">
         {showDropAbove && (
           <div className="absolute left-0 right-0 top-0 h-0.5 bg-green-500 z-10 pointer-events-none" aria-hidden />
         )}
         <div
-          className={`flex items-center gap-2 py-2 px-3 hover:bg-gray-50 transition-opacity ${isDragging ? 'opacity-50' : ''}`}
+          className={`flex items-center gap-2 py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-opacity ${isDragging ? 'opacity-50' : ''}`}
           style={{ paddingLeft: 16 + depth * 24 }}
           draggable
           onDragStart={(e) => handleDragStart(e, node.id)}
@@ -283,7 +283,7 @@ export default function CategoryList() {
           onDragEnd={handleDragEnd}
           onDrop={onDropRow}
         >
-          <span className="text-gray-400 cursor-grab active:cursor-grabbing" aria-hidden>
+          <span className="text-gray-400 dark:text-gray-500 cursor-grab active:cursor-grabbing" aria-hidden>
             <DragIndicator fontSize="small" />
           </span>
           {hasChildren ? (
@@ -293,14 +293,14 @@ export default function CategoryList() {
           ) : (
             <span className="w-8" />
           )}
-          <span className="flex-1 font-medium">{node.name}</span>
+          <span className="flex-1 font-medium text-gray-900 dark:text-gray-200">{node.name}</span>
           <div className="flex gap-1">
             {depth === 0 && (
               <IconButton size="small" onClick={() => openAdd(node.id)} title="하위 카테고리 추가" aria-label="하위 추가">
                 <Add fontSize="small" />
               </IconButton>
             )}
-            <IconButton size="small" onClick={() => openEdit(node)} title="수정" aria-label="수정">
+            <IconButton size="small" onClick={() => openEdit(node)} title="수정" aria-label="수정" className="!text-gray-600 dark:!text-gray-300">
               <Edit fontSize="small" />
             </IconButton>
             <IconButton size="small" onClick={() => deleteCategory(node.id)} title="삭제" aria-label="삭제" color="error">
@@ -322,13 +322,13 @@ export default function CategoryList() {
     <div className="w-full">
       <div className="mb-6 flex flex-col gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">카테고리 관리</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">카테고리 관리</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             대카테고리·소카테고리 순서 변경 및 추가/수정. 드래그 앤 드롭은 순서 저장 버튼으로 반영할 수 있습니다.
           </p>
         </div>
         {error && (
-          <div className="rounded bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+          <div className="rounded bg-red-50 dark:bg-red-900/30 px-3 py-2 text-sm text-red-700 dark:text-red-300" role="alert">
             {error}
           </div>
         )}
@@ -339,16 +339,16 @@ export default function CategoryList() {
           <Button variant="contained" color="success" onClick={reorder} disabled={!orderDirty}>
             순서 저장
           </Button>
-          {orderDirty && <span className="text-sm text-amber-600">변경 후 저장하세요.</span>}
+          {orderDirty && <span className="text-sm text-amber-600 dark:text-amber-400">변경 후 저장하세요.</span>}
         </div>
       </div>
 
       {loading ? (
-        <p className="text-gray-500">불러오는 중...</p>
+        <p className="text-gray-500 dark:text-gray-400">불러오는 중...</p>
       ) : (
-        <div className="rounded-lg border border-gray-200 bg-white">
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
           {tree.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">카테고리가 없습니다. 대카테고리를 추가해 보세요.</div>
+            <div className="p-6 text-center text-gray-500 dark:text-gray-400">카테고리가 없습니다. 대카테고리를 추가해 보세요.</div>
           ) : (
             tree.map((node, i) => renderNode(node, 0, i))
           )}
@@ -356,8 +356,8 @@ export default function CategoryList() {
       )}
 
       <Dialog open={dialog.open} onClose={closeDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{dialog.mode === 'add' ? (dialog.parentId ? '소카테고리 추가' : '대카테고리 추가') : '카테고리 수정'}</DialogTitle>
-        <DialogContent className="flex flex-col gap-4" sx={{ overflow: 'visible', pt: 5, pb: 1 }}>
+        <DialogTitle className="dark:text-gray-100">{dialog.mode === 'add' ? (dialog.parentId ? '소카테고리 추가' : '대카테고리 추가') : '카테고리 수정'}</DialogTitle>
+        <DialogContent className="flex flex-col gap-4 dark:bg-gray-800" sx={{ overflow: 'visible', pt: 5, pb: 1 }}>
           <TextField
             label="이름"
             value={dialog.name}
@@ -369,9 +369,9 @@ export default function CategoryList() {
             sx={{ mt: 1 }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDialog}>취소</Button>
-          <Button variant="contained" onClick={saveDialog} disabled={!dialog.name.trim()}>
+        <DialogActions className="dark:bg-gray-800 dark:border-t dark:border-gray-700">
+          <Button onClick={closeDialog} className="text-gray-700 dark:text-gray-200">취소</Button>
+          <Button variant="contained" color="success" onClick={saveDialog} disabled={!dialog.name.trim()}>
             확인
           </Button>
         </DialogActions>
@@ -379,11 +379,11 @@ export default function CategoryList() {
 
       {/* 저장 완료 메시지 */}
       <Dialog open={saveSuccess} onClose={() => setSaveSuccess(false)}>
-        <DialogContent sx={{ pt: 3 }}>
-          <p className="text-gray-800 font-medium">순서가 저장되었습니다.</p>
+        <DialogContent className="dark:bg-gray-800" sx={{ pt: 3 }}>
+          <p className="text-gray-800 dark:text-gray-200 font-medium">순서가 저장되었습니다.</p>
         </DialogContent>
-        <DialogActions>
-          <Button variant="contained" onClick={() => setSaveSuccess(false)}>확인</Button>
+        <DialogActions className="dark:bg-gray-800 dark:border-t dark:border-gray-700">
+          <Button variant="contained" color="success" onClick={() => setSaveSuccess(false)}>확인</Button>
         </DialogActions>
       </Dialog>
 

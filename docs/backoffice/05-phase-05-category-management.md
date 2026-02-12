@@ -86,7 +86,7 @@
 
 1. **DB**: `categories.parent_id` 추가 + 마이그레이션/시드 반영.
 2. **API**: GET /categories에 parent_id·트리 옵션, POST/PUT/DELETE/PATCH reorder. posts list의 category_id 필터 대/소 포함.
-3. **백오피스**: AppMenu 포스트 그룹 + "카테고리 관리", 라우트, CategoryList(트리·CRUD·드래그).
+3. **백오피스**: AdminLayout 포스트 관리 메뉴 + "카테고리 관리", 라우트, CategoryList(트리·CRUD·드래그).
 4. **백오피스**: PostEditor/PostList 카테고리 셀렉트 대→소 트리.
 5. **클라이언트**: SharedLayout 사이드바 대→소 계층, 링크 및 활성 상태.
 

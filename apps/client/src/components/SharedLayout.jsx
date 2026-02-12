@@ -151,7 +151,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
             defaultValue={currentQ}
             key={currentQ || '_'}
           />
-          <button type="submit" className="min-h-9 px-3 text-sm font-semibold border border-primary rounded-md bg-primary text-white hover:bg-primary-hover hover:border-primary-hover transition-colors">
+          <button type="submit" className="min-h-9 px-3 text-sm font-semibold border border-primary rounded-md bg-primary text-white hover:bg-primary-hover hover:border-primary-hover transition-colors cursor-pointer">
             검색
           </button>
         </form>
@@ -167,7 +167,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
         )}
         <button
           type="button"
-          className="flex items-center justify-center w-8 h-8 border rounded-md theme-btn-icon bg-transparent hover:opacity-80"
+          className="flex items-center justify-center w-8 h-8 border rounded-md theme-btn-icon bg-transparent hover:opacity-80 cursor-pointer"
           onClick={() => setTheme()}
           aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
         >

@@ -68,7 +68,7 @@
 
 ### 4.7 알림
 
-- **AppAppBar**: 프로필 왼쪽 종 아이콘 → `/notifications`.
+- **AdminLayout**: 헤더 유저 메뉴 왼쪽 종 아이콘 → `/notifications`.
 
 ## 완료 기준
 

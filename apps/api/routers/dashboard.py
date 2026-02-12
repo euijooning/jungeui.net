@@ -14,7 +14,7 @@ def get_dashboard_stats(db=Depends(get_db), user=Depends(get_current_user)):
     """
     대시보드 통계.
     - today_visits: 오늘 방문자 수 (daily_stats.visitor_count)
-    - total_views: 전일까지 누적 조회수 (daily_stats SUM total_views)
+    - total_views: 누적 조회수 (daily_stats SUM total_views, 오늘 포함)
     - published_posts: 발행된 글 수 (PUBLISHED + UNLISTED)
     """
     today = get_today_iso()
@@ -26,9 +26,9 @@ def get_dashboard_stats(db=Depends(get_db), user=Depends(get_current_user)):
     ).fetchone()
     today_visits = (row_today[0] or 0) if row_today else 0
 
-    # 전일까지 누적 조회수
+    # 누적 조회수 (오늘 포함)
     row_views = db.execute(
-        text("SELECT COALESCE(SUM(total_views), 0) FROM daily_stats WHERE date < :dt"),
+        text("SELECT COALESCE(SUM(total_views), 0) FROM daily_stats WHERE date <= :dt"),
         {"dt": today},
     ).fetchone()
     total_views = (row_views[0] or 0) if row_views else 0
@@ -51,14 +51,15 @@ def get_dashboard_stats(db=Depends(get_db), user=Depends(get_current_user)):
 @router.get("/recent-activity")
 def get_recent_activity(db=Depends(get_db), user=Depends(get_current_user)):
     """
-    최근 수정된 글 5건 (id, title, slug, status, updated_at).
-    백오피스 대시보드 '최근 활동'용.
+    최근 수정된 글 5건 (id, title, slug, status, updated_at, category_name).
+    백오피스 대시보드·알림함용.
     """
     rows = db.execute(
         text("""
-            SELECT id, title, slug, status, updated_at
-            FROM posts
-            ORDER BY updated_at DESC
+            SELECT p.id, p.title, p.slug, p.status, p.updated_at, c.name AS category_name
+            FROM posts p
+            LEFT JOIN categories c ON c.id = p.category_id
+            ORDER BY p.updated_at DESC
             LIMIT 5
         """),
     ).fetchall()
@@ -69,6 +70,7 @@ def get_recent_activity(db=Depends(get_db), user=Depends(get_current_user)):
             "slug": r[2],
             "status": r[3],
             "updated_at": r[4].isoformat() if r[4] else None,
+            "category_name": r[5] if len(r) > 5 else None,
         }
         for r in rows
     ]

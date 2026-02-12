@@ -14,9 +14,9 @@
 
 프로젝트 전반의 메인 액센트는 **스카이블루** 계열로 통일한다. 용도별로 아래 두 세트를 사용한다.
 
-### 1. Admin Layout (사이드바 메뉴)
+### 1. AdminLayout (사이드바 메뉴)
 
-백오피스 AdminLayout 사이드바 메뉴 선택·호버에는 **Tailwind CSS `sky` 팔레트**를 사용한다.
+백오피스 **AdminLayout** 사이드바 메뉴 선택·호버에는 **Tailwind CSS `sky` 팔레트**를 사용한다.
 
 | 용도 | Tailwind 토큰 | HEX |
 |------|----------------|-----|
@@ -27,9 +27,9 @@
 
 - **사이드바에 노출되는 메인 스카이블루**: `#0ea5e9` (Tailwind `sky-500`).
 
-### 2. theme.js (MUI / 버튼·링크 등)
+### 2. 테마 (MUI / 버튼·링크 등)
 
-`apps/backoffice` 등에서 MUI·버튼·링크에 쓰는 primary 색상은 **theme.js** 기준으로 아래를 사용한다.
+백오피스는 `styles/AdminTheme.js`를 사용하며, MUI·버튼·링크 primary 색상은 아래 팔레트를 참고한다.
 
 | 용도 | HEX |
 |------|-----|
@@ -41,15 +41,15 @@
 
 ### 요약
 
-- **사이드바 메뉴(Admin Layout)**: `#0ea5e9` (sky-500).
-- **버튼·테마(MUI/theme.js)**: `#35C5F0` (main).
+- **사이드바 메뉴(AdminLayout)**: `#0ea5e9` (sky-500).
+- **버튼·테마(MUI/AdminTheme 등)**: `#35C5F0` (main).
 
 ---
 
 ## 구성
 
 - `components/`: 실제 컴포넌트 코드 (프레임워크별로 하위 폴더 가능, 예: `react/`).
-- 폰트·컬러 팔레트 등 스타일 상수는 `theme.js` 또는 `colors.js` 등으로 관리.
+- 폰트·컬러 팔레트 등 스타일 상수는 `AdminTheme.js`, `theme.js`, `colors.js` 등으로 관리.
 
 ## 활용
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Admin, CustomRoutes } from "react-admin";
-import { Route } from "react-router-dom";
+import { Route, Navigate } from "react-router-dom";
 import { authProvider } from "./authProvider";
 import { dataProvider } from "./dataProvider";
 import AdminLayout from "./components/AdminLayout";
@@ -45,6 +45,7 @@ export default function AdminApp() {
         <Route path="/projects" element={<ProjectList />} />
         <Route path="/projects/new" element={<ProjectNew />} />
         <Route path="/posts/categories" element={<CategoryList />} />
+        <Route path="/notification" element={<Navigate to="/notifications" replace />} />
         <Route path="/notifications" element={<NotificationsPage />} />
       </CustomRoutes>
     </Admin>

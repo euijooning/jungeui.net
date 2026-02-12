@@ -349,18 +349,18 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
   };
 
   // [수정] 기본 스타일과 block 스타일 분리
-  const baseInputCls = 'px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
+  const baseInputCls = 'px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-gray-100 dark:focus:ring-green-500 dark:focus:border-green-500';
   const blockInputCls = `w-full ${baseInputCls}`; // w-full이 필요한 경우 사용
-  const labelCls = 'block text-sm font-medium text-gray-700 mb-1';
+  const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
 
   if (loadError) {
     return (
       <div className="p-4">
-        <p className="text-red-600">{loadError}</p>
+        <p className="text-red-600 dark:text-red-400">{loadError}</p>
         <button
           type="button"
           onClick={() => { if (onCancel) onCancel(); else if (!embedded) navigate('/projects'); }}
-          className="mt-4 px-4 py-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300"
+          className="mt-4 px-4 py-2 text-sm bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
         >
           {embedded ? '닫기' : '목록으로'}
         </button>
@@ -372,13 +372,13 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
     <div className="w-full">
       {!embedded && (
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">{isEdit ? '프로젝트 수정' : '새 프로젝트'}</h1>
-          <p className="mt-1 text-sm text-gray-500">프로젝트 정보를 입력하세요.</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{isEdit ? '프로젝트 수정' : '새 프로젝트'}</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">프로젝트 정보를 입력하세요.</p>
         </div>
       )}
 
       {saveError && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
           {saveError}
         </div>
       )}
@@ -388,7 +388,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
         onKeyDown={(e) => {
           if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
         }}
-        className="space-y-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+        className="space-y-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
       >
         <div>
           <label htmlFor="title" className={labelCls}>프로젝트명 * (최대 10자)</label>
@@ -403,7 +403,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
             required
           />
           {form.title.length > 0 && (
-            <p className="mt-0.5 text-xs text-gray-500">{form.title.length}/10자</p>
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{form.title.length}/10자</p>
           )}
         </div>
 
@@ -419,7 +419,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
             maxLength={100}
           />
           {form.description.length > 0 && (
-            <p className="mt-0.5 text-xs text-gray-500">{form.description.length}/100자</p>
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{form.description.length}/100자</p>
           )}
         </div>
 
@@ -427,7 +427,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
           <label htmlFor="start_date" className={labelCls}>시작일 (연·월)</label>
           <div className="flex items-center gap-2">
             <label htmlFor="end_date" className={labelCls}>종료일 (연·월)</label>
-            <label className="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer">
+            <label className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
               <input
                 type="checkbox"
                 checked={isOngoing}
@@ -475,11 +475,11 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
         <div>
           <label className={labelCls}>대표 이미지</label>
           <div className="flex items-start gap-4">
-            <div className="w-24 h-24 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0">
+            <div className="w-24 h-24 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 flex items-center justify-center overflow-hidden shrink-0">
               {thumbPreview ? (
                 <img src={thumbPreview} alt="" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-gray-400 text-xs">없음</span>
+                <span className="text-gray-400 dark:text-gray-400 text-xs">없음</span>
               )}
             </div>
             <div className="flex flex-col gap-2">
@@ -487,8 +487,9 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
                 type="file"
                 accept=".png,.jpg,.jpeg,.gif,.webp"
                 onChange={handleThumbnailChange}
-                className="text-sm"
+                className="text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-200 file:text-gray-800 dark:file:bg-gray-600 dark:file:text-gray-200 hover:file:bg-gray-300 dark:hover:file:bg-gray-500"
               />
+              <span className="text-xs text-gray-500 dark:text-gray-400">{thumbPreview ? '썸네일 선택됨' : '선택된 파일 없음'}</span>
               {form.thumbnail_asset_id && (
                 <button
                   type="button"
@@ -496,7 +497,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
                     setForm((f) => ({ ...f, thumbnail_asset_id: null }));
                     setThumbPreview(null);
                   }}
-                  className="text-sm text-red-600 hover:text-red-800"
+                  className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                 >
                   이미지 제거
                 </button>
@@ -508,11 +509,11 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
         <div>
           <label className={labelCls}>소개 이미지</label>
           <div className="flex items-start gap-4">
-            <div className="w-24 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 aspect-video">
+            <div className="w-24 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 flex items-center justify-center overflow-hidden shrink-0 aspect-video">
               {introPreview ? (
                 <img src={introPreview} alt="" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-gray-400 text-xs">없음</span>
+                <span className="text-gray-400 dark:text-gray-400 text-xs">없음</span>
               )}
             </div>
             <div className="flex flex-col gap-2">
@@ -520,8 +521,9 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
                 type="file"
                 accept=".png,.jpg,.jpeg,.gif,.webp"
                 onChange={handleIntroImageChange}
-                className="text-sm"
+                className="text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-200 file:text-gray-800 dark:file:bg-gray-600 dark:file:text-gray-200 hover:file:bg-gray-300 dark:hover:file:bg-gray-500"
               />
+              <span className="text-xs text-gray-500 dark:text-gray-400">{introPreview ? '소개 이미지 선택됨' : '선택된 파일 없음'}</span>
               {form.intro_image_asset_id && (
                 <button
                   type="button"
@@ -529,7 +531,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
                     setForm((f) => ({ ...f, intro_image_asset_id: null }));
                     setIntroPreview(null);
                   }}
-                  className="text-sm text-red-600 hover:text-red-800"
+                  className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                 >
                   이미지 제거
                 </button>
@@ -539,7 +541,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
         </div>
 
         <div>
-          <label className="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer mb-2">
+          <label className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 cursor-pointer mb-2">
             <input
               type="checkbox"
               checked={projectNoLinks}
@@ -550,12 +552,12 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
           {!projectNoLinks && (
             <>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">링크 (최대 5개)</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">링크 (최대 5개)</span>
                 <button
                   type="button"
                   onClick={addLink}
                   disabled={form.project_links.length >= 5}
-                  className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-sm text-blue-600 dark:text-green-400 hover:text-blue-800 dark:hover:text-green-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   + 링크 추가
                 </button>
@@ -586,7 +588,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
                       type="button"
                       onClick={() => removeLink(idx)}
                       // 삭제 버튼: 크기 고정
-                      className="p-2 text-red-600 hover:bg-red-50 rounded shrink-0"
+                      className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded shrink-0"
                       aria-label="삭제"
                     >
                       ×
@@ -604,13 +606,13 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
             {form.project_tags.map((t, idx) => (
               <span
                 key={`${t}-${idx}`}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm bg-blue-100 border border-blue-300 text-blue-800"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm bg-blue-100 dark:bg-green-900/40 border border-blue-300 dark:border-green-700 text-blue-800 dark:text-green-200"
               >
                 {t}
                 <button
                   type="button"
                   onClick={() => removeTag(idx)}
-                  className="text-blue-600 hover:text-blue-800 -mr-0.5"
+                  className="text-blue-600 dark:text-green-400 hover:text-blue-800 dark:hover:text-green-300 -mr-0.5"
                   aria-label="태그 제거"
                 >
                   ×
@@ -639,14 +641,14 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
               !(form.title?.trim() && form.description?.trim() && form.start_date) ||
               (form.start_date && !isOngoing && !(form.end_date && form.end_date.trim()))
             }
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-green-600 rounded-lg hover:bg-blue-700 dark:hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? '저장 중...' : (isEdit ? '저장' : '등록')}
           </button>
           <button
             type="button"
             onClick={() => { if (onCancel) onCancel(); else if (!embedded) navigate('/projects'); }}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500"
           >
             취소
           </button>

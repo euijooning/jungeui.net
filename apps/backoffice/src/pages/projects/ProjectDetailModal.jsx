@@ -26,31 +26,31 @@ export default function ProjectDetailModal({ project, open, onClose, onEdit }) {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{project.title || '(제목 없음)'}</DialogTitle>
-      <DialogContent className="flex flex-col gap-4" sx={{ pt: 1, pb: 2 }}>
+      <DialogTitle className="dark:text-gray-100">{project.title || '(제목 없음)'}</DialogTitle>
+      <DialogContent className="flex flex-col gap-4 dark:bg-gray-800" sx={{ pt: 1, pb: 2 }}>
         {project.description && (
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1">상세 내용</p>
-            <p className="text-sm text-gray-800 whitespace-pre-wrap">{project.description}</p>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">상세 내용</p>
+            <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{project.description}</p>
           </div>
         )}
-        <p className="text-sm">
-          <span className="text-gray-500">기간: </span>
+        <p className="text-sm text-gray-900 dark:text-gray-200">
+          <span className="text-gray-500 dark:text-gray-400">기간: </span>
           {periodStr}
         </p>
         {thumbUrl && (
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1">대표 이미지</p>
-            <img src={thumbUrl} alt="" className="w-32 h-32 object-cover rounded-lg border border-gray-200" />
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">대표 이미지</p>
+            <img src={thumbUrl} alt="" className="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
           </div>
         )}
         {(project.links || []).length > 0 && (
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1">링크</p>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">링크</p>
             <ul className="list-none p-0 m-0 space-y-1">
               {project.links.map((l) => (
                 <li key={l.id}>
-                  <a href={l.link_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
+                  <a href={l.link_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-green-400 hover:underline text-sm">
                     {l.link_name}: {l.link_url}
                   </a>
                 </li>
@@ -60,10 +60,10 @@ export default function ProjectDetailModal({ project, open, onClose, onEdit }) {
         )}
         {(project.tags || []).length > 0 && (
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1">태그</p>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">태그</p>
             <div className="flex flex-wrap gap-1">
               {project.tags.map((t) => (
-                <span key={t.id} className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
+                <span key={t.id} className="px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs">
                   {t.name}
                 </span>
               ))}
@@ -71,10 +71,10 @@ export default function ProjectDetailModal({ project, open, onClose, onEdit }) {
           </div>
         )}
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>닫기</Button>
+      <DialogActions className="dark:bg-gray-800 dark:border-t dark:border-gray-700">
+        <Button onClick={onClose} className="text-gray-700 dark:text-gray-200">닫기</Button>
         {onEdit && (
-          <Button variant="contained" onClick={onEdit}>
+          <Button variant="contained" color="success" onClick={onEdit}>
             수정
           </Button>
         )}

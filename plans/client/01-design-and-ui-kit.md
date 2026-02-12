@@ -63,7 +63,7 @@ Admin / Client / Theme(MUI) 색상 역할 분리.
 **클라이언트/어드민 공통 행동 색상**
 
 ```js
-// apps/admin/src/theme.js (또는 shared/ui-kit/theme.js)
+// shared/ui-kit/theme.js 또는 백오피스 AdminTheme.js
 palette: {
   primary: {
     main: "#35C5F0",
@@ -85,7 +85,7 @@ palette: {
 
 | 영역 | 색상 |
 |------|------|
-| Admin 사이드바 UI | #0ea5e9 (Tailwind sky-500) |
+| AdminLayout 사이드바 UI | #0ea5e9 (Tailwind sky-500) |
 | 버튼 / 링크 / CTA | #35C5F0 (theme.js primary) |
 | hover / 강조 | sky-600 또는 primary.dark |
 | 배경 | white / dark-gray |
@@ -96,7 +96,7 @@ palette: {
 - 버튼에 sky-500 ❌
 
 - [x] **5** theme.js 또는 colors.js (shared/ui-kit) primary 팔레트 정의
-- [x] **6** Admin 사이드바는 sky-500 사용, Client 버튼/링크는 #35C5F0 사용
+- [x] **6** AdminLayout 사이드바는 sky-500 사용, Client 버튼/링크는 #35C5F0 사용
 
 ---
 

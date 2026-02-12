@@ -23,6 +23,7 @@
 /* Tailwind v4: 다크 모드는 .dark 클래스 기준 */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Primary 색상 단일 소스: 메인(#35C5F0), 호버(#2BB8E3). @theme과 :root 모두 여기서만 참조 */
 @theme {
   --color-primary: #35C5F0;
   --color-primary-hover: #2BB8E3;
@@ -60,8 +61,8 @@ body {
 }
 
 :root {
-  --ui-primary: #35C5F0;
-  --ui-primary-hover: #2BB8E3;
+  --ui-primary: var(--color-primary);
+  --ui-primary-hover: var(--color-primary-hover);
   --ui-background: #FFFFFF;
   --ui-background-secondary: #F5F9FC;
   --ui-text: #1A1A1A;
@@ -70,7 +71,8 @@ body {
   --ui-card-bg: #FFFFFF;
 }
 .dark, [data-theme="dark"] {
-  --ui-primary: #35C5F0;
+  --ui-primary: var(--color-primary);
+  --ui-primary-hover: var(--color-primary-hover);
   --ui-background: #0f172a;
   --ui-background-secondary: #1e293b;
   --ui-text: #f3f4f6;
@@ -177,9 +179,7 @@ body {
 .post-detail-prose h2 { font-size: 1.5rem; border-bottom: 1px solid var(--ui-border); padding-bottom: 0.5rem; }
 .post-detail-prose h3 { font-size: 1.25rem; }
 .post-detail-prose h4 { font-size: 1.1rem; }
-.post-detail-prose h5 { font-size: 1.05rem; }
-.post-detail-prose h6 { font-size: 1rem; }
-.post-detail-prose h4, .post-detail-prose h5, .post-detail-prose h6 {
+.post-detail-prose h4 {
   margin-top: 2rem;
   margin-bottom: 0.75rem;
   font-weight: 700;
