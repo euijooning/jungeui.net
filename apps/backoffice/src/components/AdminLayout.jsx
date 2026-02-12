@@ -4,6 +4,20 @@ import { useLogout } from "react-admin";
 import apiClient from "../lib/apiClient";
 
 const STORAGE_KEY_SIDEBAR = "sidebarCollapsed";
+const STORAGE_KEY_THEME = "backoffice-theme";
+
+/* 클라이언트와 동일한 SVG 아이콘 (다크모드 토글용) */
+const sunIcon = (
+  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+  </svg>
+);
+const moonIcon = (
+  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+);
 
 function useWindowWidth() {
   const [width, setWidth] = useState(
@@ -34,6 +48,13 @@ const AdminLayout = ({ children }) => {
     }
   });
   const [mobileOverlayOpen, setMobileOverlayOpen] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_THEME) === "dark";
+    } catch {
+      return false;
+    }
+  });
   const navigate = useNavigate();
   const location = useLocation();
   const logout = useLogout();
@@ -58,6 +79,19 @@ const AdminLayout = ({ children }) => {
       localStorage.setItem(STORAGE_KEY_SIDEBAR, String(sidebarCollapsed));
     } catch (_) {}
   }, [isDesktop, sidebarCollapsed]);
+
+  // 다크모드: html에 class 적용 및 localStorage 저장
+  useEffect(() => {
+    try {
+      if (isDark) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem(STORAGE_KEY_THEME, "dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem(STORAGE_KEY_THEME, "light");
+      }
+    } catch (_) {}
+  }, [isDark]);
 
   const closeOverlay = () => setMobileOverlayOpen(false);
 
@@ -134,11 +168,16 @@ const AdminLayout = ({ children }) => {
       "/posts/categories": "카테고리 관리",
       "/messages": "메시지",
       "/careers": "경력",
+      "/careers/new": "경력",
       "/projects": "프로젝트",
+      "/projects/new": "프로젝트",
+      "/notifications": "알림",
     };
     if (titles[currentPath]) return titles[currentPath];
     if (/^\/posts\/[^/]+\/edit$/.test(currentPath)) return "포스트 수정";
     if (/^\/posts\/[^/]+$/.test(currentPath)) return "포스트 보기";
+    if (/^\/careers\/.+/.test(currentPath)) return "경력";
+    if (/^\/projects\/.+/.test(currentPath)) return "프로젝트";
     return "JUNGEUI LAB ADMIN";
   };
 
@@ -177,12 +216,12 @@ const AdminLayout = ({ children }) => {
   ];
 
   return (
-    <div className="h-screen bg-samsung-light transition-colors duration-200 overflow-hidden">
+    <div className="h-screen bg-samsung-light dark:bg-gray-900 transition-colors duration-200 overflow-hidden">
       {/* Loading Overlay (필요시 사용) */}
       {/* <div id="loading-overlay" className="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
-        <div className="bg-white rounded-lg p-6 flex items-center space-x-3">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 flex items-center space-x-3">
           <div className="loading-spinner"></div>
-          <span className="text-gray-700">로딩 중...</span>
+          <span className="text-gray-700 dark:text-gray-300">로딩 중...</span>
         </div>
       </div> */}
 
@@ -313,7 +352,7 @@ const AdminLayout = ({ children }) => {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top Header */}
-          <header className="h-16 bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
+          <header className="h-16 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div className="flex items-center justify-between px-4 tablet:px-6 h-full">
               {/* Left: 햄버거(모바일/태블릿) 또는 사이드바 토글(데스크톱) + 제목 */}
               <div className="flex items-center gap-3">
@@ -321,7 +360,7 @@ const AdminLayout = ({ children }) => {
                   <button
                     type="button"
                     onClick={() => setMobileOverlayOpen((v) => !v)}
-                    className="p-2 rounded-md text-gray-500 hover:bg-gray-100"
+                    className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                     aria-label="메뉴 열기"
                   >
                     <i className="fas fa-bars text-lg" />
@@ -330,30 +369,45 @@ const AdminLayout = ({ children }) => {
                   <button
                     type="button"
                     onClick={() => setSidebarCollapsed((v) => !v)}
-                    className="p-2 rounded-md text-gray-500 hover:bg-gray-100"
+                    className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                     aria-label={sidebarCollapsed ? "사이드바 펼치기" : "사이드바 접기"}
                   >
                     <i className={`fas fa-${sidebarCollapsed ? "indent" : "outdent"} text-lg`} />
                   </button>
                 )}
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   {getPageTitle()}
                 </h1>
               </div>
 
               {/* Right side */}
               <div className="flex items-center space-x-2">
+                <Link
+                  to="/notifications"
+                  className="flex items-center justify-center w-10 h-10 rounded-md text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  aria-label="알림"
+                >
+                  <i className="fas fa-bell" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setIsDark((d) => !d)}
+                  className="flex items-center justify-center w-10 h-10 rounded-md text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  aria-label={isDark ? "라이트 모드" : "다크 모드"}
+                >
+                  {isDark ? sunIcon : moonIcon}
+                </button>
                 {/* User menu */}
                 <div className="relative">
                   <button
                     id="user-menu-button"
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center space-x-2 p-2 rounded-md text-gray-500 hover:text-sky-600 hover:bg-sky-50"
+                    className="flex items-center space-x-2 p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700"
                   >
                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                       <i className="fas fa-user text-white text-sm"></i>
                     </div>
-                    <span className="hidden md:block text-sm font-medium text-gray-900">
+                    <span className="hidden md:block text-sm font-medium text-gray-900 dark:text-gray-100">
                       {userName}
                     </span>
                     <i className="fas fa-chevron-down text-sm"></i>
@@ -363,12 +417,12 @@ const AdminLayout = ({ children }) => {
                   {userDropdownOpen && (
                     <div
                       id="user-dropdown"
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
+                      className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700"
                     >
                       <button
                         id="logout-button"
                         onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-sky-100"
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-green-50 dark:hover:bg-gray-700"
                       >
                         로그아웃
                       </button>
@@ -380,7 +434,7 @@ const AdminLayout = ({ children }) => {
           </header>
 
           {/* Page Content - w-full로 모든 페이지 본문이 가용 너비 꽉 채움 */}
-          <main className="flex-1 overflow-y-auto custom-scrollbar bg-samsung-light min-w-0">
+          <main className="flex-1 overflow-y-auto custom-scrollbar bg-samsung-light dark:bg-gray-900 min-w-0">
             <div className="px-4 tablet:px-6 desktop:px-8 py-6 w-full max-w-full box-border">{children}</div>
           </main>
         </div>

@@ -83,7 +83,7 @@ UI 참고: 사용자 제공 이미지(티스토리 스타일 카테고리 관리
 
 1. DB: `categories.parent_id` 추가 + 마이그레이션.
 2. API: GET/POST/PUT/DELETE/PATCH 확장. posts list category_id 필터 대/소 포함.
-3. 백오피스: AppMenu + CategoryList 페이지.
+3. 백오피스: AdminLayout 포스트 관리 메뉴 + CategoryList 페이지.
 4. 백오피스: PostEditor/PostList 카테고리 셀렉트 트리화.
 5. 클라이언트: SharedLayout 사이드바 계층 표시.
 

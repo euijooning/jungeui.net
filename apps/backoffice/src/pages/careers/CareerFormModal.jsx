@@ -12,8 +12,8 @@ export default function CareerFormModal({ open, onClose, mode, careerId, onSucce
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{mode === 'edit' ? '경력 수정' : '새 경력'}</DialogTitle>
-      <DialogContent sx={{ pt: 1, pb: 3 }}>
+      <DialogTitle className="dark:text-gray-100">{mode === 'edit' ? '경력 수정' : '새 경력'}</DialogTitle>
+      <DialogContent className="dark:bg-gray-800" sx={{ pt: 1, pb: 3 }}>
         {open && (
           <CareerForm
             key={mode === 'edit' ? `edit-${careerId}` : 'new'}

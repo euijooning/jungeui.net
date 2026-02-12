@@ -16,8 +16,8 @@ export default function ProjectFormModal({ open, onClose, mode, projectId, onSuc
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{mode === 'edit' ? '프로젝트 수정' : '새 프로젝트'}</DialogTitle>
-      <DialogContent sx={{ pt: 1, pb: 3 }}>
+      <DialogTitle className="dark:text-gray-100">{mode === 'edit' ? '프로젝트 수정' : '새 프로젝트'}</DialogTitle>
+      <DialogContent className="dark:bg-gray-800" sx={{ pt: 1, pb: 3 }}>
         {open && (
           <ProjectForm
             key={mode === 'edit' ? `edit-${projectId}` : 'new'}

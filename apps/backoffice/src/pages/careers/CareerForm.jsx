@@ -286,18 +286,18 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
   };
 
   // [수정] w-full을 제거한 기본 input 스타일 (Flex 아이템용)
-  const baseInputCls = 'px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500';
+  const baseInputCls = 'px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-gray-100 dark:focus:ring-green-500 dark:focus:border-green-500';
   
   // [수정] 일반적인 블록 요소용 (여기에는 w-full 포함)
   const blockInputCls = `w-full ${baseInputCls}`;
   
-  const labelCls = 'block text-sm font-medium text-gray-700 mb-1';
+  const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
 
   if (loadError && isEdit) {
     return (
       <div className="p-4">
-        <p className="text-red-600">{loadError}</p>
-        <button type="button" onClick={() => { onCancel?.(); if (!onCancel && !embedded) navigate('/careers'); }} className="mt-4 px-4 py-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300">
+        <p className="text-red-600 dark:text-red-400">{loadError}</p>
+        <button type="button" onClick={() => { onCancel?.(); if (!onCancel && !embedded) navigate('/careers'); }} className="mt-4 px-4 py-2 text-sm bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200">
           {embedded ? '닫기' : '목록으로'}
         </button>
       </div>
@@ -311,13 +311,13 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
     <div className="w-full">
       {!embedded && (
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">{isEdit ? '경력 수정' : '새 경력'}</h1>
-          <p className="mt-1 text-sm text-gray-500">경력 정보를 입력하세요.</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{isEdit ? '경력 수정' : '새 경력'}</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">경력 정보를 입력하세요.</p>
         </div>
       )}
 
       {saveError && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{saveError}</div>
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">{saveError}</div>
       )}
 
       <form
@@ -325,7 +325,7 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
         onKeyDown={(e) => {
           if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') e.preventDefault();
         }}
-        className="space-y-6 bg-white rounded-lg border border-gray-200 p-6"
+        className="space-y-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
       >
         {/* 회사명 */}
         <div>
@@ -360,7 +360,7 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
           <label htmlFor="start_date" className={labelCls}>시작일 (연·월) *</label>
           <div className="flex items-center gap-2">
             <label htmlFor="end_date" className={labelCls}>종료일 (연·월)</label>
-            <label className="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer">
+            <label className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
               <input
                 type="checkbox"
                 checked={isOngoing}
@@ -403,15 +403,16 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
         <div>
           <label className={labelCls}>회사 로고 (선택)</label>
           <div className="flex items-start gap-4">
-            <div className="w-20 h-20 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0">
+            <div className="w-20 h-20 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 flex items-center justify-center overflow-hidden shrink-0">
               {logoPreview ? (
                 <img src={logoPreview} alt="" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-gray-400 text-xs">없음</span>
+                <span className="text-gray-400 dark:text-gray-400 text-xs">없음</span>
               )}
             </div>
             <div className="flex flex-col gap-2">
-              <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" onChange={handleLogoChange} className="text-sm" />
+              <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" onChange={handleLogoChange} className="text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-200 file:text-gray-800 dark:file:bg-gray-600 dark:file:text-gray-200 hover:file:bg-gray-300 dark:hover:file:bg-gray-500" />
+              <span className="text-xs text-gray-500 dark:text-gray-400">{logoPreview ? '로고 선택됨' : '선택된 파일 없음'}</span>
               {form.logo_asset_id && (
                 <button
                   type="button"
@@ -419,7 +420,7 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
                     setForm((f) => ({ ...f, logo_asset_id: null }));
                     setLogoPreview(null);
                   }}
-                  className="text-sm text-red-600 hover:text-red-800"
+                  className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                 >
                   이미지 제거
                 </button>
@@ -431,12 +432,12 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
         {/* 링크 (문제의 구간) */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">링크 (최대 5개)</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">링크 (최대 5개)</span>
             <button
               type="button"
               onClick={addLink}
               disabled={form.career_links.length >= 5}
-              className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-sm text-blue-600 dark:text-green-400 hover:text-blue-800 dark:hover:text-green-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               + 링크 추가
             </button>
@@ -469,7 +470,7 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
                 <button 
                   type="button" 
                   onClick={() => removeLink(idx)} 
-                  className="p-2 text-red-600 hover:bg-red-50 rounded shrink-0" 
+                  className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded shrink-0" 
                   aria-label="삭제"
                 >
                   ×
@@ -487,7 +488,7 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
               type="button"
               onClick={addHighlight}
               disabled={form.career_highlights.length >= 5}
-              className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-sm text-blue-600 dark:text-green-400 hover:text-blue-800 dark:hover:text-green-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               + 항목 추가
             </button>
@@ -495,7 +496,7 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
           <div className="space-y-2">
             {form.career_highlights.map((h, idx) => (
               <div key={idx} className="flex gap-2 items-center">
-                <span className="text-gray-600 shrink-0" aria-hidden>●</span>
+                <span className="text-gray-600 dark:text-gray-400 shrink-0" aria-hidden>●</span>
                 <input
                   type="text"
                   value={h}
@@ -508,7 +509,7 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
                   type="button"
                   onClick={() => removeHighlight(idx)}
                   disabled={form.career_highlights.length <= 1}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                  className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                   aria-label="항목 삭제"
                 >
                   ×
@@ -525,10 +526,10 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
             {form.career_tags.map((t, idx) => (
               <span
                 key={`${t}-${idx}`}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm bg-blue-100 border border-blue-300 text-blue-800"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm bg-blue-100 dark:bg-green-900/40 border border-blue-300 dark:border-green-700 text-blue-800 dark:text-green-200"
               >
                 {t}
-                <button type="button" onClick={() => removeTag(idx)} className="text-blue-600 hover:text-blue-800 -mr-0.5" aria-label="태그 제거">
+                <button type="button" onClick={() => removeTag(idx)} className="text-blue-600 dark:text-green-400 hover:text-blue-800 dark:hover:text-green-300 -mr-0.5" aria-label="태그 제거">
                   ×
                 </button>
               </span>
@@ -550,11 +551,11 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
           <button
             type="submit"
             disabled={saving || !(form.company_name?.trim() && form.role?.trim() && form.start_date) || form.career_highlights.filter((h) => (h || '').trim()).length < 1}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-green-600 rounded-lg hover:bg-blue-700 dark:hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? '저장 중...' : (isEdit ? '저장' : '등록')}
           </button>
-          <button type="button" onClick={() => { onCancel?.(); if (!onCancel && !embedded) navigate('/careers'); }} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
+          <button type="button" onClick={() => { onCancel?.(); if (!onCancel && !embedded) navigate('/careers'); }} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500">
             {embedded ? '닫기' : '목록으로'}
           </button>
         </div>

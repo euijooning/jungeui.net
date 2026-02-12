@@ -149,11 +149,11 @@ export default function MessageList() {
     <div className="w-full">
       <div className="mb-6 flex flex-col gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">메시지</h1>
-          <p className="mt-1 text-sm text-gray-500">소개 페이지 인사말 메시지 (과거/현재/미래 등). 최대 3개 권장.</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">메시지</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">소개 페이지 인사말 메시지 (과거/현재/미래 등). 최대 3개 권장.</p>
         </div>
         {error && (
-          <div className="rounded bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+          <div className="rounded bg-red-50 dark:bg-red-900/30 px-3 py-2 text-sm text-red-700 dark:text-red-300" role="alert">
             {error}
           </div>
         )}
@@ -165,25 +165,25 @@ export default function MessageList() {
       </div>
 
       {loading ? (
-        <p className="text-gray-500">불러오는 중...</p>
+        <p className="text-gray-500 dark:text-gray-400">불러오는 중...</p>
       ) : (
-        <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
           {items.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">메시지가 없습니다. 추가해 보세요.</div>
+            <div className="p-6 text-center text-gray-500 dark:text-gray-400">메시지가 없습니다. 추가해 보세요.</div>
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {items.map((msg, idx) => (
                 <div
                   key={msg.id}
-                  className="flex items-center gap-4 py-3 px-4 hover:bg-gray-50"
+                  className="flex items-center gap-4 py-3 px-4 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 >
-                  <span className="w-8 text-sm text-gray-400 tabular-nums">{idx + 1}</span>
+                  <span className="w-8 text-sm text-gray-400 dark:text-gray-500 tabular-nums">{idx + 1}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-900">{msg.title}</div>
-                    <div className="text-sm text-gray-500 truncate">{truncate(msg.content)}</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-200">{msg.title}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{truncate(msg.content)}</div>
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
-                    <IconButton size="small" onClick={() => openEdit(msg, idx + 1)} title="수정" aria-label="수정">
+                    <IconButton size="small" onClick={() => openEdit(msg, idx + 1)} title="수정" aria-label="수정" className="!text-gray-600 dark:!text-gray-300">
                       <Edit fontSize="small" />
                     </IconButton>
                     <IconButton size="small" onClick={() => deleteMessage(msg.id)} title="삭제" aria-label="삭제" color="error">
@@ -198,8 +198,8 @@ export default function MessageList() {
       )}
 
       <Dialog open={dialog.open} onClose={closeDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{dialog.mode === 'add' ? '메시지 추가' : '메시지 수정'}</DialogTitle>
-        <DialogContent className="flex flex-col gap-4" sx={{ overflow: 'visible', pt: 5, pb: 1 }}>
+        <DialogTitle className="dark:text-gray-100">{dialog.mode === 'add' ? '메시지 추가' : '메시지 수정'}</DialogTitle>
+        <DialogContent className="flex flex-col gap-4 dark:bg-gray-800" sx={{ overflow: 'visible', pt: 5, pb: 1 }}>
           <TextField
             label="제목"
             sx={{ mt: 1 }}
@@ -239,10 +239,11 @@ export default function MessageList() {
             disabled={dialog.mode === 'add'}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDialog}>취소</Button>
+        <DialogActions className="dark:bg-gray-800 dark:border-t dark:border-gray-700">
+          <Button onClick={closeDialog} className="text-gray-700 dark:text-gray-200">취소</Button>
           <Button
             variant="contained"
+            color="success"
             onClick={saveDialog}
             disabled={
               !dialog.title.trim() ||

@@ -71,7 +71,7 @@ const makeIframeHTML = (id) =>
 function youtubeAndImageSanitizer(html) {
   try {
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    const allowed = new Set(['DIV', 'IFRAME', '#text', 'P', 'BR', 'SPAN', 'B', 'I', 'EM', 'STRONG', 'UL', 'OL', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'CODE', 'PRE', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'HR', 'A', 'IMG', 'STYLE']);
+    const allowed = new Set(['DIV', 'IFRAME', '#text', 'P', 'BR', 'SPAN', 'B', 'I', 'EM', 'STRONG', 'UL', 'OL', 'LI', 'H1', 'H2', 'H3', 'H4', 'BLOCKQUOTE', 'CODE', 'PRE', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'HR', 'A', 'IMG', 'STYLE']);
     doc.body.querySelectorAll('*').forEach((el) => {
       const nm = el.nodeName;
       if (!allowed.has(nm)) {
@@ -501,7 +501,9 @@ export default function PostEditor({ isEdit = false, postId = null }) {
   };
 
   const handleSave = async () => {
-    const content_html = editorRef.current ? editorRef.current.getHTML() : '';
+    let content_html = editorRef.current ? editorRef.current.getHTML() : '';
+    // H5/H6는 사용하지 않음 → H4로 통일 (에디터 툴바에는 H5/H6가 있으나 저장 시 h1~h4만 유지)
+    content_html = content_html.replace(/<\/h[56]>/gi, '</h4>').replace(/<h[56](\s|>)/gi, '<h4$1');
     const visibility = form.visibility || form.status;
     const isScheduled = visibility === 'PUBLISHED' && form.publishType === 'scheduled';
     let published_at = null;
@@ -572,14 +574,14 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       {/* Header - sample 스타일 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{isEdit ? '포스트 수정' : '새 포스트'}</h1>
-          <p className="mt-1 text-sm text-gray-500">{isEdit ? '글을 수정합니다.' : '새로운 글을 작성하세요.'}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{isEdit ? '포스트 수정' : '새 포스트'}</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{isEdit ? '글을 수정합니다.' : '새로운 글을 작성하세요.'}</p>
         </div>
         {isEdit && (
           <button
             type="button"
             onClick={() => navigate('/posts')}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
           >
             목록으로
           </button>
@@ -598,13 +600,13 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       )}
 
       {/* sample처럼 단일 컬럼 - 하단으로 쭉 */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 mb-2">제목 <span className="text-blue-600">*</span></label>
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">제목 <span className="text-blue-600 dark:text-green-400">*</span></label>
           <TextField fullWidth placeholder="제목을 입력하세요" value={form.title} onChange={handleTitleChange} size="small" />
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 mb-2">카테고리 <span className="text-blue-600">*</span></label>
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">카테고리 <span className="text-blue-600 dark:text-green-400">*</span></label>
           <FormControl fullWidth size="small">
             <Select value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))} displayEmpty renderValue={(v) => {
               if (v === '__select__') return '선택';
@@ -623,7 +625,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         </div>
         <div className="mb-6">
           <div className="flex items-center justify-between gap-3 mb-2">
-            <label className="block text-sm font-medium text-gray-900">본문 <span className="text-blue-600">*</span></label>
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-200">본문 <span className="text-blue-600 dark:text-green-400">*</span></label>
             <div className="flex items-center gap-2">
               <input
                 ref={multiImageInputRef}
@@ -636,7 +638,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
               <button
                 type="button"
                 onClick={() => multiImageInputRef.current?.click()}
-                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500"
               >
                 이미지 여러 장
               </button>
@@ -647,7 +649,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
           </div>
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 mb-2">태그 (엔터로 추가)</label>
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">태그 (엔터로 추가)</label>
           <TextField fullWidth placeholder="태그 입력 후 엔터" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} size="small" />
           <div className="flex flex-wrap gap-1 mt-2">
             {form.post_tags.map((idOrName) => {
@@ -657,7 +659,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
           </div>
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 mb-2">발행 방식 <span className="text-blue-600">*</span></label>
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">발행 방식 <span className="text-blue-600 dark:text-green-400">*</span></label>
           <div className="flex flex-col gap-3">
             <FormControl fullWidth size="small">
               <Select
@@ -701,13 +703,13 @@ export default function PostEditor({ isEdit = false, postId = null }) {
               </div>
             )}
             {form.visibility === 'UNLISTED' && (
-              <p className="text-sm text-gray-500 pl-1">링크가 있는 사람만 직접 입력해 접근할 수 있습니다.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 pl-1">링크가 있는 사람만 직접 입력해 접근할 수 있습니다.</p>
             )}
           </div>
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 mb-2">파일 첨부</label>
-          <p className="text-xs text-gray-500 mb-2">PNG, JPG, JPEG, PDF, PPT, PPTX, HWP, HWPX, DOCX (각 10MB 이하, 다중 선택 가능)</p>
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">파일 첨부</label>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">PNG, JPG, JPEG, PDF, PPT, PPTX, HWP, HWPX, DOCX (각 10MB 이하, 다중 선택 가능)</p>
           <input
             ref={attachmentInputRef}
             type="file"
@@ -721,11 +723,11 @@ export default function PostEditor({ isEdit = false, postId = null }) {
             tabIndex={0}
             onClick={() => attachmentInputRef.current?.click()}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); attachmentInputRef.current?.click(); } }}
-            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-blue-400', 'bg-gray-50'); }}
-            onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-blue-400', 'bg-gray-50'); }}
+            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-green-500', 'bg-gray-50', 'dark:bg-gray-700'); }}
+            onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-green-500', 'bg-gray-50', 'dark:bg-gray-700'); }}
             onDrop={(e) => {
               e.preventDefault();
-              e.currentTarget.classList.remove('border-blue-400', 'bg-gray-50');
+              e.currentTarget.classList.remove('border-green-500', 'bg-gray-50', 'dark:bg-gray-700');
               const files = Array.from(e.dataTransfer?.files || []);
               if (files.length) {
                 const dt = new DataTransfer();
@@ -734,22 +736,22 @@ export default function PostEditor({ isEdit = false, postId = null }) {
                 handleAttachmentSelect({ target: { files: dt.files, value: '' } });
               }
             }}
-            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-gray-50 transition-colors"
+            className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-green-500 dark:hover:border-green-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             {attachmentUploading ? (
-              <p className="text-gray-500">업로드 중...</p>
+              <p className="text-gray-500 dark:text-gray-400">업로드 중...</p>
             ) : (
               <>
-                <p className="text-gray-600">클릭하거나 파일을 끌어다 놓으세요</p>
-                <p className="text-sm text-gray-400 mt-1">여러 파일 선택 가능</p>
+                <p className="text-gray-600 dark:text-gray-300">클릭하거나 파일을 끌어다 놓으세요</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">여러 파일 선택 가능</p>
               </>
             )}
           </div>
           {attachmentList.length > 0 && (
             <ul className="mt-3 space-y-2">
               {attachmentList.map((a) => (
-                <li key={a.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded border border-gray-200">
-                  <span className="text-sm text-gray-800 truncate">{a.original_name}</span>
+                <li key={a.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
+                  <span className="text-sm text-gray-800 dark:text-gray-200 truncate">{a.original_name}</span>
                   <button
                     type="button"
                     onClick={() => removeAttachment(a.id)}

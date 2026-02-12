@@ -125,42 +125,42 @@ export default function ProjectList() {
     <div className="w-full">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">프로젝트 관리</h1>
-          <p className="mt-1 text-sm text-gray-500">프로젝트 목록·드래그 정렬·등록/수정</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">프로젝트 관리</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">프로젝트 목록·드래그 정렬·등록/수정</p>
         </div>
         <button
           onClick={openFormAdd}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
         >
           새 프로젝트
         </button>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
           {error}
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-gray-500">로딩 중...</div>
+          <div className="p-8 text-center text-gray-500 dark:text-gray-400">로딩 중...</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+              <thead className="bg-gray-50 dark:bg-gray-700/50">
                 <tr>
-                  <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">순서</th>
+                  <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12">순서</th>
                   <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-14">번호</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">제목</th>
                   <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[220px] whitespace-nowrap">기간</th>
                   <th className="px-2 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
                 {projects.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-12 text-center text-gray-500">
+                    <td colSpan={5} className="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
                       등록된 프로젝트가 없습니다.
                     </td>
                   </tr>
@@ -172,7 +172,7 @@ export default function ProjectList() {
                     return (
                       <tr
                         key={row.id}
-                        className={`hover:bg-gray-50 ${isDragging ? 'opacity-50' : ''} ${isDropTarget ? 'bg-blue-50' : ''}`}
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 ${isDragging ? 'opacity-50' : ''} ${isDropTarget ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
                         draggable
                         onDragStart={(e) => handleDragStart(e, idx)}
                         onDragOver={(e) => handleDragOver(e, idx)}
@@ -180,14 +180,14 @@ export default function ProjectList() {
                         onDragEnd={handleDragEnd}
                         onDrop={(e) => handleDrop(e, idx)}
                       >
-                        <td className="px-2 py-3 text-gray-400 cursor-grab active:cursor-grabbing">
+                        <td className="px-2 py-3 text-gray-400 dark:text-gray-500 cursor-grab active:cursor-grabbing">
                           <DragIndicator fontSize="small" />
                         </td>
-                        <td className="px-2 py-3 text-sm text-gray-500">{displayNo}</td>
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900 min-w-[200px]">
+                        <td className="px-2 py-3 text-sm text-gray-500 dark:text-gray-400">{displayNo}</td>
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 min-w-[200px]">
                           {row.title || '(제목 없음)'}
                         </td>
-                        <td className="px-3 py-3 text-sm text-gray-500 min-w-[220px] whitespace-nowrap">
+                        <td className="px-3 py-3 text-sm text-gray-500 dark:text-gray-400 min-w-[220px] whitespace-nowrap">
                           {formatPeriod(row.start_date, row.end_date)}
                         </td>
                         <td className="px-2 py-3 text-sm">
@@ -195,21 +195,21 @@ export default function ProjectList() {
                             <button
                               type="button"
                               onClick={() => openDetail(row)}
-                              className="text-blue-600 hover:text-blue-800 shrink-0"
+                              className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 shrink-0"
                             >
                               보기
                             </button>
                             <button
                               type="button"
                               onClick={() => openFormEdit(row.id)}
-                              className="text-green-600 hover:text-green-800 shrink-0"
+                              className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 shrink-0"
                             >
                               수정
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDelete(row.id, row.title)}
-                              className="text-red-600 hover:text-red-800 shrink-0"
+                              className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 shrink-0"
                             >
                               삭제
                             </button>

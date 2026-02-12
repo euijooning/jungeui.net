@@ -205,3 +205,94 @@
   }
 }
 
+/* ========== 다크 모드: MUI Dialog / Paper / Actions ========== */
+.dark .MuiDialog-paper {
+  background-color: rgb(31 41 55) !important;
+  border: 1px solid rgb(55 65 81);
+}
+.dark .MuiDialogTitle-root {
+  color: rgb(243 244 246);
+}
+.dark .MuiDialogActions-root {
+  background-color: rgb(31 41 55);
+  border-top: 1px solid rgb(55 65 81);
+}
+
+/* 다크 모드: MUI TextField/Select 아웃라인 */
+.dark .MuiOutlinedInput-root {
+  background-color: rgb(55 65 81) !important;
+}
+.dark .MuiOutlinedInput-input,
+.dark .MuiOutlinedInput-input::placeholder {
+  color: rgb(243 244 246) !important;
+}
+.dark .MuiInputLabel-root {
+  color: rgb(156 163 175) !important;
+}
+.dark .MuiInputLabel-root.Mui-focused {
+  color: rgb(52 211 153) !important;
+}
+.dark .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(75 85 99) !important;
+}
+.dark .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(107 114 128) !important;
+}
+.dark .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(52 211 153) !important;
+  border-width: 2px !important;
+}
+.dark .MuiFormHelperText-root {
+  color: rgb(156 163 175) !important;
+}
+
+/* 다크 모드: MUI Select 드롭다운 메뉴 */
+.dark .MuiPopover-paper,
+.dark .MuiMenu-paper {
+  background-color: rgb(31 41 55) !important;
+  border: 1px solid rgb(55 65 81);
+}
+.dark .MuiMenuItem-root {
+  color: rgb(229 231 235) !important;
+}
+.dark .MuiMenuItem-root:hover {
+  background-color: rgb(55 65 81) !important;
+}
+.dark .MuiList-root {
+  background-color: transparent !important;
+}
+
+/* 다크 모드: Toast UI Editor (포스트 등록/수정) */
+.dark #post-editor .toastui-editor-default-ui,
+.dark #post-editor .toastui-editor-ww-container,
+.dark #post-editor .toastui-editor-md-container,
+.dark #post-editor .toastui-editor-mode-switch,
+.dark #post-editor .ProseMirror {
+  background-color: rgb(55 65 81) !important;
+  color: rgb(229 231 235) !important;
+}
+.dark #post-editor .toastui-editor-toolbar {
+  background-color: rgb(55 65 81) !important;
+  border-color: rgb(75 85 99) !important;
+}
+.dark #post-editor .toastui-editor-toolbar button {
+  color: rgb(209 213 219) !important;
+}
+.dark #post-editor .toastui-editor-toolbar button:hover {
+  background-color: rgb(75 85 99) !important;
+  color: rgb(243 244 246) !important;
+}
+.dark #post-editor .toastui-editor-ww-container .ProseMirror,
+.dark #post-editor .toastui-editor-md-container .ProseMirror {
+  color: rgb(229 231 235) !important;
+}
+.dark #post-editor .toastui-editor-md-preview {
+  background-color: rgb(55 65 81) !important;
+  color: rgb(229 231 235) !important;
+}
+.dark #post-editor .toastui-editor-md-container textarea {
+  background-color: rgb(55 65 81) !important;
+  color: rgb(229 231 235) !important;
+  border-color: rgb(75 85 99) !important;
+}
+
