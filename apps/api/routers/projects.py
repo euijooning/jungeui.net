@@ -121,20 +121,20 @@ def _parse_date(s: str | None) -> str | None:
 
 
 def _relocate_temp_asset(asset_id: int | None, project_id: int, db, upload_dir: Path) -> None:
-    """temp에 있는 asset 파일을 projects/{project_id}/로 이동하고 assets.file_path 갱신."""
+    """images/projects/temp/ 에 있는 asset을 images/projects/{project_id}/ 로 이동하고 assets.file_path 갱신."""
     if not asset_id:
         return
     row = db.execute(text("SELECT id, file_path FROM assets WHERE id = :id"), {"id": asset_id}).fetchone()
     if not row:
         return
     file_path = (row[1] or "").strip().replace("\\", "/")
-    if not file_path.startswith("projects/temp/"):
+    if not file_path.startswith("images/projects/temp/"):
         return
     src = upload_dir / file_path
     if not src.is_file():
         return
     filename = Path(file_path).name
-    new_rel_path = f"projects/{project_id}/{filename}"
+    new_rel_path = f"images/projects/{project_id}/{filename}"
     dest = upload_dir / new_rel_path
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(src), str(dest))

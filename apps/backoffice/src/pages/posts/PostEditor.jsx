@@ -135,6 +135,14 @@ export default function PostEditor({ isEdit = false, postId = null }) {
   const [tagInput, setTagInput] = useState('');
   const [contentHtml, setContentHtml] = useState('');
 
+  const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+  // apiBase가 있으면 절대 URL로 넣어서 API에서 직접 로드(에디터에서 이미지 표시). 없으면 상대 URL(프록시 경유).
+  const toImageSrc = (url) => {
+    if (!url) return url;
+    if (url.startsWith('http')) return url;
+    return apiBase ? apiBase + (url.startsWith('/') ? url : `/${url}`) : url;
+  };
+
   const loadPost = useCallback(async () => {
     if (!postId) return;
     setLoadError(null);
@@ -262,6 +270,26 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       };
 
       const token = getAccessToken();
+      const pid = (isEdit && postId) ? String(postId) : 'temp';
+      const uploadImageBlob = async (blob, source) => {
+        console.log(`[이미지업로드] ${source} 시작`, { size: blob?.size, type: blob?.type });
+        const fd = new FormData();
+        fd.append('file', blob, blob.name || 'image.jpg');
+        const res = await fetch(`/api/assets/upload?post_id=${encodeURIComponent(pid)}`, {
+          method: 'POST',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          body: fd,
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.detail || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        const url = data.url ?? data.file_path ?? data.file_url;
+        console.log(`[이미지업로드] ${source} 성공`, { url, id: data.id });
+        return { url, id: data.id };
+      };
+
       const ed = new Editor({
         el,
         height: '600px',
@@ -283,50 +311,38 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         hooks: {
           addImageBlobHook: async (blob, callback) => {
             try {
-              const fd = new FormData();
-              fd.append('file', blob, blob.name || 'image.jpg');
-              const pid = (isEdit && postId) ? String(postId) : 'temp';
-              const res = await fetch(`/api/assets/upload?post_id=${encodeURIComponent(pid)}`, {
-                method: 'POST',
-                headers: token ? { Authorization: `Bearer ${token}` } : {},
-                body: fd,
-              });
-              if (!res.ok) throw new Error('이미지 업로드에 실패했습니다.');
-              const data = await res.json();
-              const url = data.url ?? data.file_path ?? data.file_url;
-              callback(url, '이미지 업로드 완료');
+              const { url } = await uploadImageBlob(blob, 'addImageBlobHook');
+              callback(toImageSrc(url), '');
             } catch (err) {
-              console.error(err);
+              console.error('[이미지업로드] addImageBlobHook 실패', err);
               callback('', err.message || '이미지 업로드에 실패했습니다.');
             }
           },
         },
       });
 
-      const root = el.querySelector('.toastui-editor-ww-mode') || el.querySelector('.toastui-editor-md-container textarea');
-      root?.addEventListener('paste', (e) => {
+      const onPaste = (e) => {
         const cd = e.clipboardData || window.clipboardData;
-        const text = cd?.getData('text') || '';
-        const items = cd?.items;
+        if (!cd) return;
+        const text = cd.getData('text') || '';
+        const items = cd.items;
         if (items) {
           for (let i = 0; i < items.length; i++) {
             if (items[i].type.indexOf('image') !== -1) {
               const blob = items[i].getAsFile();
               if (blob) {
                 e.preventDefault();
-                const fd = new FormData();
-                fd.append('file', blob, 'image.jpg');
-                const pid = (isEdit && postId) ? String(postId) : 'temp';
-                fetch(`/api/assets/upload?post_id=${encodeURIComponent(pid)}`, { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {}, body: fd })
-                  .then((r) => r.json())
-                  .then((data) => {
-                    const url = data.url ?? data.file_path ?? data.file_url;
+                e.stopPropagation();
+                console.log('[이미지업로드] paste 이벤트에서 이미지 감지, 업로드 시작');
+                uploadImageBlob(blob, 'Ctrl+V')
+                  .then(({ url }) => {
                     if (url) {
+                      const src = toImageSrc(url);
                       const html = ed.getHTML();
-                      ed.setHTML(html + `<img src="${url}" alt="업로드" style="max-width:100%;height:auto;"><br>`);
+                      ed.setHTML(html + `<img src="${src}" alt="업로드" style="max-width:100%;height:auto;"><br>`);
                     }
                   })
-                  .catch(() => {});
+                  .catch((err) => console.error('[이미지업로드] Ctrl+V 실패', err));
                 return;
               }
             }
@@ -342,7 +358,8 @@ export default function PostEditor({ isEdit = false, postId = null }) {
           );
           if (replaced !== html) ed.setHTML(replaced);
         }, 0);
-      });
+      };
+      el.addEventListener('paste', onPaste, true);
 
       const onChange = (() => {
         let t;
@@ -398,7 +415,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         const url = data.url ?? data.file_path ?? data.file_url;
         if (url) {
           const html = ed.getHTML();
-          ed.setHTML(html + `<img src="${url}" alt="" style="max-width:100%;height:auto;"><br>`);
+          ed.setHTML(html + `<img src="${toImageSrc(url)}" alt="" style="max-width:100%;height:auto;"><br>`);
         }
       } catch (err) {
         console.error('이미지 업로드 오류:', err);
