@@ -1,7 +1,7 @@
 """게시글 API."""
 import logging
 import shutil
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -106,10 +106,11 @@ def _parse_published_at(s: str | None) -> datetime | None:
 
 
 def _published_at_in_past(parsed: datetime | None) -> bool:
+    """True면 '과거'로 간주해 400. 즉시공개 시 클라이언트 시계가 서버보다 느릴 수 있으므로 60초 허용."""
     if not parsed:
         return False
     now = datetime.now(timezone.utc).replace(tzinfo=None)
-    return parsed < now
+    return parsed < (now - timedelta(seconds=60))
 
 
 def _isoformat_utc(dt: datetime | None) -> str | None:
