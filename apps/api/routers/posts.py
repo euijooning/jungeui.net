@@ -146,7 +146,7 @@ def list_posts(
         where.append("p.status = :status")
         filter_params["status"] = status
         if status == "PUBLISHED":
-            where.append("(p.published_at IS NOT NULL AND p.published_at <= NOW())")
+            where.append("(p.published_at IS NOT NULL AND p.published_at <= UTC_TIMESTAMP())")
     if tag_id is not None:
         where.append("EXISTS (SELECT 1 FROM post_tags pt WHERE pt.post_id = p.id AND pt.tag_id = :tag_id)")
         filter_params["tag_id"] = tag_id
@@ -186,8 +186,8 @@ def list_posts(
             "slug": r[2],
             "status": r[3],
             "published_at": _isoformat_utc(r[4]),
-            "created_at": r[5].isoformat() if r[5] else None,
-            "updated_at": r[6].isoformat() if r[6] else None,
+            "created_at": _isoformat_utc(r[5]),
+            "updated_at": _isoformat_utc(r[6]),
             "category_id": r[7],
             "category_name": r[8],
             "category": {"id": r[7], "name": r[8]} if r[7] else None,
@@ -203,7 +203,7 @@ def get_post_neighbors(post_id: int, db=Depends(get_db)):
         text("""
             SELECT id, published_at FROM posts
             WHERE id = :id AND status = 'PUBLISHED'
-            AND published_at IS NOT NULL AND published_at <= NOW()
+            AND published_at IS NOT NULL AND published_at <= UTC_TIMESTAMP()
         """),
         {"id": post_id},
     ).fetchone()
@@ -214,7 +214,7 @@ def get_post_neighbors(post_id: int, db=Depends(get_db)):
     prev_row = db.execute(
         text("""
             SELECT p.id, p.title FROM posts p
-            WHERE p.status = 'PUBLISHED' AND p.published_at IS NOT NULL AND p.published_at <= NOW() AND p.id != :id
+            WHERE p.status = 'PUBLISHED' AND p.published_at IS NOT NULL AND p.published_at <= UTC_TIMESTAMP() AND p.id != :id
             AND (COALESCE(p.published_at, '1970-01-01') > COALESCE(:pub_at, '1970-01-01')
                  OR (COALESCE(p.published_at, '1970-01-01') = COALESCE(:pub_at, '1970-01-01') AND p.id > :id))
             ORDER BY COALESCE(p.published_at, '1970-01-01') ASC, p.id ASC
@@ -226,7 +226,7 @@ def get_post_neighbors(post_id: int, db=Depends(get_db)):
     next_row = db.execute(
         text("""
             SELECT p.id, p.title FROM posts p
-            WHERE p.status = 'PUBLISHED' AND p.published_at IS NOT NULL AND p.published_at <= NOW() AND p.id != :id
+            WHERE p.status = 'PUBLISHED' AND p.published_at IS NOT NULL AND p.published_at <= UTC_TIMESTAMP() AND p.id != :id
             AND (COALESCE(p.published_at, '1970-01-01') < COALESCE(:pub_at, '1970-01-01')
                  OR (COALESCE(p.published_at, '1970-01-01') = COALESCE(:pub_at, '1970-01-01') AND p.id < :id))
             ORDER BY COALESCE(p.published_at, '1970-01-01') DESC, p.id DESC
@@ -262,7 +262,7 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
     if not current_user and status == "PUBLISHED":
         ok = db.execute(
-            text("SELECT 1 FROM posts WHERE id = :id AND published_at IS NOT NULL AND published_at <= NOW()"),
+            text("SELECT 1 FROM posts WHERE id = :id AND published_at IS NOT NULL AND published_at <= UTC_TIMESTAMP()"),
             {"id": post_id},
         ).fetchone()
         if not ok:
@@ -327,8 +327,8 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
         "thumbnail_asset_id": thumbnail_asset_id,
         "content_html": content_html,
         "content_json": content_json,
-        "created_at": created_at.isoformat() if created_at else None,
-        "updated_at": updated_at.isoformat() if updated_at else None,
+        "created_at": _isoformat_utc(created_at),
+        "updated_at": _isoformat_utc(updated_at),
         "category_name": category_name,
         "view_count": int(view_count) if view_count is not None else 0,
         "post_tags": [r[0] for r in tag_rows],
@@ -351,8 +351,8 @@ def create_post(body: PostBody, db=Depends(get_db)):
     store_published = parsed if parsed else (published if published else None)
     db.execute(
         text("""
-            INSERT INTO posts (title, slug, status, published_at, category_id, thumbnail_asset_id, content_html, content_json)
-            VALUES (:title, :slug, :status, :published_at, :category_id, :thumbnail_asset_id, :content_html, :content_json)
+            INSERT INTO posts (title, slug, status, published_at, category_id, thumbnail_asset_id, content_html, content_json, created_at, updated_at)
+            VALUES (:title, :slug, :status, :published_at, :category_id, :thumbnail_asset_id, :content_html, :content_json, UTC_TIMESTAMP(), UTC_TIMESTAMP())
         """),
         {
             "title": (body.title or "제목 없음").strip(),
@@ -422,7 +422,7 @@ def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
         text("""
             UPDATE posts SET title = :title, slug = :slug, status = :status, published_at = :published_at,
                    category_id = :category_id, thumbnail_asset_id = :thumbnail_asset_id,
-                   content_html = :content_html, content_json = :content_json, updated_at = NOW()
+                   content_html = :content_html, content_json = :content_json, updated_at = UTC_TIMESTAMP()
             WHERE id = :id
         """),
         {
