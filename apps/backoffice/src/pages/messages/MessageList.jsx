@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import Add from '@mui/icons-material/Add';
 import Edit from '@mui/icons-material/Edit';
@@ -57,7 +58,7 @@ export default function MessageList() {
   const openAdd = () => {
     setError(null);
     if (items.length >= 3) {
-      window.alert('최대 3개만 추가 가능합니다. 수정을 진행해 주세요.');
+      setError('최대 3개만 추가 가능합니다. 수정을 진행해 주세요.');
       return;
     }
     // 노출순서 표시: 새 항목이 들어갈 위치(1,2,3). 저장 시에는 max+1로 마지막에 추가
@@ -101,7 +102,7 @@ export default function MessageList() {
       return;
     }
     if (mode === 'add' && items.length >= 3) {
-      window.alert('최대 3개만 추가 가능합니다. 수정을 진행해 주세요.');
+      setError('최대 3개만 추가 가능합니다. 수정을 진행해 주세요.');
       return;
     }
     try {
@@ -157,11 +158,6 @@ export default function MessageList() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">메시지</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">소개 페이지 인사말 메시지 (과거/현재/미래 등). 최대 3개 권장.</p>
         </div>
-        {error && (
-          <div className="rounded bg-red-50 dark:bg-red-900/30 px-3 py-2 text-sm text-red-700 dark:text-red-300" role="alert">
-            {error}
-          </div>
-        )}
         <div>
           <Button variant="contained" startIcon={<Add />} onClick={openAdd}>
             메시지 추가
@@ -202,6 +198,15 @@ export default function MessageList() {
         </div>
       )}
 
+      <Dialog open={Boolean(error)} onClose={() => setError(null)} aria-labelledby="messagelist-error-dialog-title">
+        <DialogTitle id="messagelist-error-dialog-title">오류</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{error}</DialogContentText>
+        </DialogContent>
+        <DialogActions className="dark:border-t dark:border-gray-700">
+          <Button onClick={() => setError(null)} color="primary" variant="contained">확인</Button>
+        </DialogActions>
+      </Dialog>
       <Dialog open={dialog.open} onClose={closeDialog} maxWidth="sm" fullWidth>
         <DialogTitle className="dark:text-gray-100">{dialog.mode === 'add' ? '메시지 추가' : '메시지 수정'}</DialogTitle>
         <DialogContent className="flex flex-col gap-4 dark:bg-gray-800" sx={{ overflow: 'visible', pt: 5, pb: 1 }}>

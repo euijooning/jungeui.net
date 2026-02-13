@@ -10,7 +10,7 @@
 **파일**: `apps/backoffice/src/pages/posts/PostList.jsx`
 
 - **API**: GET /api/posts (필터: category, tag, status). 페이지네이션·정렬.
-- **UI**: 테이블 또는 카드 목록. 제목, 카테고리, 상태(DRAFT/PUBLISHED/PRIVATE), 발행일, 수정일. [새 글 쓰기] → `/posts/new`, [보기] → `/posts/:postId`, [수정] → `/posts/:postId/edit`.
+- **UI**: 테이블 또는 카드 목록. 제목, 카테고리, 상태(DRAFT/PUBLISHED/PRIVATE/UNLISTED), 등록일, 발행일. [새 글 쓰기] → `/posts/new`, [보기] → `/posts/:postId`, [수정] → `/posts/:postId/edit`.
 - **삭제**: DELETE /api/posts/{id} (확인 후).
 
 ## 2. 글 쓰기·상세 (PostEditor / PostNew / PostEdit / PostDetail)
@@ -28,7 +28,7 @@
 
 ### 우측 설정 패널
 
-- **Status**: DRAFT / PUBLISHED / PRIVATE (01-db-schema posts.status).
+- **Status**: DRAFT / PUBLISHED / PRIVATE / UNLISTED (01-db-schema posts.status).
 - **Publish Date**: 예약 발행용 날짜 (published_at).
 - **URL Slug**: 제목 기반 자동 생성, 수정 가능 (posts.slug).
 - **Category**: 라디오 또는 셀렉트. GET /api/categories 사용.

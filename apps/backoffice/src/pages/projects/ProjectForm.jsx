@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from '@mui/material';
 import apiClient, { getAccessToken } from '../../lib/apiClient';
 
 const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
@@ -174,7 +182,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
         toUpload = await resizeToSquare(file);
         if (!toUpload) throw new Error('리사이즈 실패');
       } catch (err) {
-        alert(err?.message || '이미지 처리에 실패했습니다.');
+        setSaveError(err?.message || '이미지 처리에 실패했습니다.');
         e.target.value = '';
         return;
       }
@@ -194,7 +202,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
       setForm((f) => ({ ...f, thumbnail_asset_id: assetId }));
       setThumbPreview(data.url ? `${API_BASE || ''}${data.url}` : null);
     } catch (err) {
-      alert(err?.message || '썸네일 업로드에 실패했습니다.');
+      setSaveError(err?.message || '썸네일 업로드에 실패했습니다.');
     }
     e.target.value = '';
   };
@@ -209,7 +217,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
         toUpload = await resizeToRect(file, INTRO_IMAGE_WIDTH, INTRO_IMAGE_HEIGHT);
         if (!toUpload) throw new Error('리사이즈 실패');
       } catch (err) {
-        alert(err?.message || '이미지 처리에 실패했습니다.');
+        setSaveError(err?.message || '이미지 처리에 실패했습니다.');
         e.target.value = '';
         return;
       }
@@ -229,7 +237,7 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
       setForm((f) => ({ ...f, intro_image_asset_id: assetId }));
       setIntroPreview(data.url ? `${API_BASE || ''}${data.url}` : null);
     } catch (err) {
-      alert(err?.message || '소개 이미지 업로드에 실패했습니다.');
+      setSaveError(err?.message || '소개 이미지 업로드에 실패했습니다.');
     }
     e.target.value = '';
   };
@@ -354,17 +362,28 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
   const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
 
   if (loadError) {
+    const closeLoadError = () => { setLoadError(null); if (onCancel) onCancel(); else if (!embedded) navigate('/projects'); };
     return (
-      <div className="p-4">
-        <p className="text-red-600 dark:text-red-400">{loadError}</p>
-        <button
-          type="button"
-          onClick={() => { if (onCancel) onCancel(); else if (!embedded) navigate('/projects'); }}
-          className="mt-4 px-4 py-2 text-sm bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
-        >
-          {embedded ? '닫기' : '목록으로'}
-        </button>
-      </div>
+      <>
+        <div className="p-4">
+          <button
+            type="button"
+            onClick={closeLoadError}
+            className="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
+          >
+            {embedded ? '닫기' : '목록으로'}
+          </button>
+        </div>
+        <Dialog open={Boolean(loadError)} onClose={closeLoadError} aria-labelledby="project-load-error-dialog-title">
+          <DialogTitle id="project-load-error-dialog-title">오류</DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{loadError}</DialogContentText>
+          </DialogContent>
+          <DialogActions className="dark:border-t dark:border-gray-700">
+            <Button onClick={closeLoadError} color="primary" variant="contained">확인</Button>
+          </DialogActions>
+        </Dialog>
+      </>
     );
   }
 
@@ -377,11 +396,17 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
         </div>
       )}
 
-      {saveError && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
-          {saveError}
-        </div>
-      )}
+      <Dialog open={Boolean(saveError)} onClose={() => setSaveError(null)} aria-labelledby="save-error-dialog-title">
+        <DialogTitle id="save-error-dialog-title">저장할 수 없음</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{saveError}</DialogContentText>
+        </DialogContent>
+        <DialogActions className="dark:border-t dark:border-gray-700">
+          <Button onClick={() => setSaveError(null)} color="primary" variant="contained">
+            확인
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <form
         onSubmit={handleSubmit}

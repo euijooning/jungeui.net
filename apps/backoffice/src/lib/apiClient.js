@@ -66,7 +66,7 @@ const apiClient = {
     try {
       response = await fetch(fullUrl, init);
     } catch (e) {
-      const err = new Error(e?.message || 'Network request failed');
+      const err = new Error('네트워크 연결을 확인해 주세요.');
       err.status = 0;
       err.response = { status: 0, data: null };
       err.isNetworkError = true;
@@ -78,12 +78,11 @@ const apiClient = {
       if (status === 401 || status === 403) {
         handleUnauthorized();
       }
-      const error = new Error(`HTTP ${status}`);
+      const data = await response.json().catch(() => ({}));
+      const msg = typeof data?.detail === 'string' ? data.detail : '요청을 처리할 수 없습니다.';
+      const error = new Error(msg);
       error.status = status;
-      error.response = {
-        status,
-        data: await response.json().catch(() => ({})),
-      };
+      error.response = { status, data };
       throw error;
     }
 
@@ -108,24 +107,32 @@ const apiClient = {
     const fullUrl = resolveUrl(url);
     const headers = { ...getAuthHeaders() };
     delete headers['Content-Type'];
-    const response = await fetch(fullUrl, {
-      ...options,
-      method: 'POST',
-      credentials: 'include',
-      headers: { ...headers, ...(options.headers || {}) },
-      body: formData,
-    });
+    let response;
+    try {
+      response = await fetch(fullUrl, {
+        ...options,
+        method: 'POST',
+        credentials: 'include',
+        headers: { ...headers, ...(options.headers || {}) },
+        body: formData,
+      });
+    } catch (e) {
+      const err = new Error('네트워크 연결을 확인해 주세요.');
+      err.status = 0;
+      err.response = { status: 0, data: null };
+      err.isNetworkError = true;
+      throw err;
+    }
     if (!response.ok) {
       const status = response.status;
       if (status === 401 || status === 403) {
         handleUnauthorized();
       }
-      const error = new Error(`HTTP ${status}`);
+      const data = await response.json().catch(() => ({}));
+      const msg = typeof data?.detail === 'string' ? data.detail : '요청을 처리할 수 없습니다.';
+      const error = new Error(msg);
       error.status = status;
-      error.response = {
-        status,
-        data: await response.json().catch(() => ({})),
-      };
+      error.response = { status, data };
       throw error;
     }
     const data = await response.json().catch(() => ({}));

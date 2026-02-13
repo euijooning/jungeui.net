@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import apiClient from "../../lib/apiClient";
 
 export default function NotificationsPage() {
@@ -43,7 +44,8 @@ export default function NotificationsPage() {
   const statusLabel = {
     PUBLISHED: "발행됨",
     DRAFT: "임시저장",
-    UNLISTED: "비공개",
+    UNLISTED: "일부공개",
+    PRIVATE: "비공개",
   };
   const getStatusLabel = (status) => statusLabel[status] || status;
 
@@ -98,6 +100,15 @@ export default function NotificationsPage() {
           </ul>
         )}
       </div>
+      <Dialog open={Boolean(error)} onClose={() => setError(false)} aria-labelledby="notifications-error-dialog-title">
+        <DialogTitle id="notifications-error-dialog-title">오류</DialogTitle>
+        <DialogContent>
+          <DialogContentText>알림을 불러오지 못했습니다.</DialogContentText>
+        </DialogContent>
+        <DialogActions className="dark:border-t dark:border-gray-700">
+          <Button onClick={() => setError(false)} color="primary" variant="contained">확인</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
