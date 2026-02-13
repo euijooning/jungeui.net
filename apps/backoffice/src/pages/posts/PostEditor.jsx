@@ -532,13 +532,8 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       if (isScheduled && form.published_at) {
         published_at = form.published_at.includes('T') ? form.published_at.replace('T', ' ').slice(0, 19) : form.published_at;
       } else if (!isScheduled) {
-        // 수정 시에는 기존 발행일 유지(목록 순서 유지). 새 글만 지금 시각으로 발행
-        if (isEdit && form.published_at) {
-          const raw = form.published_at.includes('T') ? form.published_at.replace('T', ' ').slice(0, 19) : form.published_at;
-          published_at = raw;
-        } else {
-          published_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        }
+        // 즉시공개: 항상 현 시점으로 발행 (예약이 지난 뒤 즉시공개로 바꿀 때도 현재 시각 사용)
+        published_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
       }
     }
     const postTagsRaw = (form.post_tags || []).filter((x) => typeof x === 'number' || (typeof x === 'string' && /^\d+$/.test(x)));

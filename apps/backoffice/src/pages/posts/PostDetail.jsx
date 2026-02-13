@@ -15,8 +15,10 @@ function formatDate(iso) {
   return `${y}-${m}-${da} ${hh}:${mm}`;
 }
 
-function statusBadge(status) {
+function statusBadge(status, published_at) {
+  const isScheduled = status === 'PUBLISHED' && published_at && new Date(published_at) > new Date();
   const styles = {
+    SCHEDULED: 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800',
     PUBLISHED: 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800',
     UNLISTED: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800',
     PRIVATE: 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-500',
@@ -24,14 +26,16 @@ function statusBadge(status) {
     TEMP: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
   };
   const labels = {
+    SCHEDULED: '공개예정',
     PUBLISHED: '공개',
     UNLISTED: '일부공개',
     PRIVATE: '비공개',
     DRAFT: '임시저장',
     TEMP: '임시저장',
   };
-  const style = styles[status] || styles.TEMP;
-  const label = labels[status] || '임시저장';
+  const effectiveStatus = isScheduled ? 'SCHEDULED' : status;
+  const style = styles[effectiveStatus] || styles.TEMP;
+  const label = labels[effectiveStatus] || '임시저장';
   return (
     <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border ${style}`}>
       {label}
@@ -192,7 +196,7 @@ export default function PostDetail() {
                     {categoryName}
                   </span>
                 )}
-                {statusBadge(post.status)}
+                {statusBadge(post.status, post.published_at)}
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight break-keep">
                 {post.title || '(제목 없음)'}
