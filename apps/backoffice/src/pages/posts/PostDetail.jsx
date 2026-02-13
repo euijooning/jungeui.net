@@ -56,6 +56,12 @@ export default function PostDetail() {
       .finally(() => setLoading(false));
   }, [postId]);
 
+  useEffect(() => {
+    if (post?.title !== undefined) {
+      document.title = `${post.title || '포스트 보기'} | 관리자`;
+    }
+  }, [post?.title]);
+
   const handleDelete = async () => {
     if (!window.confirm('정말로 이 글을 삭제하시겠습니까? \n삭제된 데이터는 복구할 수 없습니다.')) return;
     try {

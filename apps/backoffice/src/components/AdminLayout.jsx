@@ -190,20 +190,29 @@ const AdminLayout = ({ children }) => {
       "/posts": "포스트 목록",
       "/posts/new": "새 포스트",
       "/posts/categories": "카테고리 관리",
-      "/messages": "메시지",
-      "/careers": "경력",
-      "/careers/new": "경력",
-      "/projects": "프로젝트",
-      "/projects/new": "프로젝트",
+      "/messages": "메시지 관리",
+      "/careers": "경력 관리",
+      "/careers/new": "경력 등록",
+      "/projects": "프로젝트 관리",
+      "/projects/new": "프로젝트 등록",
       "/notifications": "알림",
     };
     if (titles[currentPath]) return titles[currentPath];
     if (/^\/posts\/[^/]+\/edit$/.test(currentPath)) return "포스트 수정";
     if (/^\/posts\/[^/]+$/.test(currentPath)) return "포스트 보기";
-    if (/^\/careers\/.+/.test(currentPath)) return "경력";
-    if (/^\/projects\/.+/.test(currentPath)) return "프로젝트";
+    if (/^\/careers\/.+/.test(currentPath)) return "경력 관리";
+    if (/^\/projects\/.+/.test(currentPath)) return "프로젝트 관리";
     return "JUNGEUI LAB ADMIN";
   };
+
+  // 브라우저 탭 제목: 대시보드는 "정의랩 관리자", 그 외 "페이지명 | 관리자"
+  useEffect(() => {
+    if (currentPath === "/") {
+      document.title = "정의랩 관리자";
+    } else {
+      document.title = `${getPageTitle()} | 관리자`;
+    }
+  }, [currentPath]);
 
   const postsAsSingleLink = isDesktop && sidebarCollapsed;
   const aboutAsSingleLink = isDesktop && sidebarCollapsed;

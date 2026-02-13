@@ -31,7 +31,7 @@
 - [x] **3** AdminLayout: 헤더 오른쪽 유저 메뉴 왼쪽에 종(bell) 아이콘 링크 → `/notifications`
 - [x] **4** getPageTitle: `"/notifications": "알림"` 추가
 - [x] **5** NotificationsPage: `GET /api/dashboard/recent-activity` 연동, 리스트 형태(제목·slug·status·수정일), 클릭 시 `/posts/:id` 이동, 로딩/에러/빈 목록 처리
-- [x] **6** App.jsx: `/notification` → `/notifications` 리다이렉트 라우트 추가
+- [x] **6** App.jsx: `/notifications` 라우트 (NotificationsPage)
 
 ---
 
