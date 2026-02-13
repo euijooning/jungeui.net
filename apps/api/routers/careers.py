@@ -16,20 +16,20 @@ router = APIRouter(tags=["careers"])
 
 
 def _relocate_temp_asset(asset_id: int | None, career_id: int, db, upload_dir: Path) -> None:
-    """temp에 있는 asset 파일을 careers/{career_id}/로 이동하고 assets.file_path 갱신."""
+    """images/careers/temp/ 에 있는 asset을 images/careers/{career_id}/ 로 이동하고 assets.file_path 갱신."""
     if not asset_id:
         return
     row = db.execute(text("SELECT id, file_path FROM assets WHERE id = :id"), {"id": asset_id}).fetchone()
     if not row:
         return
     file_path = (row[1] or "").strip().replace("\\", "/")
-    if not file_path.startswith("careers/temp/"):
+    if not file_path.startswith("images/careers/temp/"):
         return
     src = upload_dir / file_path
     if not src.is_file():
         return
     filename = Path(file_path).name
-    new_rel_path = f"careers/{career_id}/{filename}"
+    new_rel_path = f"images/careers/{career_id}/{filename}"
     dest = upload_dir / new_rel_path
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(src), str(dest))

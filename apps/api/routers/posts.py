@@ -30,7 +30,7 @@ class PostBody(BaseModel):
 
 
 def _relocate_post_temp_asset(asset_id: int | None, post_id: int, db, upload_dir: Path) -> None:
-    """연/월/일/temp에 있는 asset을 연/월/일/{post_id}로 이동하고 assets.file_path 갱신."""
+    """images/posts/.../temp/ 에 있는 asset을 .../post_id/ 로 이동하고 assets.file_path 갱신."""
     if not asset_id:
         return
     row = db.execute(text("SELECT id, file_path FROM assets WHERE id = :id"), {"id": asset_id}).fetchone()
@@ -47,6 +47,23 @@ def _relocate_post_temp_asset(asset_id: int | None, post_id: int, db, upload_dir
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(src), str(dest))
     db.execute(text("UPDATE assets SET file_path = :path WHERE id = :id"), {"path": new_rel_path, "id": asset_id})
+
+
+def _relocate_post_content_temp_assets(post_id: int, content_html: str | None, db, upload_dir: Path) -> None:
+    """본문 content_html에 URL로 참조된 images/posts/.../temp/ asset들을 post_id 폴더로 이동."""
+    if not content_html:
+        return
+    content_norm = content_html.replace("\\", "/")
+    rows = db.execute(
+        text("SELECT id, file_path FROM assets WHERE file_path LIKE :pat AND file_path LIKE :temp"),
+        {"pat": "images/posts/%", "temp": "%/temp/%"},
+    ).fetchall()
+    for row in rows:
+        aid, fp = row[0], (row[1] or "").strip().replace("\\", "/")
+        url_rel = f"/static/uploads/{fp}"
+        # 본문에 상대 URL 또는 절대 URL(호스트 포함)로 들어있을 수 있음
+        if url_rel in content_norm or fp in content_norm:
+            _relocate_post_temp_asset(aid, post_id, db, upload_dir)
 
 
 def _slug_exists(db, slug: str, exclude_id: int | None = None) -> bool:
@@ -312,6 +329,7 @@ def create_post(body: PostBody, db=Depends(get_db)):
         for aid in body.attachment_asset_ids or []:
             if aid:
                 _relocate_post_temp_asset(aid, new_id, db, upload_dir)
+        _relocate_post_content_temp_assets(new_id, body.content_html, db, upload_dir)
         # 본문 내 이미지 URL도 temp → 게시물ID로 갱신
         db.execute(
             text("UPDATE posts SET content_html = REPLACE(content_html, '/temp/', :pid_slash), content_json = REPLACE(COALESCE(content_json, ''), '/temp/', :pid_slash) WHERE id = :id"),
@@ -371,6 +389,7 @@ def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
     for aid in body.attachment_asset_ids or []:
         if aid:
             _relocate_post_temp_asset(aid, post_id, db, upload_dir)
+    _relocate_post_content_temp_assets(post_id, body.content_html, db, upload_dir)
     # 본문 내 이미지 URL도 temp → 게시물ID로 갱신
     db.execute(
         text("UPDATE posts SET content_html = REPLACE(content_html, '/temp/', :pid_slash), content_json = REPLACE(COALESCE(content_json, ''), '/temp/', :pid_slash) WHERE id = :id"),

@@ -69,16 +69,18 @@ async def upload_file(
     pid = (post_id or "temp").strip() or "temp"
     name = f"{uuid.uuid4().hex[:12]}.{ext}"
     if folder == "projects":
-        rel_path = f"projects/{pid}/{name}"
+        rel_path = f"images/projects/{pid}/{name}"
     elif folder == "careers":
-        rel_path = f"careers/{pid}/{name}"
+        rel_path = f"images/careers/{pid}/{name}"
     else:
         now = datetime.now()
         year = now.strftime("%Y")
         month = now.strftime("%m")
         day = now.strftime("%d")
-        subdir = "images" if _is_image_ext(ext) else "documents"
-        rel_path = f"{subdir}/{year}/{month}/{day}/{pid}/{name}"
+        if _is_image_ext(ext):
+            rel_path = f"images/posts/{year}/{month}/{day}/{pid}/{name}"
+        else:
+            rel_path = f"documents/{year}/{month}/{day}/{pid}/{name}"
     dest = Path(UPLOAD_DIR) / rel_path
     dest.parent.mkdir(parents=True, exist_ok=True)
 
