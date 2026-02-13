@@ -17,7 +17,9 @@ function formatDate(v) {
   return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('ko-KR', { dateStyle: 'short' });
 }
 
-function statusBadge(status) {
+function statusBadge(status, published_at) {
+  const isScheduled = status === 'PUBLISHED' && published_at && new Date(published_at) > new Date();
+  if (isScheduled) return <span className="px-2 py-1 text-xs font-medium rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">공개예정</span>;
   if (status === 'PUBLISHED') return <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300">공개</span>;
   if (status === 'UNLISTED') return <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">일부공개</span>;
   if (status === 'PRIVATE') return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200">비공개</span>;
@@ -275,7 +277,7 @@ export default function PostList() {
                             </button>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{row.category?.name ?? row.category_name ?? '-'}</td>
-                          <td className="px-4 py-3 text-sm">{statusBadge(row.status)}</td>
+                          <td className="px-4 py-3 text-sm">{statusBadge(row.status, row.published_at)}</td>
                           <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{formatDate(row.created_at)}</td>
                           <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{formatDate(row.published_at)}</td>
                           <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{row.view_count ?? 0}</td>
