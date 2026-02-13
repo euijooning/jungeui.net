@@ -1,6 +1,7 @@
 """게시글 API."""
 import logging
 import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -85,6 +86,27 @@ def _unique_slug(db, base: str, exclude_id: int | None = None) -> str:
     while _slug_exists(db, f"{slug}-{n}", exclude_id):
         n += 1
     return f"{slug}-{n}"
+
+
+def _parse_published_at(s: str | None) -> datetime | None:
+    """Parse published_at string to datetime (naive UTC for comparison)."""
+    if not s or not str(s).strip():
+        return None
+    s = str(s).strip()
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        if dt.tzinfo:
+            dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+        return dt
+    except (ValueError, TypeError):
+        return None
+
+
+def _published_at_in_past(parsed: datetime | None) -> bool:
+    if not parsed:
+        return False
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    return parsed < now
 
 
 @router.get("")
@@ -295,6 +317,13 @@ def create_post(body: PostBody, db=Depends(get_db)):
     """글 생성."""
     slug = _unique_slug(db, (body.slug or "").strip() or "untitled")
     published = body.published_at if body.published_at else None
+    if published:
+        parsed = _parse_published_at(published)
+        if parsed and _published_at_in_past(parsed):
+            raise HTTPException(
+                status_code=400,
+                detail="발행일은 현재 시각 이전으로 설정할 수 없습니다.",
+            )
     db.execute(
         text("""
             INSERT INTO posts (title, slug, status, published_at, category_id, thumbnail_asset_id, content_html, content_json)
@@ -348,11 +377,22 @@ def create_post(body: PostBody, db=Depends(get_db)):
 @router.put("/{post_id}")
 def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
     """글 수정."""
-    cur = db.execute(text("SELECT id FROM posts WHERE id = :id"), {"id": post_id}).fetchone()
+    cur = db.execute(text("SELECT id, published_at FROM posts WHERE id = :id"), {"id": post_id}).fetchone()
     if not cur:
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
+    existing_published_at = cur[1]  # datetime or None from DB
     slug = _unique_slug(db, (body.slug or "").strip() or "untitled", exclude_id=post_id)
     published = body.published_at if body.published_at else None
+    if published:
+        parsed = _parse_published_at(published)
+        if parsed and _published_at_in_past(parsed):
+            existing_str = existing_published_at.isoformat()[:19] if existing_published_at else None
+            body_str = parsed.isoformat()[:19] if parsed else None
+            if body_str != existing_str:
+                raise HTTPException(
+                    status_code=400,
+                    detail="발행일은 현재 시각 이전으로 설정할 수 없습니다.",
+                )
     db.execute(
         text("""
             UPDATE posts SET title = :title, slug = :slug, status = :status, published_at = :published_at,

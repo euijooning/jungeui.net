@@ -275,7 +275,7 @@ export default function PostList() {
                           <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{formatDate(row.published_at)}</td>
                           <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{row.view_count ?? 0}</td>
                           <td className="px-4 py-3 text-sm text-right space-x-2">
-                            <button type="button" onClick={() => navigate(`/posts/${row.id}`)} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300">보기</button>
+                            <button type="button" onClick={() => navigate(`/posts/${row.id}`)} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">보기</button>
                             <button type="button" onClick={() => navigate(`/posts/${row.id}/edit`)} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300">수정</button>
                             <button type="button" onClick={() => handleDelete(row.id, row.title)} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300">삭제</button>
                           </td>
