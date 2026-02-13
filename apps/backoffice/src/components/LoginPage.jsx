@@ -23,6 +23,13 @@ const LoginPage = () => {
     } catch (_) {}
   }, []);
 
+  useEffect(() => {
+    document.title = '관리자 로그인 | 정의랩';
+    return () => {
+      document.title = '정의랩 관리자';
+    };
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     login({ username: email, password, rememberMe }, '/').catch(() => {
