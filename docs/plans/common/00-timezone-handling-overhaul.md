@@ -6,6 +6,8 @@
 - **Posts**: `datetime.now(timezone.utc)` (Aware UTC) 사용. Auth와 방식 불일치.
 - **Frontend (PostEditor)**: 즉시공개는 UTC+Z로 보내고, 예약공개는 `replace('T', ' ')` 로 로컬 포맷(Naive)을 섞어 보냄. 포맷 이원화.
 - **Backend (posts.py)**: "Z가 있으면 파싱하고 없으면..." 하면서 분기 처리하다 로직이 복잡해짐.
+- **DB 조회**: `published_at`은 UTC로 저장되는데 "이미 공개된 글" 필터에 `NOW()`(서버 로컬) 사용 → UTC vs 로컬 불일치로 예약공개 글이 클라이언트에 노출됨.
+- **DB 쓰기**: INSERT 시 `created_at`/`updated_at`을 DB DEFAULT CURRENT_TIMESTAMP에 맡기면 서버 타임존(KST)이 들어갈 수 있음. 응답 시 `created_at`/`updated_at`은 `isoformat()` 만 해서 Z 없이 내려가 프론트 해석이 불명확함.
 
 ## 수정 원칙
 
@@ -57,10 +59,30 @@ UTC 생성 방식 최신화 (Deprecation 해결).
 - **수정**: `toLocalISOString(utcStr)` 헬퍼 추가. UTC 문자열을 `new Date(utcStr)` 로 파싱한 뒤 `getTimezoneOffset() * 60000` 보정으로 로컬 시각의 `YYYY-MM-DDTHH:mm` 생성. loadPost에서 `pubAt = d.published_at ? toLocalISOString(d.published_at) : ''` 로 사용.
 - **결과**: 수정 화면 진입 시 예약 발행일이 사용자 로컬 시각으로 올바르게 표시됨.
 
+## 수정 5 – Backend (posts.py) 조회 시 UTC 기준 비교
+
+DB 저장값(UTC) vs NOW()(로컬) 불일치로 예약공개 글이 클라이언트에 노출되던 문제.
+
+- **수정**: "이미 공개된 글" 판단 시 `NOW()` 대신 `UTC_TIMESTAMP()` 사용. 수정 위치 5곳.
+  - **list_posts** (149행): `p.published_at <= UTC_TIMESTAMP()`
+  - **get_post_neighbors** (cur 206행, prev 217행, next 229행): `published_at <= UTC_TIMESTAMP()`
+  - **get_post** (265행): 단건 공개 여부 확인 쿼리 `published_at <= UTC_TIMESTAMP()`
+- **검증**: 예약 "한국 15:00" → DB `06:00:00` (UTC). 한국 14:00(UTC 05:00) 시점: 기존 NOW() → 06:00 <= 14:00(로컬) True(버그). 수정 후 UTC_TIMESTAMP() → 06:00 <= 05:00 False(숨김). 15:01(UTC 06:01) → 06:00 <= 06:01 True(공개).
+
+## 수정 6 – Backend (posts.py) created_at / updated_at UTC 통일
+
+시스템 모든 시간을 UTC 하나로 통일.
+
+- **쓰기 (INSERT)**: create_post에서 `created_at`, `updated_at` 컬럼을 명시하고 값으로 `UTC_TIMESTAMP()` 지정. DB DEFAULT에 의존하지 않음.
+- **쓰기 (UPDATE)**: update_post에서 `updated_at = NOW()` → `updated_at = UTC_TIMESTAMP()`.
+- **읽기 (응답)**: list_posts, get_post에서 `created_at`, `updated_at`도 `_isoformat_utc()` 로 내보내 Z 붙임. 프론트는 published_at과 동일하게 로컬 변환 가능.
+- **(참고) 기존 데이터**: 이미 KST로 저장된 레코드는 UTC로 보면 9시간 어긋날 수 있음. 운영 DB는 `UPDATE posts SET created_at = DATE_SUB(created_at, INTERVAL 9 HOUR), updated_at = ...` 등 마이그레이션 검토. 코드 수정만으로는 기존 값 변경 없음.
+
 ## 흐름 요약
 
 1. **Frontend 저장**: 예약/즉시 모두 `toISOString()` → UTC ISO 문자열 (`...Z`) 전송.
 2. **Backend 수신**: `_parse_published_at`으로 파싱 → naive UTC datetime.
-3. **DB 저장**: 해당 datetime 그대로 저장 (UTC 숫자).
-4. **API 응답**: `_isoformat_utc`로 Z 붙여 반환.
-5. **Frontend 표시**: 목록/상세는 `new Date(published_at)` 후 로컬 변환. **에디터 로드** 시에는 `toLocalISOString(published_at)` 으로 datetime-local 입력값을 로컬 시각 문자열로 채움.
+3. **DB 저장**: published_at·created_at·updated_at 모두 UTC (INSERT 시 `UTC_TIMESTAMP()`, UPDATE 시 `updated_at = UTC_TIMESTAMP()`).
+4. **DB 조회**: "이미 공개" 조건은 `published_at <= UTC_TIMESTAMP()` 로 UTC 기준 비교.
+5. **API 응답**: published_at·created_at·updated_at 모두 `_isoformat_utc`로 Z 붙여 반환.
+6. **Frontend 표시**: 목록/상세는 `new Date(...)` 후 로컬 변환. 에디터 로드 시 `toLocalISOString(published_at)` 으로 datetime-local 값을 로컬 시각 문자열로 채움.
