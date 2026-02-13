@@ -198,7 +198,7 @@ export default function PostDetail() {
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">작성일</label>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">등록일</label>
                 <div className="text-sm text-gray-900 dark:text-gray-100 font-medium">{formatDate(post.created_at)}</div>
               </div>
               <div>
