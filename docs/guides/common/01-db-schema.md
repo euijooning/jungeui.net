@@ -23,6 +23,11 @@ MySQL 8.0 / MariaDB 기준. utf8mb4 사용.
 | project_tags | 프로젝트-태그 N:M |
 | daily_stats | 일별 방문 통계 |
 
+## posts 날짜 필드 (용어)
+
+- **등록일**: `created_at` — 글 레코드가 최초 생성된 시각. 백오피스 목록·상세 모두 "등록일"로 표기.
+- **발행일**: `published_at` — 공개(또는 예약 발행) 시점. NULL이면 미발행.
+
 ## 실행 SQL
 
 `scripts/db_reset.py`에서 사용하거나, 아래 SQL을 DB 도구에 붙여넣어 실행.
@@ -76,7 +81,7 @@ CREATE TABLE posts (
   content_json LONGTEXT NULL COMMENT '에디터용 JSON',
   status ENUM('DRAFT', 'PUBLISHED', 'PRIVATE', 'UNLISTED') DEFAULT 'DRAFT' COMMENT '상태 (일부공개=UNLISTED)',
   published_at DATETIME NULL COMMENT '발행일',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '등록일',
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
   FOREIGN KEY (thumbnail_asset_id) REFERENCES assets(id) ON DELETE SET NULL
