@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useLogout } from "react-admin";
-import apiClient from "../lib/apiClient";
+import apiClient, { resetSessionExpiredFlag } from "../lib/apiClient";
+import { STORAGE_TOKEN, STORAGE_USER } from "../authProvider";
 
 const STORAGE_KEY_SIDEBAR = "sidebarCollapsed";
 const STORAGE_KEY_THEME = "backoffice-theme";
@@ -55,6 +56,7 @@ const AdminLayout = ({ children }) => {
       return false;
     }
   });
+  const [sessionExpiredOpen, setSessionExpiredOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const logout = useLogout();
@@ -95,6 +97,28 @@ const AdminLayout = ({ children }) => {
 
   const closeOverlay = () => setMobileOverlayOpen(false);
 
+  // apiClient 401/403 시 'session-expired' 이벤트 → 모달 표시, 확인 시 로그인 페이지로
+  useEffect(() => {
+    const onSessionExpired = () => setSessionExpiredOpen(true);
+    window.addEventListener("session-expired", onSessionExpired);
+    return () => window.removeEventListener("session-expired", onSessionExpired);
+  }, []);
+  const handleSessionExpiredConfirm = () => {
+    setSessionExpiredOpen(false);
+    resetSessionExpiredFlag();
+    navigate("/login");
+  };
+
+  // 로그인 만료 모달 열릴 때 배경 스크롤 잠금
+  useEffect(() => {
+    if (!sessionExpiredOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [sessionExpiredOpen]);
+
   // 글(목록/상세/수정/카테고리) 경로일 때 아코디언 열기
   useEffect(() => {
     if (currentPath === "/posts" || currentPath === "/posts/new" || currentPath === "/posts/categories" || /^\/posts\/[^/]+(\/edit)?$/.test(currentPath)) {
@@ -111,7 +135,7 @@ const AdminLayout = ({ children }) => {
 
   useEffect(() => {
     const loadUserInfo = async () => {
-      const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+      const storedUser = localStorage.getItem(STORAGE_USER) || sessionStorage.getItem(STORAGE_USER);
       if (storedUser) {
         try {
           const userData = JSON.parse(storedUser);
@@ -126,15 +150,15 @@ const AdminLayout = ({ children }) => {
         if (displayName) {
           setUserName(displayName);
           const payload = JSON.stringify({ ...data, name: displayName });
-          if (sessionStorage.getItem("access_token")) {
-            sessionStorage.setItem("user", payload);
+          if (sessionStorage.getItem(STORAGE_TOKEN)) {
+            sessionStorage.setItem(STORAGE_USER, payload);
           } else {
-            localStorage.setItem("user", payload);
+            localStorage.setItem(STORAGE_USER, payload);
           }
         }
       } catch (error) {
-        localStorage.removeItem("user");
-        sessionStorage.removeItem("user");
+        localStorage.removeItem(STORAGE_USER);
+        sessionStorage.removeItem(STORAGE_USER);
       }
     };
     loadUserInfo();
@@ -446,6 +470,35 @@ const AdminLayout = ({ children }) => {
           className="fixed inset-0 z-40"
           onClick={() => setUserDropdownOpen(false)}
         ></div>
+      )}
+
+      {/* 로그인 만료 모달: 확인 누르면 로그인 페이지로 */}
+      {sessionExpiredOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50">
+          <div
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 max-w-sm w-full"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="session-expired-title"
+          >
+            <h2 id="session-expired-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              로그인 만료
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              로그인이 만료되었습니다. 다시 로그인해 주세요.
+            </p>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleSessionExpiredConfirm}
+                autoFocus
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 rounded-lg transition-colors"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

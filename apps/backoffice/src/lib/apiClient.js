@@ -4,7 +4,10 @@
  * - 개발: 상대 경로(/api/...) 사용 → Vite proxy가 VITE_API_URL로 전달 (same-origin, CORS 없음)
  * - 프로덕션: VITE_API_URL 기준 절대 URL 사용
  * - 네트워크 실패 시 status=0, isNetworkError=true 인 Error throw (호출부에서 구분 가능)
+ * - 401/403 시: 저장소 정리 후 'session-expired' 이벤트 → 모달 표시, 확인 시 로그인 페이지로
  */
+import { STORAGE_TOKEN, STORAGE_USER } from '../authProvider';
+
 const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 const isDev = import.meta.env.DEV;
 
@@ -13,7 +16,7 @@ if (isDev && !import.meta.env.VITE_API_URL) {
 }
 
 function getAccessToken() {
-  return localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+  return localStorage.getItem(STORAGE_TOKEN) || sessionStorage.getItem(STORAGE_TOKEN);
 }
 
 function getAuthHeaders() {
@@ -21,6 +24,26 @@ function getAuthHeaders() {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   return headers;
+}
+
+let sessionExpiredDispatched = false;
+
+/** 401/403 시 저장소 정리 후 'session-expired' 이벤트 1회만 발생 → 레이아웃에서 모달 표시, 확인 시 로그인 페이지로 */
+function handleUnauthorized() {
+  try {
+    localStorage.removeItem(STORAGE_TOKEN);
+    localStorage.removeItem(STORAGE_USER);
+    sessionStorage.removeItem(STORAGE_TOKEN);
+    sessionStorage.removeItem(STORAGE_USER);
+  } catch (_) {}
+  if (sessionExpiredDispatched) return;
+  sessionExpiredDispatched = true;
+  window.dispatchEvent(new CustomEvent('session-expired'));
+}
+
+/** 로그인 만료 모달 확인 후 로그인 페이지로 갈 때 플래그 리셋 (다음 401 시 이벤트 재발생용) */
+export function resetSessionExpiredFlag() {
+  sessionExpiredDispatched = false;
 }
 
 function resolveUrl(path) {
@@ -51,10 +74,14 @@ const apiClient = {
     }
 
     if (!response.ok) {
-      const error = new Error(`HTTP ${response.status}`);
-      error.status = response.status;
+      const status = response.status;
+      if (status === 401 || status === 403) {
+        handleUnauthorized();
+      }
+      const error = new Error(`HTTP ${status}`);
+      error.status = status;
       error.response = {
-        status: response.status,
+        status,
         data: await response.json().catch(() => ({})),
       };
       throw error;
@@ -89,10 +116,14 @@ const apiClient = {
       body: formData,
     });
     if (!response.ok) {
-      const error = new Error(`HTTP ${response.status}`);
-      error.status = response.status;
+      const status = response.status;
+      if (status === 401 || status === 403) {
+        handleUnauthorized();
+      }
+      const error = new Error(`HTTP ${status}`);
+      error.status = status;
       error.response = {
-        status: response.status,
+        status,
         data: await response.json().catch(() => ({})),
       };
       throw error;

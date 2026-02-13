@@ -2,8 +2,8 @@
 // 빈 값이면 same-origin 상대 경로 사용 (/api/...)
 const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
-const STORAGE_USER = 'user';
-const STORAGE_TOKEN = 'access_token';
+export const STORAGE_USER = 'user';
+export const STORAGE_TOKEN = 'access_token';
 
 function getStorage() {
   return localStorage;
@@ -70,6 +70,9 @@ export const authProvider = {
   checkError: (error) => {
     const status = error?.status || error?.response?.status;
     if (status === 401 || status === 403) {
+      try {
+        sessionStorage.setItem('login_expired_reason', 'session_expired');
+      } catch (_) {}
       clearAuth();
       return Promise.reject();
     }

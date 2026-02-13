@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS posts (
   published_at DATETIME NULL COMMENT '발행일',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  view_count INT DEFAULT 0 COMMENT '조회수',
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
   FOREIGN KEY (thumbnail_asset_id) REFERENCES assets(id) ON DELETE SET NULL
 ) COMMENT='블로그 게시글';
@@ -194,6 +195,26 @@ def _ensure_tables():
         conn.close()
 
 
+def _ensure_posts_view_count():
+    """기존 DB에 posts.view_count 컬럼이 없으면 추가."""
+    conn = _get_conn(use_db=True)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT 1 FROM information_schema.COLUMNS "
+                "WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'posts' AND COLUMN_NAME = 'view_count'",
+                (MYSQL_DATABASE,),
+            )
+            if cur.fetchone() is None:
+                cur.execute(
+                    "ALTER TABLE posts ADD COLUMN view_count INT DEFAULT 0 COMMENT '조회수'"
+                )
+                conn.commit()
+                logger.info("posts.view_count 컬럼 추가됨")
+    finally:
+        conn.close()
+
+
 def _ensure_admin():
     """env 관리자 계정이 없을 때만 생성. 있으면 아무것도 하지 않음."""
     conn = _get_conn(use_db=True)
@@ -219,6 +240,7 @@ def init_on_startup():
     try:
         _ensure_database()
         _ensure_tables()
+        _ensure_posts_view_count()
         _ensure_admin()
     except Exception as e:
         logger.exception("DB 초기화 실패: %s", e)

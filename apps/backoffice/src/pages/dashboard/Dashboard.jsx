@@ -44,6 +44,7 @@ export default function Dashboard() {
   const totalViews = stats?.total_views ?? stats?.totalViews;
   const publishedPosts = stats?.published_posts ?? stats?.publishedPosts;
   const display = (v) => (statsError || stats === null ? '-' : (v ?? '-'));
+  const statusLabel = { PUBLISHED: '발행됨', UNLISTED: '일부공개', DRAFT: '임시저장', PRIVATE: '비공개' };
 
   return (
     <div className="w-full">
@@ -85,7 +86,7 @@ export default function Dashboard() {
             <div className="ml-4 flex-1">
               <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">발행 포스트</h3>
               <p className="text-3xl font-bold text-green-600 dark:text-green-400 mb-1">{display(publishedPosts)}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">PUBLISHED + UNLISTED</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">공개 + 일부공개</p>
             </div>
           </div>
         </div>
@@ -167,7 +168,16 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">최근 활동</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">최근 활동</h3>
+            <button
+              type="button"
+              onClick={() => navigate('/notifications')}
+              className="text-sm font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300"
+            >
+              전체보기
+            </button>
+          </div>
           {recentActivityLoading ? (
             <div className="text-center py-6 text-gray-500 dark:text-gray-400 text-sm">로딩 중...</div>
           ) : recentActivityError ? (
@@ -190,7 +200,7 @@ export default function Dashboard() {
                   </button>
                   <div className="flex items-center gap-2 px-3 pb-2">
                     <span className="text-xs text-gray-400 dark:text-gray-500">{post.slug}</span>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300">{post.status}</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300">{statusLabel[post.status] ?? post.status}</span>
                   </div>
                 </li>
               ))}
