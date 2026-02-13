@@ -89,7 +89,8 @@ def _unique_slug(db, base: str, exclude_id: int | None = None) -> str:
 
 
 def _parse_published_at(s: str | None) -> datetime | None:
-    """Parse published_at string to datetime (naive UTC for comparison)."""
+    """Parse published_at string to datetime (naive UTC for comparison).
+    Naive input is treated as server local time and converted to UTC."""
     if not s or not str(s).strip():
         return None
     s = str(s).strip()
@@ -97,6 +98,9 @@ def _parse_published_at(s: str | None) -> datetime | None:
         dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
         if dt.tzinfo:
             dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+        else:
+            local_tz = datetime.now().astimezone().tzinfo
+            dt = dt.replace(tzinfo=local_tz).astimezone(timezone.utc).replace(tzinfo=None)
         return dt
     except (ValueError, TypeError):
         return None
@@ -386,7 +390,15 @@ def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
     if published:
         parsed = _parse_published_at(published)
         if parsed and _published_at_in_past(parsed):
-            existing_str = existing_published_at.isoformat()[:19] if existing_published_at else None
+            if existing_published_at:
+                if existing_published_at.tzinfo:
+                    existing_utc = existing_published_at.astimezone(timezone.utc).replace(tzinfo=None)
+                else:
+                    local_tz = datetime.now().astimezone().tzinfo
+                    existing_utc = existing_published_at.replace(tzinfo=local_tz).astimezone(timezone.utc).replace(tzinfo=None)
+                existing_str = existing_utc.isoformat()[:19]
+            else:
+                existing_str = None
             body_str = parsed.isoformat()[:19] if parsed else None
             if body_str != existing_str:
                 raise HTTPException(
