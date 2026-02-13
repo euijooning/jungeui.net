@@ -38,6 +38,11 @@ function slugFromTitle(title) {
     .toLowerCase() || 'untitled';
 }
 
+function getLocalISOMin() {
+  const n = new Date();
+  return new Date(n.getTime() - n.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[src="${src}"]`)) {
@@ -532,8 +537,8 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       if (isScheduled && form.published_at) {
         published_at = form.published_at.includes('T') ? form.published_at.replace('T', ' ').slice(0, 19) : form.published_at;
       } else if (!isScheduled) {
-        // 즉시공개: 항상 현 시점으로 발행 (예약이 지난 뒤 즉시공개로 바꿀 때도 현재 시각 사용)
-        published_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        // 즉시공개: UTC+Z로 보내서 백엔드가 과거로 잘못 판단하지 않도록 함
+        published_at = new Date().toISOString().slice(0, 19).replace('T', ' ') + 'Z';
       }
     }
     const postTagsRaw = (form.post_tags || []).filter((x) => typeof x === 'number' || (typeof x === 'string' && /^\d+$/.test(x)));
@@ -724,7 +729,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
                     onChange={(e) => setForm((f) => ({ ...f, published_at: e.target.value }))}
                     size="small"
                     InputLabelProps={{ shrink: true }}
-                    inputProps={{ min: new Date().toISOString().slice(0, 16) }}
+                    inputProps={{ min: getLocalISOMin() }}
                   />
                 )}
               </div>

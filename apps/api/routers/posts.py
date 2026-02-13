@@ -113,6 +113,15 @@ def _published_at_in_past(parsed: datetime | None) -> bool:
     return parsed < now
 
 
+def _isoformat_utc(dt: datetime | None) -> str | None:
+    """Naive datetime은 UTC로 간주하고, ISO 8601 문자열로 반환 (끝에 Z)."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
 @router.get("")
 def list_posts(
     page: int = 1,
@@ -177,7 +186,7 @@ def list_posts(
             "title": r[1],
             "slug": r[2],
             "status": r[3],
-            "published_at": r[4].isoformat() if r[4] else None,
+            "published_at": _isoformat_utc(r[4]),
             "created_at": r[5].isoformat() if r[5] else None,
             "updated_at": r[6].isoformat() if r[6] else None,
             "category_id": r[7],
@@ -314,7 +323,7 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
         "title": title,
         "slug": slug,
         "status": status,
-        "published_at": published_at.isoformat() if published_at else None,
+        "published_at": _isoformat_utc(published_at),
         "category_id": category_id,
         "thumbnail_asset_id": thumbnail_asset_id,
         "content_html": content_html,
@@ -334,13 +343,13 @@ def create_post(body: PostBody, db=Depends(get_db)):
     """글 생성."""
     slug = _unique_slug(db, (body.slug or "").strip() or "untitled")
     published = body.published_at if body.published_at else None
-    if published:
-        parsed = _parse_published_at(published)
-        if parsed and _published_at_in_past(parsed):
-            raise HTTPException(
-                status_code=400,
-                detail="발행일은 현재 시각 이전으로 설정할 수 없습니다.",
-            )
+    parsed = _parse_published_at(published) if published else None
+    if published and parsed and _published_at_in_past(parsed):
+        raise HTTPException(
+            status_code=400,
+            detail="발행일은 현재 시각 이전으로 설정할 수 없습니다.",
+        )
+    store_published = parsed.strftime("%Y-%m-%d %H:%M:%S") if parsed and published and "Z" in str(published).upper() else published
     db.execute(
         text("""
             INSERT INTO posts (title, slug, status, published_at, category_id, thumbnail_asset_id, content_html, content_json)
@@ -350,7 +359,7 @@ def create_post(body: PostBody, db=Depends(get_db)):
             "title": (body.title or "제목 없음").strip(),
             "slug": slug,
             "status": body.status or "DRAFT",
-            "published_at": published,
+            "published_at": store_published,
             "category_id": body.category_id,
             "thumbnail_asset_id": body.thumbnail_asset_id,
             "content_html": body.content_html,
@@ -400,24 +409,24 @@ def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
     existing_published_at = cur[1]  # datetime or None from DB
     slug = _unique_slug(db, (body.slug or "").strip() or "untitled", exclude_id=post_id)
     published = body.published_at if body.published_at else None
-    if published:
-        parsed = _parse_published_at(published)
-        if parsed and _published_at_in_past(parsed):
-            if existing_published_at:
-                if existing_published_at.tzinfo:
-                    existing_utc = existing_published_at.astimezone(timezone.utc).replace(tzinfo=None)
-                else:
-                    local_tz = datetime.now().astimezone().tzinfo
-                    existing_utc = existing_published_at.replace(tzinfo=local_tz).astimezone(timezone.utc).replace(tzinfo=None)
-                existing_str = existing_utc.isoformat()[:19]
+    parsed = _parse_published_at(published) if published else None
+    if published and parsed and _published_at_in_past(parsed):
+        if existing_published_at:
+            if existing_published_at.tzinfo:
+                existing_utc = existing_published_at.astimezone(timezone.utc).replace(tzinfo=None)
             else:
-                existing_str = None
-            body_str = parsed.isoformat()[:19] if parsed else None
-            if body_str != existing_str:
-                raise HTTPException(
-                    status_code=400,
-                    detail="발행일은 현재 시각 이전으로 설정할 수 없습니다.",
-                )
+                local_tz = datetime.now().astimezone().tzinfo
+                existing_utc = existing_published_at.replace(tzinfo=local_tz).astimezone(timezone.utc).replace(tzinfo=None)
+            existing_str = existing_utc.isoformat()[:19]
+        else:
+            existing_str = None
+        body_str = parsed.isoformat()[:19] if parsed else None
+        if body_str != existing_str:
+            raise HTTPException(
+                status_code=400,
+                detail="발행일은 현재 시각 이전으로 설정할 수 없습니다.",
+            )
+    store_published = parsed.strftime("%Y-%m-%d %H:%M:%S") if parsed and published and "Z" in str(published).upper() else published
     db.execute(
         text("""
             UPDATE posts SET title = :title, slug = :slug, status = :status, published_at = :published_at,
@@ -430,7 +439,7 @@ def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
             "title": (body.title or "제목 없음").strip(),
             "slug": slug,
             "status": body.status or "DRAFT",
-            "published_at": published,
+            "published_at": store_published,
             "category_id": body.category_id,
             "thumbnail_asset_id": body.thumbnail_asset_id,
             "content_html": body.content_html,
