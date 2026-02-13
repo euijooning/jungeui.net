@@ -43,6 +43,16 @@ function getLocalISOMin() {
   return new Date(n.getTime() - n.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 
+// UTC 문자열(..Z)을 받아서 로컬 datetime-local 포맷(YYYY-MM-DDTHH:mm)으로 변환
+function toLocalISOString(utcStr) {
+  if (!utcStr) return '';
+  const date = new Date(utcStr);
+  if (isNaN(date.getTime())) return '';
+  const offset = date.getTimezoneOffset() * 60000;
+  const localDate = new Date(date.getTime() - offset);
+  return localDate.toISOString().slice(0, 16);
+}
+
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[src="${src}"]`)) {
@@ -159,7 +169,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       const res = await apiClient.get(`/api/posts/${postId}`);
       const d = res.data;
       const status = d.status ?? 'DRAFT';
-      const pubAt = d.published_at ? d.published_at.slice(0, 16) : '';
+      const pubAt = d.published_at ? toLocalISOString(d.published_at) : '';
       const isScheduled = status === 'PUBLISHED' && pubAt && new Date(pubAt) > new Date();
       const visibility = status === 'DRAFT' ? 'PUBLISHED' : status;
       setForm({
@@ -535,10 +545,10 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     let published_at = null;
     if (visibility === 'PUBLISHED') {
       if (isScheduled && form.published_at) {
-        published_at = form.published_at.includes('T') ? form.published_at.replace('T', ' ').slice(0, 19) : form.published_at;
+        // datetime-local 값("2025-02-14T15:00") → Date(로컬 해석) → toISOString() → UTC
+        published_at = new Date(form.published_at).toISOString();
       } else if (!isScheduled) {
-        // 즉시공개: UTC+Z로 보내서 백엔드가 과거로 잘못 판단하지 않도록 함
-        published_at = new Date().toISOString().slice(0, 19).replace('T', ' ') + 'Z';
+        published_at = new Date().toISOString();
       }
     }
     const postTagsRaw = (form.post_tags || []).filter((x) => typeof x === 'number' || (typeof x === 'string' && /^\d+$/.test(x)));

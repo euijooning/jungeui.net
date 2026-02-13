@@ -5,7 +5,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from sqlalchemy import text
 from jose import jwt, JWTError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from apps.api.core import SECRET_KEY, get_db
 from apps.api.core.config import (
@@ -32,10 +32,11 @@ class LoginResponse(BaseModel):
 
 def create_access_token(data: dict, remember_me: bool = False) -> str:
     to_encode = data.copy()
+    now_utc = datetime.now(timezone.utc)
     if remember_me:
-        expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS_REMEMBER)
+        expire = now_utc + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS_REMEMBER)
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = now_utc + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 

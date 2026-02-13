@@ -89,8 +89,8 @@ def _unique_slug(db, base: str, exclude_id: int | None = None) -> str:
 
 
 def _parse_published_at(s: str | None) -> datetime | None:
-    """Parse published_at string to datetime (naive UTC for comparison).
-    Naive input is treated as server local time and converted to UTC."""
+    """Parse published_at string to datetime (naive UTC for DB/comparison).
+    Frontend sends ISO 8601 with Z; legacy naive input is treated as UTC."""
     if not s or not str(s).strip():
         return None
     s = str(s).strip()
@@ -99,8 +99,7 @@ def _parse_published_at(s: str | None) -> datetime | None:
         if dt.tzinfo:
             dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
         else:
-            local_tz = datetime.now().astimezone().tzinfo
-            dt = dt.replace(tzinfo=local_tz).astimezone(timezone.utc).replace(tzinfo=None)
+            dt = dt.replace(tzinfo=timezone.utc).astimezone(timezone.utc).replace(tzinfo=None)
         return dt
     except (ValueError, TypeError):
         return None
@@ -349,7 +348,7 @@ def create_post(body: PostBody, db=Depends(get_db)):
             status_code=400,
             detail="발행일은 현재 시각 이전으로 설정할 수 없습니다.",
         )
-    store_published = parsed.strftime("%Y-%m-%d %H:%M:%S") if parsed and published and "Z" in str(published).upper() else published
+    store_published = parsed if parsed else (published if published else None)
     db.execute(
         text("""
             INSERT INTO posts (title, slug, status, published_at, category_id, thumbnail_asset_id, content_html, content_json)
@@ -411,22 +410,14 @@ def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
     published = body.published_at if body.published_at else None
     parsed = _parse_published_at(published) if published else None
     if published and parsed and _published_at_in_past(parsed):
-        if existing_published_at:
-            if existing_published_at.tzinfo:
-                existing_utc = existing_published_at.astimezone(timezone.utc).replace(tzinfo=None)
-            else:
-                local_tz = datetime.now().astimezone().tzinfo
-                existing_utc = existing_published_at.replace(tzinfo=local_tz).astimezone(timezone.utc).replace(tzinfo=None)
-            existing_str = existing_utc.isoformat()[:19]
-        else:
-            existing_str = None
+        existing_str = existing_published_at.isoformat()[:19] if existing_published_at else None
         body_str = parsed.isoformat()[:19] if parsed else None
         if body_str != existing_str:
             raise HTTPException(
                 status_code=400,
                 detail="발행일은 현재 시각 이전으로 설정할 수 없습니다.",
             )
-    store_published = parsed.strftime("%Y-%m-%d %H:%M:%S") if parsed and published and "Z" in str(published).upper() else published
+    store_published = parsed if parsed else (published if published else None)
     db.execute(
         text("""
             UPDATE posts SET title = :title, slug = :slug, status = :status, published_at = :published_at,
