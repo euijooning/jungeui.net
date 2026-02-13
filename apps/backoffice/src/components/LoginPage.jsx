@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLogin, useNotify } from 'react-admin';
-import { Box, Card, TextField, Button, Checkbox, FormControlLabel, Typography, InputAdornment, IconButton } from '@mui/material';
+import { Box, Card, TextField, Button, Checkbox, FormControlLabel, Typography, InputAdornment, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
+
+const LOGIN_EXPIRED_KEY = 'login_expired_reason';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [expiredModalOpen, setExpiredModalOpen] = useState(false);
   const login = useLogin();
   const notify = useNotify();
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(LOGIN_EXPIRED_KEY) === 'session_expired') {
+        sessionStorage.removeItem(LOGIN_EXPIRED_KEY);
+        setExpiredModalOpen(true);
+      }
+    } catch (_) {}
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -152,6 +164,18 @@ const LoginPage = () => {
           </Button>
         </Box>
       </Card>
+
+      <Dialog open={expiredModalOpen} onClose={() => setExpiredModalOpen(false)} aria-labelledby="login-expired-dialog-title">
+        <DialogTitle id="login-expired-dialog-title">로그인 만료</DialogTitle>
+        <DialogContent>
+          <DialogContentText>로그인이 만료되었습니다. 다시 로그인해 주세요.</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setExpiredModalOpen(false)} color="primary" variant="contained">
+            확인
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

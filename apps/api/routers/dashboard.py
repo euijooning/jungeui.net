@@ -56,7 +56,7 @@ def get_recent_activity(db=Depends(get_db), user=Depends(get_current_user)):
     """
     rows = db.execute(
         text("""
-            SELECT p.id, p.title, p.slug, p.status, p.updated_at, c.name AS category_name
+            SELECT p.id, p.title, p.slug, p.status, p.updated_at, c.name AS category_name, COALESCE(p.view_count, 0) AS view_count
             FROM posts p
             LEFT JOIN categories c ON c.id = p.category_id
             ORDER BY p.updated_at DESC
@@ -71,6 +71,7 @@ def get_recent_activity(db=Depends(get_db), user=Depends(get_current_user)):
             "status": r[3],
             "updated_at": r[4].isoformat() if r[4] else None,
             "category_name": r[5] if len(r) > 5 else None,
+            "view_count": int(r[6]) if len(r) > 6 and r[6] is not None else 0,
         }
         for r in rows
     ]

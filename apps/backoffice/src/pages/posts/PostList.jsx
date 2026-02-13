@@ -240,13 +240,14 @@ export default function PostList() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">상태</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">등록일</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">발행일</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">조회수</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">작업</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
                   {posts.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
+                      <td colSpan={9} className="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
                         글이 없습니다.
                       </td>
                     </tr>
@@ -272,6 +273,7 @@ export default function PostList() {
                           <td className="px-4 py-3 text-sm">{statusBadge(row.status)}</td>
                           <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{formatDate(row.created_at)}</td>
                           <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{formatDate(row.published_at)}</td>
+                          <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{row.view_count ?? 0}</td>
                           <td className="px-4 py-3 text-sm text-right space-x-2">
                             <button type="button" onClick={() => navigate(`/posts/${row.id}`)} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300">보기</button>
                             <button type="button" onClick={() => navigate(`/posts/${row.id}/edit`)} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300">수정</button>

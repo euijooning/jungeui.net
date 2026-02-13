@@ -133,7 +133,7 @@ def list_posts(
     rows = db.execute(
         text(f"""
             SELECT p.id, p.title, p.slug, p.status, p.published_at, p.created_at, p.updated_at,
-                   p.category_id, c.name AS category_name
+                   p.category_id, c.name AS category_name, COALESCE(p.view_count, 0) AS view_count
             FROM posts p
             LEFT JOIN categories c ON c.id = p.category_id
             WHERE {where_sql}
@@ -155,6 +155,7 @@ def list_posts(
             "category_id": r[7],
             "category_name": r[8],
             "category": {"id": r[7], "name": r[8]} if r[7] else None,
+            "view_count": int(r[9]) if r[9] is not None else 0,
         })
     return {"items": items, "total": total}
 
@@ -206,7 +207,7 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
         text("""
             SELECT p.id, p.title, p.slug, p.status, p.published_at, p.category_id, p.thumbnail_asset_id,
                    p.content_html, p.content_json, p.created_at, p.updated_at,
-                   c.name AS category_name
+                   c.name AS category_name, COALESCE(p.view_count, 0) AS view_count
             FROM posts p
             LEFT JOIN categories c ON c.id = p.category_id
             WHERE p.id = :id
@@ -216,11 +217,11 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
     if not row:
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
     (pid, title, slug, status, published_at, category_id, thumbnail_asset_id,
-     content_html, content_json, created_at, updated_at, category_name) = row
+     content_html, content_json, created_at, updated_at, category_name, view_count) = row
     if not current_user and status != "PUBLISHED":
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
 
-    # 퍼블릭 조회 시 daily_stats 집계 (비로그인 + PUBLISHED만). 실패해도 글 조회는 정상 반환.
+    # 퍼블릭 조회 시 daily_stats 집계 및 해당 글 view_count 증가 (비로그인 + PUBLISHED만). 실패해도 글 조회는 정상 반환.
     if current_user is None and status == "PUBLISHED":
         try:
             today = get_today_iso()
@@ -234,9 +235,13 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
                 """),
                 {"dt": today},
             )
+            db.execute(
+                text("UPDATE posts SET view_count = COALESCE(view_count, 0) + 1 WHERE id = :id"),
+                {"id": post_id},
+            )
             db.commit()
         except (OperationalError, ProgrammingError, SQLAlchemyError) as e:
-            logger.warning("daily_stats 갱신 실패: %s", e)
+            logger.warning("daily_stats/view_count 갱신 실패: %s", e)
 
     tag_rows = db.execute(
         text("SELECT t.id, t.name FROM post_tags pt JOIN tags t ON t.id = pt.tag_id WHERE pt.post_id = :id"),
@@ -278,6 +283,7 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
         "created_at": created_at.isoformat() if created_at else None,
         "updated_at": updated_at.isoformat() if updated_at else None,
         "category_name": category_name,
+        "view_count": int(view_count) if view_count is not None else 0,
         "post_tags": [r[0] for r in tag_rows],
         "tags": [{"id": r[0], "name": r[1]} for r in tag_rows],
         "attachments": attachments,

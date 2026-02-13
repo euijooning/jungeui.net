@@ -202,6 +202,10 @@ export default function PostDetail() {
                 </div>
               </div>
               <div>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">조회수</label>
+                <div className="text-sm text-gray-900 dark:text-gray-100 font-medium">{post.view_count ?? 0}</div>
+              </div>
+              <div>
                 <label className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">태그</label>
                 <div className="flex flex-wrap gap-1.5 mt-1">
                   {post.tags?.length > 0 ? (
