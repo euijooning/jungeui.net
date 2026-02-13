@@ -36,7 +36,7 @@
 **파일**: `PostList.jsx`, `PostEditor.jsx`, `PostNew.jsx`, `PostEdit.jsx`, `PostDetail.jsx`
 
 - [x] **14** PostList: GET /api/posts (필터 category, tag, status), 페이지네이션·정렬.
-- [x] **15** PostList: 테이블/카드에 제목, 카테고리, 상태(DRAFT/PUBLISHED/PRIVATE), 발행일, 수정일 표시.
+- [x] **15** PostList: 테이블/카드에 제목, 카테고리, 상태(DRAFT/PUBLISHED/PRIVATE/UNLISTED), 등록일, 발행일 표시.
 - [x] **16** PostList: [새 글 쓰기] → `/posts/new`, 행 클릭 또는 [수정] → `/posts/{postId}/edit`.
 - [x] **17** PostList: DELETE /api/posts/{id} (확인 후).
 - [x] **18** PostEditor: 좌측 에디터 / 우측 설정 패널 레이아웃.

@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -327,11 +328,6 @@ export default function CategoryList() {
             대카테고리·소카테고리 순서 변경 및 추가/수정. 드래그 앤 드롭은 순서 저장 버튼으로 반영할 수 있습니다.
           </p>
         </div>
-        {error && (
-          <div className="rounded bg-red-50 dark:bg-red-900/30 px-3 py-2 text-sm text-red-700 dark:text-red-300" role="alert">
-            {error}
-          </div>
-        )}
         <div className="flex gap-2 items-center">
           <Button variant="contained" startIcon={<Add />} onClick={() => openAdd(null)}>
             대카테고리 추가
@@ -355,6 +351,15 @@ export default function CategoryList() {
         </div>
       )}
 
+      <Dialog open={Boolean(error)} onClose={() => setError(null)} aria-labelledby="categorylist-error-dialog-title">
+        <DialogTitle id="categorylist-error-dialog-title">오류</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{error}</DialogContentText>
+        </DialogContent>
+        <DialogActions className="dark:border-t dark:border-gray-700">
+          <Button onClick={() => setError(null)} color="primary" variant="contained">확인</Button>
+        </DialogActions>
+      </Dialog>
       <Dialog open={dialog.open} onClose={closeDialog} maxWidth="sm" fullWidth>
         <DialogTitle className="dark:text-gray-100">{dialog.mode === 'add' ? (dialog.parentId ? '소카테고리 추가' : '대카테고리 추가') : '카테고리 수정'}</DialogTitle>
         <DialogContent className="flex flex-col gap-4 dark:bg-gray-800" sx={{ overflow: 'visible', pt: 5, pb: 1 }}>

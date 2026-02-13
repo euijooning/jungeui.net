@@ -154,13 +154,15 @@ CREATE TABLE career_tags (
 CREATE TABLE projects (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   thumbnail_asset_id BIGINT NULL COMMENT '대표 이미지 ID',
+  intro_image_asset_id BIGINT NULL COMMENT '소개 이미지 ID (상세 아래 직사각형)',
   title VARCHAR(100) NOT NULL COMMENT '프로젝트명',
   description TEXT NULL COMMENT '상세 내용',
   start_date DATE NULL COMMENT '시작일',
   end_date DATE NULL COMMENT '종료일',
   sort_order INT DEFAULT 0 COMMENT '정렬 순서',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (thumbnail_asset_id) REFERENCES assets(id) ON DELETE SET NULL
+  FOREIGN KEY (thumbnail_asset_id) REFERENCES assets(id) ON DELETE SET NULL,
+  FOREIGN KEY (intro_image_asset_id) REFERENCES assets(id) ON DELETE SET NULL
 ) COMMENT='프로젝트 포트폴리오';
 
 CREATE TABLE project_links (

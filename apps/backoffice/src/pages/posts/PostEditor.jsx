@@ -12,7 +12,11 @@ import {
   Radio,
   RadioGroup,
   CircularProgress,
-  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import apiClient, { getAccessToken } from '../../lib/apiClient';
 
@@ -282,7 +286,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         });
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
-          throw new Error(body?.detail || `HTTP ${res.status}`);
+          throw new Error(body?.detail || '이미지 업로드에 실패했습니다.');
         }
         const data = await res.json();
         const url = data.url ?? data.file_path ?? data.file_url;
@@ -469,11 +473,11 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     try {
       for (const file of files) {
         if (!extOk(file)) {
-          alert(`허용되지 않는 파일 형식입니다: ${file.name}`);
+          setSaveError(`허용되지 않는 파일 형식입니다: ${file.name}`);
           continue;
         }
         if (!sizeOk(file)) {
-          alert(`파일 크기는 10MB 이하여야 합니다: ${file.name}`);
+          setSaveError(`파일 크기는 10MB 이하여야 합니다: ${file.name}`);
           continue;
         }
         const formData = new FormData();
@@ -488,7 +492,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         console.log('[첨부업로드] response.ok=', response.ok, 'status=', response.status);
         if (!response.ok) {
           const errBody = await response.json().catch(() => ({}));
-          throw new Error(errBody.detail || `업로드 실패 (${response.status})`);
+          throw new Error(errBody.detail || '업로드에 실패했습니다.');
         }
         const result = await response.json();
         console.log('[첨부업로드] result=', result);
@@ -507,7 +511,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       }
     } catch (err) {
       console.error('[첨부업로드] error', err);
-      alert(err?.message || '업로드에 실패했습니다.');
+      setSaveError(err?.message || '업로드에 실패했습니다.');
     } finally {
       setAttachmentUploading(false);
     }
@@ -565,7 +569,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         navigate('/posts');
       }
     } catch (e) {
-      setSaveError(e?.message || '저장에 실패했습니다.');
+      setSaveError(e?.response?.data?.detail || e?.message || '저장에 실패했습니다.');
     } finally {
       setSaving(false);
     }
@@ -605,16 +609,27 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         )}
       </div>
 
-      {loadError && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setLoadError(null)}>
-          {loadError}
-        </Alert>
-      )}
-      {saveError && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setSaveError(null)}>
-          {saveError}
-        </Alert>
-      )}
+      <Dialog open={Boolean(loadError)} onClose={() => setLoadError(null)} aria-labelledby="load-error-dialog-title">
+        <DialogTitle id="load-error-dialog-title">오류</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{loadError}</DialogContentText>
+        </DialogContent>
+        <DialogActions className="dark:border-t dark:border-gray-700">
+          <Button onClick={() => setLoadError(null)} color="primary" variant="contained">확인</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={Boolean(saveError)} onClose={() => setSaveError(null)} aria-labelledby="save-error-dialog-title">
+        <DialogTitle id="save-error-dialog-title">저장할 수 없음</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{saveError}</DialogContentText>
+        </DialogContent>
+        <DialogActions className="dark:border-t dark:border-gray-700">
+          <Button onClick={() => setSaveError(null)} color="primary" variant="contained">
+            확인
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* sample처럼 단일 컬럼 - 하단으로 쭉 */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">

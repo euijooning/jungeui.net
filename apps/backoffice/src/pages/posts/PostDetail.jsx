@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import apiClient, { getAccessToken } from '../../lib/apiClient';
 
 function formatDate(iso) {
@@ -19,12 +20,14 @@ function statusBadge(status) {
     PUBLISHED: 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800',
     UNLISTED: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800',
     PRIVATE: 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-500',
+    DRAFT: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
     TEMP: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
   };
   const labels = {
     PUBLISHED: '공개',
     UNLISTED: '일부공개',
     PRIVATE: '비공개',
+    DRAFT: '임시저장',
     TEMP: '임시저장',
   };
   const style = styles[status] || styles.TEMP;
@@ -68,7 +71,7 @@ export default function PostDetail() {
       await apiClient.delete(`/api/posts/${postId}`);
       navigate('/posts');
     } catch (e) {
-      alert(e?.message || '삭제 중 오류가 발생했습니다.');
+      setError(e?.message || '삭제 중 오류가 발생했습니다.');
     }
   };
 
@@ -92,7 +95,7 @@ export default function PostDetail() {
       a.click();
       URL.revokeObjectURL(objectUrl);
     } catch (e) {
-      alert(e?.message || '다운로드에 실패했습니다.');
+      setError(e?.message || '다운로드에 실패했습니다.');
     }
   };
 
@@ -107,30 +110,44 @@ export default function PostDetail() {
     );
   }
 
+  const closeErrorDialog = () => {
+    setError(null);
+    if (!post) navigate('/posts');
+  };
+
   if (error || !post) {
     return (
-      <div className="max-w-2xl mx-auto mt-10">
-        <div className="bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-xl p-8 text-center shadow-sm">
-          <div className="w-12 h-12 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i className="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-xl" />
+      <>
+        <div className="max-w-2xl mx-auto mt-10">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">글을 찾을 수 없습니다</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">{error || '요청하신 글이 존재하지 않거나 삭제되었습니다.'}</p>
+            <Link
+              to="/posts"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 transition-colors"
+            >
+              목록으로 돌아가기
+            </Link>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">글을 찾을 수 없습니다</h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">{error || '요청하신 글이 존재하지 않거나 삭제되었습니다.'}</p>
-          <Link
-            to="/posts"
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 transition-colors"
-          >
-            목록으로 돌아가기
-          </Link>
         </div>
-      </div>
+        <Dialog open={Boolean(error)} onClose={closeErrorDialog} aria-labelledby="postdetail-error-dialog-title">
+          <DialogTitle id="postdetail-error-dialog-title">오류</DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{error}</DialogContentText>
+          </DialogContent>
+          <DialogActions className="dark:border-t dark:border-gray-700">
+            <Button onClick={closeErrorDialog} color="primary" variant="contained">확인</Button>
+          </DialogActions>
+        </Dialog>
+      </>
     );
   }
 
   const categoryName = post.category?.name ?? post.category_name ?? null;
 
   return (
-    <div className="w-full pb-20">
+    <>
+      <div className="w-full pb-20">
       {/* Top Header & Actions */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -374,5 +391,15 @@ export default function PostDetail() {
         .dark .admin-prose a:hover { text-decoration-color: #10b981; background-color: rgba(52, 211, 153, 0.1); }
       `}</style>
     </div>
+    <Dialog open={Boolean(error)} onClose={() => setError(null)} aria-labelledby="postdetail-action-error-dialog-title">
+      <DialogTitle id="postdetail-action-error-dialog-title">오류</DialogTitle>
+      <DialogContent>
+        <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{error}</DialogContentText>
+      </DialogContent>
+      <DialogActions className="dark:border-t dark:border-gray-700">
+        <Button onClick={() => setError(null)} color="primary" variant="contained">확인</Button>
+      </DialogActions>
+    </Dialog>
+  </>
   );
 }

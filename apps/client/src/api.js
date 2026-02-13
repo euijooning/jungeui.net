@@ -5,12 +5,29 @@ const baseUrl = import.meta.env.PROD ? (VITE_API_URL || '') : '';
 
 async function request(path, options = {}) {
   const url = baseUrl ? `${baseUrl}${path}` : path;
-  const res = await fetch(url, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', ...options.headers },
-  });
-  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
-  return res.json();
+  try {
+    const res = await fetch(url, {
+      ...options,
+      headers: { 'Content-Type': 'application/json', ...options.headers },
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      let msg = '요청을 처리할 수 없습니다.';
+      if (typeof data?.detail === 'string') {
+        msg = data.detail;
+      } else if (Array.isArray(data?.detail) && data.detail.length > 0) {
+        const parts = data.detail.map((d) => (typeof d?.msg === 'string' ? d.msg : '')).filter(Boolean);
+        msg = parts.length ? parts.join('\n') : msg;
+      }
+      const err = new Error(msg);
+      err.isApiError = true;
+      throw err;
+    }
+    return res.json();
+  } catch (e) {
+    if (e && e.isApiError) throw e;
+    throw new Error('네트워크 연결을 확인해 주세요.');
+  }
 }
 
 export async function fetchPosts({ page = 1, per_page = 5, category_id, tag_id, q } = {}) {

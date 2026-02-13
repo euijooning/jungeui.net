@@ -137,6 +137,8 @@ def list_posts(
     if status:
         where.append("p.status = :status")
         filter_params["status"] = status
+        if status == "PUBLISHED":
+            where.append("(p.published_at IS NOT NULL AND p.published_at <= NOW())")
     if tag_id is not None:
         where.append("EXISTS (SELECT 1 FROM post_tags pt WHERE pt.post_id = p.id AND pt.tag_id = :tag_id)")
         filter_params["tag_id"] = tag_id
@@ -190,7 +192,11 @@ def list_posts(
 def get_post_neighbors(post_id: int, db=Depends(get_db)):
     """이전/다음 글 (published_at 기준, PUBLISHED만). 목록 순서=newest first."""
     cur = db.execute(
-        text("SELECT id, published_at FROM posts WHERE id = :id AND status = 'PUBLISHED'"),
+        text("""
+            SELECT id, published_at FROM posts
+            WHERE id = :id AND status = 'PUBLISHED'
+            AND published_at IS NOT NULL AND published_at <= NOW()
+        """),
         {"id": post_id},
     ).fetchone()
     if not cur:
@@ -200,7 +206,7 @@ def get_post_neighbors(post_id: int, db=Depends(get_db)):
     prev_row = db.execute(
         text("""
             SELECT p.id, p.title FROM posts p
-            WHERE p.status = 'PUBLISHED' AND p.id != :id
+            WHERE p.status = 'PUBLISHED' AND p.published_at IS NOT NULL AND p.published_at <= NOW() AND p.id != :id
             AND (COALESCE(p.published_at, '1970-01-01') > COALESCE(:pub_at, '1970-01-01')
                  OR (COALESCE(p.published_at, '1970-01-01') = COALESCE(:pub_at, '1970-01-01') AND p.id > :id))
             ORDER BY COALESCE(p.published_at, '1970-01-01') ASC, p.id ASC
@@ -212,7 +218,7 @@ def get_post_neighbors(post_id: int, db=Depends(get_db)):
     next_row = db.execute(
         text("""
             SELECT p.id, p.title FROM posts p
-            WHERE p.status = 'PUBLISHED' AND p.id != :id
+            WHERE p.status = 'PUBLISHED' AND p.published_at IS NOT NULL AND p.published_at <= NOW() AND p.id != :id
             AND (COALESCE(p.published_at, '1970-01-01') < COALESCE(:pub_at, '1970-01-01')
                  OR (COALESCE(p.published_at, '1970-01-01') = COALESCE(:pub_at, '1970-01-01') AND p.id < :id))
             ORDER BY COALESCE(p.published_at, '1970-01-01') DESC, p.id DESC
@@ -246,6 +252,13 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
      content_html, content_json, created_at, updated_at, category_name, view_count) = row
     if not current_user and status != "PUBLISHED":
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
+    if not current_user and status == "PUBLISHED":
+        ok = db.execute(
+            text("SELECT 1 FROM posts WHERE id = :id AND published_at IS NOT NULL AND published_at <= NOW()"),
+            {"id": post_id},
+        ).fetchone()
+        if not ok:
+            raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
 
     # 퍼블릭 조회 시 daily_stats 집계 및 해당 글 view_count 증가 (비로그인 + PUBLISHED만). 실패해도 글 조회는 정상 반환.
     if current_user is None and status == "PUBLISHED":

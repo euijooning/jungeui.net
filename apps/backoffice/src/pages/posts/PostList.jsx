@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import apiClient from '../../lib/apiClient';
 
 const PER_PAGE = 10;
@@ -92,7 +93,7 @@ export default function PostList() {
       await apiClient.delete(`/api/posts/${id}`);
       fetchPosts();
     } catch (e) {
-      alert(e?.message || '삭제에 실패했습니다.');
+      setError(e?.message || '삭제에 실패했습니다.');
     }
   };
 
@@ -128,7 +129,7 @@ export default function PostList() {
                 fetchPosts();
                 window.alert('삭제가 완료되었습니다.');
               } catch (e) {
-                window.alert(e?.message || '삭제에 실패했습니다.');
+                setError(e?.message || '삭제에 실패했습니다.');
               }
             }}
             disabled={selectedIds.size === 0}
@@ -215,11 +216,15 @@ export default function PostList() {
       </div>
 
       {/* Error */}
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
-          {error}
-        </div>
-      )}
+      <Dialog open={Boolean(error)} onClose={() => setError(null)} aria-labelledby="postlist-error-dialog-title">
+        <DialogTitle id="postlist-error-dialog-title">오류</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{error}</DialogContentText>
+        </DialogContent>
+        <DialogActions className="dark:border-t dark:border-gray-700">
+          <Button onClick={() => setError(null)} color="primary" variant="contained">확인</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">

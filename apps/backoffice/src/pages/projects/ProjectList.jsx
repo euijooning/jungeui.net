@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import DragIndicator from '@mui/icons-material/DragIndicator';
 import apiClient from '../../lib/apiClient';
 import ProjectDetailModal from './ProjectDetailModal';
@@ -60,7 +61,7 @@ export default function ProjectList() {
       await apiClient.delete(`/api/projects/${id}`);
       fetchProjects();
     } catch (e) {
-      alert(e?.message || '삭제에 실패했습니다.');
+      setError(e?.message || '삭제에 실패했습니다.');
     }
   };
 
@@ -98,7 +99,7 @@ export default function ProjectList() {
       await apiClient.patch('/api/projects/reorder', { id_order: idOrder });
       setProjects(arr);
     } catch (err) {
-      alert(err?.message || '순서 변경에 실패했습니다.');
+      setError(err?.message || '순서 변경에 실패했습니다.');
     }
     setDragId(null);
   };
@@ -136,11 +137,15 @@ export default function ProjectList() {
         </button>
       </div>
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
-          {error}
-        </div>
-      )}
+      <Dialog open={Boolean(error)} onClose={() => setError(null)} aria-labelledby="projectlist-error-dialog-title">
+        <DialogTitle id="projectlist-error-dialog-title">오류</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{error}</DialogContentText>
+        </DialogContent>
+        <DialogActions className="dark:border-t dark:border-gray-700">
+          <Button onClick={() => setError(null)} color="primary" variant="contained">확인</Button>
+        </DialogActions>
+      </Dialog>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         {loading ? (
