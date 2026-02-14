@@ -12,3 +12,4 @@
 ## 관련 문서
 
 - [../common/07-deploy-strategy.md](../common/07-deploy-strategy.md) — ENV 규칙, .env 구조, 배포 절차
+- [../common/09-security-and-shared-config.md](../common/09-security-and-shared-config.md) — SECRET_KEY 필수, API·공통 유틸
