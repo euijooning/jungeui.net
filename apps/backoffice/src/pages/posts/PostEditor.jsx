@@ -18,7 +18,7 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
-import apiClient, { getAccessToken } from '../../lib/apiClient';
+import apiClient, { getAccessToken, API_BASE, isDev, UPLOAD_URL } from '../../lib/apiClient';
 
 const TOAST_UI_SCRIPT = 'https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js';
 const TOAST_UI_I18N = 'https://uicdn.toast.com/editor/latest/i18n/ko-kr.js';
@@ -156,12 +156,11 @@ export default function PostEditor({ isEdit = false, postId = null }) {
   const [tagInput, setTagInput] = useState('');
   const [contentHtml, setContentHtml] = useState('');
 
-  const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-  // apiBase가 있으면 절대 URL로 넣어서 API에서 직접 로드(에디터에서 이미지 표시). 없으면 상대 URL(프록시 경유).
+  // API_BASE가 있으면 절대 URL로 넣어서 API에서 직접 로드(에디터에서 이미지 표시). 없으면 상대 URL(프록시 경유).
   const toImageSrc = (url) => {
     if (!url) return url;
     if (url.startsWith('http')) return url;
-    return apiBase ? apiBase + (url.startsWith('/') ? url : `/${url}`) : url;
+    return API_BASE ? API_BASE + (url.startsWith('/') ? url : `/${url}`) : url;
   };
 
   const loadPost = useCallback(async () => {
@@ -299,7 +298,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         console.log(`[이미지업로드] ${source} 시작`, { size: blob?.size, type: blob?.type });
         const fd = new FormData();
         fd.append('file', blob, blob.name || 'image.jpg');
-        const res = await fetch(`/api/assets/upload?post_id=${encodeURIComponent(pid)}`, {
+        const res = await fetch(`${UPLOAD_URL}?post_id=${encodeURIComponent(pid)}`, {
           method: 'POST',
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: fd,
@@ -429,7 +428,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       try {
         const fd = new FormData();
         fd.append('file', file, file.name || 'image.jpg');
-        const res = await fetch(`/api/assets/upload?post_id=${encodeURIComponent(pid)}`, {
+        const res = await fetch(`${UPLOAD_URL}?post_id=${encodeURIComponent(pid)}`, {
           method: 'POST',
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: fd,
@@ -485,11 +484,8 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     const extOk = (f) => ATTACH_EXT_SET.has((f.name || '').split('.').pop()?.toLowerCase());
     const sizeOk = (f) => f.size <= MAX_ATTACH_SIZE;
     setAttachmentUploading(true);
-    const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-    const isDev = import.meta.env.DEV;
-    const uploadUrl = isDev && !apiBase ? '/api/assets/upload' : `${apiBase || ''}/api/assets/upload`;
     const token = getAccessToken();
-    console.log('[첨부업로드] uploadUrl=', uploadUrl, 'files=', files.length, 'VITE_API_URL=', import.meta.env.VITE_API_URL);
+    console.log('[첨부업로드] uploadUrl=', UPLOAD_URL, 'files=', files.length, 'VITE_API_URL=', import.meta.env.VITE_API_URL);
     try {
       for (const file of files) {
         if (!extOk(file)) {
@@ -503,7 +499,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         const formData = new FormData();
         formData.append('file', file);
         console.log('[첨부업로드] POST', file.name);
-        const response = await fetch(uploadUrl, {
+        const response = await fetch(UPLOAD_URL, {
           method: 'POST',
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: formData,

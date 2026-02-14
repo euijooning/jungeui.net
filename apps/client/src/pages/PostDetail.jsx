@@ -6,15 +6,7 @@ import { fetchPost, fetchPostNeighbors, fetchCategories, getStaticUrl } from '..
 import { useTheme } from '../ThemeContext';
 import { VITE_UTTERANCES_REPO } from '../config';
 import Lightbox from '@ui-kit/components/react/Lightbox';
-
-function formatDate(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}.${m}.${day}`;
-}
+import { formatDate } from '../../../../shared/utils/date';
 
 function formatBytes(bytes) {
   if (bytes == null || bytes === 0) return '';
@@ -142,7 +134,7 @@ export default function PostDetail() {
     );
   }
 
-  const dateStr = formatDate(post.published_at || post.created_at);
+  const dateStr = formatDate(post.published_at || post.created_at, { format: 'dot' });
   const tags = post.tags || [];
 
   return (

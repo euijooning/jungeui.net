@@ -6,10 +6,8 @@
  * - 네트워크 실패 시 status=0, isNetworkError=true 인 Error throw (호출부에서 구분 가능)
  * - 401/403 시: 저장소 정리 후 'session-expired' 이벤트 → 모달 표시, 확인 시 로그인 페이지로
  */
+import { API_BASE, isDev, UPLOAD_URL } from './apiConfig';
 import { STORAGE_TOKEN, STORAGE_USER } from '../authProvider';
-
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-const isDev = import.meta.env.DEV;
 
 if (isDev && !import.meta.env.VITE_API_URL) {
   console.warn('[apiClient] VITE_API_URL not set; /api requests will use current origin.');
@@ -160,5 +158,5 @@ const apiClient = {
   },
 };
 
-export { getAccessToken };
+export { getAccessToken, API_BASE, isDev, UPLOAD_URL };
 export default apiClient;

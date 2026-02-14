@@ -1,6 +1,5 @@
-// Jungeui Lab- Python FastAPI 인증 (루트 .env 의 VITE_API_URL)
-// 빈 값이면 same-origin 상대 경로 사용 (/api/...)
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+// Jungeui Lab- Python FastAPI 인증 (루트 .env 의 VITE_API_URL). API_BASE는 apiConfig에서 단일 소스 (순환 의존성 회피)
+import { API_BASE } from './lib/apiConfig';
 
 export const STORAGE_USER = 'user';
 export const STORAGE_TOKEN = 'access_token';

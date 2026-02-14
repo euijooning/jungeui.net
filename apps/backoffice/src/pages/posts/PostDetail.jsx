@@ -2,19 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Pencil, Trash2, Paperclip, Download } from 'lucide-react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import apiClient, { getAccessToken } from '../../lib/apiClient';
+import apiClient, { getAccessToken, API_BASE, isDev } from '../../lib/apiClient';
+import { formatDate as formatDateUtil } from '../../../../../shared/utils/date';
 
-function formatDate(iso) {
-  if (!iso) return '-';
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return '-';
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const da = String(d.getDate()).padStart(2, '0');
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mm = String(d.getMinutes()).padStart(2, '0');
-  return `${y}-${m}-${da} ${hh}:${mm}`;
-}
+const formatDate = (iso) => formatDateUtil(iso, { withTime: true }) || '-';
 
 function statusBadge(status, published_at) {
   const isScheduled = status === 'PUBLISHED' && published_at && new Date(published_at) > new Date();
@@ -81,9 +72,7 @@ export default function PostDetail() {
   };
 
   const handleDownload = async (assetId, filename) => {
-    const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-    const isDev = import.meta.env.DEV;
-    const downloadBase = isDev ? '' : apiBase;
+    const downloadBase = isDev ? '' : API_BASE;
     const url = downloadBase ? `${downloadBase}/api/assets/${assetId}/download` : `/api/assets/${assetId}/download`;
     const token = getAccessToken();
     try {

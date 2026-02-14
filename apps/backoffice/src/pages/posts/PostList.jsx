@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import apiClient from '../../lib/apiClient';
+import { formatDate as formatDateUtil } from '../../../../../shared/utils/date';
 
 const PER_PAGE = 10;
 const STATUS_OPTIONS = [
@@ -12,11 +13,7 @@ const STATUS_OPTIONS = [
   { value: 'PRIVATE', label: '비공개' },
 ];
 
-function formatDate(v) {
-  if (!v) return '-';
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('ko-KR', { dateStyle: 'short' });
-}
+const formatDate = (v) => formatDateUtil(v, { dateStyle: 'short' }) || '-';
 
 function statusBadge(status, published_at) {
   const isScheduled = status === 'PUBLISHED' && published_at && new Date(published_at) > new Date();

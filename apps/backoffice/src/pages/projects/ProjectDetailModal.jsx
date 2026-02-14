@@ -4,8 +4,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
-
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+import { API_BASE } from '../../lib/apiClient';
 
 export default function ProjectDetailModal({ project, open, onClose, onEdit }) {
   if (!project) return null;

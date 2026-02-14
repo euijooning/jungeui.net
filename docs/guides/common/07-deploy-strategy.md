@@ -64,7 +64,7 @@
 | 키 | 역할 |
 |----|------|
 | `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE` | DB 접속 |
-| `SECRET_KEY` | JWT·세션 등 API 비밀키 |
+| `SECRET_KEY` | JWT·세션 등 API 비밀키. **운영·스테이징(ENV=production/staging)에서는 필수.** 미설정 시 API 기동 시 에러로 종료됨. |
 | `CORS_ORIGINS` | 허용 출처(쉼표 구분) |
 | `UPLOAD_DIR` | 업로드 디렉터리(기본 `uploads`, 상대 경로면 해당 디렉터리 기준) |
 | `REDIRECT_WWW_TO_NAKED`, `WWW_HOST`, `NAKED_HOST` | www → naked 리다이렉트(선택) |

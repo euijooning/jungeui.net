@@ -3,14 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import Card from '../components/Card';
 import SharedLayout from '../components/SharedLayout';
 import { fetchPosts, fetchCategories, fetchTags } from '../api';
+import { formatDate } from '../../../../shared/utils/date';
 
 const PER_PAGE = 5;
-
-function formatDate(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  return d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
-}
 
 export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
