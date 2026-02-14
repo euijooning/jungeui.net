@@ -66,6 +66,50 @@
 
 ---
 
+## 광고 (Google AdSense)
+
+글 상세 페이지에 **Google AdSense**를 넣을 수 있도록 구성해 두었다. 수익성과 가독성을 고려해 **2곳**만 사용한다.
+
+### 광고 위치
+
+| 위치 | 삽입 시점 | 추천 형태 |
+|------|-----------|-----------|
+| **상단** | 헤더(제목·메타) 직후, 본문 시작 전 | 디스플레이 광고 (가로형) |
+| **하단** | 본문·첨부파일 종료 후, 댓글/이전·다음글 네비 전 | Multiplex 또는 디스플레이 (사각형) |
+
+### 설정 (환경 변수)
+
+`apps/client` 빌드 시 다음 변수가 주입된다. **비어 있으면** 광고 스크립트를 로드하지 않고, "광고 영역" 플레이스홀더만 표시한다.
+
+| 변수 | 설명 |
+|------|------|
+| `VITE_ADSENSE_CLIENT_ID` | AdSense 발급 클라이언트 ID (예: `ca-pub-xxxxxxxx`) |
+| `VITE_ADSENSE_SLOT_TOP` | 상단 광고 슬롯 ID |
+| `VITE_ADSENSE_SLOT_BOTTOM` | 하단 광고 슬롯 ID |
+
+예시는 프로젝트 루트 `.env.example` 참고.
+
+### 컴포넌트
+
+- **파일**: `apps/client/src/components/AdBanner.jsx`
+- **props**: `slot` (`"top"` \| `"bottom"`), `className` (선택)
+- **동작**  
+  - `VITE_ADSENSE_CLIENT_ID`와 해당 슬롯 ID가 모두 있으면: `ins.adsbygoogle` + 반응형(`data-ad-format="auto"`, `data-full-width-responsive="true"`) 렌더, 스크립트 한 번만 동적 로드 후 `(window.adsbygoogle || []).push({})` 호출.  
+  - 하나라도 없으면: 테마용 클래스(`theme-bg-card`, `theme-card-border`)로 플레이스홀더만 표시(상단 100px, 하단 120px).
+- **접근성**: 컨테이너에 `aria-label="광고"` 적용.
+
+### PostDetail.jsx에서 사용
+
+현재는 **광고 노출을 끈 상태**로, 다음만 주석 처리해 두었다.
+
+1. **import**: `import AdBanner from '../components/AdBanner';`
+2. **상단**: `</header>` 직후의 `<AdBanner slot="top" />`
+3. **하단**: 첨부파일 섹션 다음, 댓글 섹션 전의 `<AdBanner slot="bottom" />`
+
+광고를 켜려면 위 세 곳의 주석을 해제하고, `.env`에 `VITE_ADSENSE_CLIENT_ID`, `VITE_ADSENSE_SLOT_TOP`, `VITE_ADSENSE_SLOT_BOTTOM`을 설정한 뒤 다시 빌드하면 된다.
+
+---
+
 ## Phase 03 완료 점검 (구현 후 실행 후 보고)
 
 - [x] **15** `/posts/:postId` 접속 시 제목·본문(좌정렬)·메타·첨부파일·이전/다음·Utterances 표시. *(TOC 미구현)*
