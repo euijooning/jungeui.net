@@ -112,7 +112,7 @@ palette: {
 ## 4. 공통 컴포넌트 (체크리스트)
 
 - [x] **12** Button: primary / secondary / ghost 변형, theme primary(#35C5F0) 사용.
-- [x] **13** Card: 썸네일·제목·요약·메타 — 글 목록 카드용 (Phase 02에서 상세 스펙).
+- [x] **13** Card: 썸네일·제목·요약·메타 — 글 목록 카드용 (Phase 02에서 상세 스펙). listMode일 때 카드 전체(카테고리 칩 포함) 클릭 시 상세로만 이동, 칩은 표시 전용.
 - [x] **14** Layout: 헤더 + 메인 + 푸터 골격, 2컬럼 옵션 (7fr 3fr).
 - [x] **15** Modal/라이트박스: 이미지 확대용 (글 상세).
 - [x] **16** 공통 컴포넌트는 `shared/ui-kit/components/` (필요 시 `react/` 하위)에 정의.

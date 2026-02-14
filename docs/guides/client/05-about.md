@@ -46,7 +46,7 @@
 
 - **위치**: 태그 섹션 아래 **하늘색 배경** 컨테이너. 다크모드: `dark:bg-(--ui-background)`.
 - **형태**: 카로셀 (3개 풀 노출, 좌/우 화살표, 하단 인디케이터, 그라데이션 페이드). 가운데 정렬(paddingLeft), 카드 크기 0.95, mask-image 페이드. [07-project-card-layout.md](07-project-card-layout.md) 참고.
-- **ProjectCard**: 대표이미지(w-14 h-14), 프로젝트명(line-clamp-2), 기간+링크(최대 5), 태그(최대 6), 설명(최대 100자 3줄), 상세이미지(intro_image). px-5 py-4, shadow-lg.
+- **ProjectCard**: 대표이미지(w-14 h-14), 프로젝트명(최대 25자, line-clamp-2), 기간+링크(최대 5), 태그(최대 6), 설명(최대 100자 3줄), 상세이미지(intro_image). px-5 py-4, shadow-lg.
 - **Phase 완료** (점검일: 2025-02-07)
 
 ---

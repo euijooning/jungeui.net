@@ -67,7 +67,7 @@
 - [x] **31** CareerList: POST /api/careers, PUT /api/careers/{id}.
 - [x] **32** ProjectList: GET /api/projects, sort_order 순 목록.
 - [x] **33** ProjectList: 드래그앤드롭 → PATCH /api/projects/reorder.
-- [x] **34** ProjectList: 등록/수정 폼 — title, description, start_date, end_date, sort_order, thumbnail_asset_id, intro_image_asset_id.
+- [x] **34** ProjectList: 등록/수정 폼 — title(최대 25자), description, start_date, end_date, sort_order, thumbnail_asset_id, intro_image_asset_id. 상세/수정 시 이미지 URL 없으면 asset_id로 /api/assets/:id/download 폴백.
 - [x] **35** ProjectList: project_links(link_name, link_url 다중, sort_order).
 - [x] **36** ProjectList: project_tags — Enter로 추가, 최대 6개.
 - [x] **37** ProjectList: POST/PUT /api/projects (project_links·project_tags 포함).

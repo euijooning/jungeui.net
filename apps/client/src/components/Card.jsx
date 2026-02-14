@@ -51,16 +51,22 @@ export default function Card({
       <div className={bodyBase}>
         {Array.isArray(categories) && categories.length > 0 && (
           <div className={categoriesWrap}>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                className="theme-card-pill cursor-pointer appearance-none"
-                onClick={(e) => handleCategoryClick(e, cat.id)}
-              >
-                {cat.name}
-              </button>
-            ))}
+            {categories.map((cat) =>
+              listMode ? (
+                <span key={cat.id} className="theme-card-pill">
+                  {cat.name}
+                </span>
+              ) : (
+                <button
+                  key={cat.id}
+                  type="button"
+                  className="theme-card-pill cursor-pointer appearance-none"
+                  onClick={(e) => handleCategoryClick(e, cat.id)}
+                >
+                  {cat.name}
+                </button>
+              )
+            )}
           </div>
         )}
         {title && <h3 className={titleClass}>{title}</h3>}

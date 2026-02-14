@@ -17,11 +17,15 @@ MySQL 8.0 / MariaDB 기준. utf8mb4 사용.
 | career_links | 경력별 다중 링크 |
 | career_highlights | 경력 한 일 개조식 (최대 5) |
 | career_tags | 경력-태그 N:M |
-| projects | 프로젝트 포트폴리오 |
+| projects | 프로젝트 포트폴리오 (title 최대 25자 권장) |
 | about_messages | 소개 인사말 메시지 (과거/현재/미래 스타일) |
 | project_links | 프로젝트별 다중 링크 |
 | project_tags | 프로젝트-태그 N:M |
 | daily_stats | 일별 방문 통계 |
+
+## 경력 확장 테이블 (자동 생성)
+
+`career_links`, `career_highlights`, `career_tags`는 API 서버 기동 시 `db_init._ensure_career_extension_tables()`에서 없으면 자동 생성된다. 별도 스크립트 실행은 필요 없으며, 경력 관련 API 에러 시 'API 서버 재시작' 안내를 따른다.
 
 ## posts 날짜 필드 (용어)
 

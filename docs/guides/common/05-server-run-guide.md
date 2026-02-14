@@ -41,6 +41,7 @@ uvicorn apps.api.main:app --reload --port 8010
 - `--host 0.0.0.0`을 붙이면 같은 LAN의 다른 기기에서도 접속 가능(배포·다른 기기 테스트 시 유용). 로컬에서만 쓸 때는 생략해도 되며, 생략 시 기본값 `127.0.0.1`로 같은 PC에서만 접속됩니다.
 - API 베이스 URL: `http://localhost:8010`
 - 포트를 바꾸려면 `--port` 값을 변경하면 됩니다. 프론트에서 사용하는 `VITE_API_URL`도 같은 포트로 맞춰 주세요.
+- DB 초기화 시 경력 확장 테이블(career_links, career_highlights, career_tags)이 없으면 서버 기동 시 자동 생성된다. [01-db-schema.md](01-db-schema.md) 참고.
 
 ---
 
