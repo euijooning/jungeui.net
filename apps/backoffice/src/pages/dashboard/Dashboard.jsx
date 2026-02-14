@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LineChart, FileText, Eye, List, ChevronRight, Briefcase, Folder } from 'lucide-react';
 import apiClient from '../../lib/apiClient';
 
 export default function Dashboard() {
@@ -66,7 +67,7 @@ export default function Dashboard() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
-                <i className="fas fa-chart-line text-blue-600 dark:text-blue-400 text-2xl" />
+                <LineChart size={28} strokeWidth={1.5} className="text-blue-600 dark:text-blue-400" />
               </div>
             </div>
             <div className="ml-4 flex-1">
@@ -80,7 +81,7 @@ export default function Dashboard() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="w-14 h-14 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
-                <i className="fas fa-file-alt text-green-600 dark:text-green-400 text-2xl" />
+                <FileText size={28} strokeWidth={1.5} className="text-green-600 dark:text-green-400" />
               </div>
             </div>
             <div className="ml-4 flex-1">
@@ -94,7 +95,7 @@ export default function Dashboard() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
-                <i className="fas fa-eye text-purple-600 dark:text-purple-400 text-2xl" />
+                <Eye size={28} strokeWidth={1.5} className="text-purple-600 dark:text-purple-400" />
               </div>
             </div>
             <div className="ml-4 flex-1">
@@ -118,7 +119,7 @@ export default function Dashboard() {
             >
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 bg-blue-600 dark:bg-green-600 rounded-lg flex items-center justify-center">
-                  <i className="fas fa-list text-white" />
+                  <List size={20} strokeWidth={1.5} className="text-white" />
                 </div>
               </div>
               <div className="ml-3 text-left">
@@ -126,7 +127,7 @@ export default function Dashboard() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">포스트 목록을 봅니다</p>
               </div>
               <div className="ml-auto">
-                <i className="fas fa-chevron-right text-gray-400 dark:text-gray-500" />
+                <ChevronRight size={18} strokeWidth={1.5} className="text-gray-400 dark:text-gray-500" />
               </div>
             </button>
             <button
@@ -136,7 +137,7 @@ export default function Dashboard() {
             >
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                  <i className="fas fa-briefcase text-white" />
+                  <Briefcase size={20} strokeWidth={1.5} className="text-white" />
                 </div>
               </div>
               <div className="ml-3 text-left">
@@ -144,7 +145,7 @@ export default function Dashboard() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">경력 추가·수정</p>
               </div>
               <div className="ml-auto">
-                <i className="fas fa-chevron-right text-gray-400 dark:text-gray-500" />
+                <ChevronRight size={18} strokeWidth={1.5} className="text-gray-400 dark:text-gray-500" />
               </div>
             </button>
             <button
@@ -154,7 +155,7 @@ export default function Dashboard() {
             >
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
-                  <i className="fas fa-folder text-white" />
+                  <Folder size={20} strokeWidth={1.5} className="text-white" />
                 </div>
               </div>
               <div className="ml-3 text-left">
@@ -162,7 +163,7 @@ export default function Dashboard() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">프로젝트 추가·수정</p>
               </div>
               <div className="ml-auto">
-                <i className="fas fa-chevron-right text-gray-400 dark:text-gray-500" />
+                <ChevronRight size={18} strokeWidth={1.5} className="text-gray-400 dark:text-gray-500" />
               </div>
             </button>
           </div>

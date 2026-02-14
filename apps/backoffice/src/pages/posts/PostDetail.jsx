@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Pencil, Trash2, Paperclip, Download } from 'lucide-react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import apiClient, { getAccessToken } from '../../lib/apiClient';
 
@@ -173,14 +174,14 @@ export default function PostDetail() {
             to={`/posts/${postId}/edit`}
             className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-sm transition-all flex items-center gap-2"
           >
-            <i className="fas fa-edit text-xs" /> 수정
+            <Pencil size={16} strokeWidth={1.5} /> 수정
           </Link>
           <button
             type="button"
             onClick={handleDelete}
             className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-all flex items-center gap-2"
           >
-            <i className="fas fa-trash text-xs" /> 삭제
+            <Trash2 size={16} strokeWidth={1.5} /> 삭제
           </button>
         </div>
       </div>
@@ -275,7 +276,7 @@ export default function PostDetail() {
                   return (
                     <li key={a.id} className="flex items-center justify-between p-2 rounded-lg border border-gray-100 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 hover:bg-green-50 dark:hover:bg-gray-700 hover:border-green-100 dark:hover:border-gray-600 transition-colors group">
                       <div className="flex items-center gap-2 min-w-0">
-                        <i className="fas fa-paperclip text-gray-400 dark:text-gray-500 text-xs group-hover:text-green-500" />
+                        <Paperclip size={14} strokeWidth={1.5} className="text-gray-400 dark:text-gray-500 shrink-0 group-hover:text-green-500" />
                         <span className="text-sm text-gray-700 dark:text-gray-200 truncate font-medium group-hover:text-green-700 dark:group-hover:text-green-400">{label}</span>
                       </div>
                       <button
@@ -284,7 +285,7 @@ export default function PostDetail() {
                         className="text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1 rounded hover:bg-green-100 dark:hover:bg-gray-600 transition-colors"
                         title="다운로드"
                       >
-                        <i className="fas fa-download text-sm" />
+                        <Download size={16} strokeWidth={1.5} className="text-current" />
                       </button>
                     </li>
                   );

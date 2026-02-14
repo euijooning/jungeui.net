@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Menu, Sun, Moon, X } from 'lucide-react';
 import Layout from './Layout';
 import { useTheme } from '../ThemeContext';
 
@@ -135,7 +136,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
             onClick={() => setOverlayOpen(true)}
             aria-label="카테고리 메뉴"
           >
-            <i className="fa-solid fa-bars" />
+            <Menu className="lucide-icon" />
           </button>
         )}
         <button
@@ -144,7 +145,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
           onClick={() => setTheme()}
           aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
         >
-          {theme === 'dark' ? <i className="fa-regular fa-sun" /> : <i className="fa-regular fa-moon" />}
+          {theme === 'dark' ? <Sun className="lucide-icon" /> : <Moon className="lucide-icon" />}
         </button>
       </div>
     </nav>
@@ -180,7 +181,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
                 onClick={() => setOverlayOpen(false)}
                 aria-label="닫기"
               >
-                <i className="fa-solid fa-xmark" />
+                <X className="lucide-icon" />
               </button>
             </div>
             <nav aria-label="카테고리">

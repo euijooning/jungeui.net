@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import apiClient from '../../lib/apiClient';
 
@@ -325,7 +326,7 @@ export default function PostList() {
                       disabled={page <= 0}
                       className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                     >
-                      <i className="fas fa-chevron-left" />
+                      <ChevronLeft size={18} strokeWidth={1.5} />
                     </button>
                     {Array.from({ length: totalPages }, (_, i) => i).map((p) => (
                       p === page ? (
@@ -352,7 +353,7 @@ export default function PostList() {
                       disabled={page >= totalPages - 1}
                       className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                     >
-                      <i className="fas fa-chevron-right" />
+                      <ChevronRight size={18} strokeWidth={1.5} />
                     </button>
                   </nav>
                 </div>
