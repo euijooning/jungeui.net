@@ -129,6 +129,7 @@ def list_posts(
     per_page: int = 10,
     category_id: int | None = None,
     tag_id: int | None = None,
+    prefix_id: int | None = None,
     status: str | None = None,
     q: str | None = None,
     order_by: str | None = None,
@@ -152,6 +153,9 @@ def list_posts(
     if tag_id is not None:
         where.append("EXISTS (SELECT 1 FROM post_tags pt WHERE pt.post_id = p.id AND pt.tag_id = :tag_id)")
         filter_params["tag_id"] = tag_id
+    if prefix_id is not None:
+        where.append("p.prefix_id = :prefix_id")
+        filter_params["prefix_id"] = prefix_id
     if q and q.strip():
         where.append("p.title LIKE :q")
         filter_params["q"] = f"%{q.strip()}%"
@@ -164,7 +168,7 @@ def list_posts(
     if order_by == "oldest":
         order_sql = "ORDER BY p.id ASC"
     elif order_by == "views":
-        order_sql = "ORDER BY p.id DESC"
+        order_sql = "ORDER BY COALESCE(p.view_count, 0) DESC, p.id DESC"
     else:
         # MySQL 호환: NULLS LAST 대신 published_at IS NULL ASC (널이 마지막으로)
         order_sql = "ORDER BY p.published_at IS NULL, p.published_at DESC, p.id DESC"
