@@ -29,10 +29,11 @@ export default function PostList() {
   const [posts, setPosts] = useState([]);
   const [total, setTotal] = useState(0);
   const [categories, setCategories] = useState([]);
+  const [prefixes, setPrefixes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
-  const [filter, setFilter] = useState({ category_id: '', status: '', title_q: '' });
+  const [filter, setFilter] = useState({ category_id: '', status: '', title_q: '', prefix_id: '' });
   const [orderBy, setOrderBy] = useState('latest_published');
   const [selectedIds, setSelectedIds] = useState(new Set());
 
@@ -53,6 +54,16 @@ export default function PostList() {
     }
   }, []);
 
+  const fetchPrefixes = useCallback(async () => {
+    try {
+      const res = await apiClient.get('/api/post_prefixes');
+      const raw = Array.isArray(res.data) ? res.data : res.data?.items || [];
+      setPrefixes(raw);
+    } catch (e) {
+      setPrefixes([]);
+    }
+  }, []);
+
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -62,6 +73,7 @@ export default function PostList() {
       params.set('per_page', String(PER_PAGE));
       if (filter.category_id) params.set('category_id', filter.category_id);
       if (filter.status) params.set('status', filter.status);
+      if (filter.prefix_id) params.set('prefix_id', filter.prefix_id);
       if (filter.title_q?.trim()) params.set('q', filter.title_q.trim());
       if (orderBy && orderBy !== 'latest_published') params.set('order_by', orderBy);
       const res = await apiClient.get(`/api/posts?${params.toString()}`);
@@ -77,11 +89,15 @@ export default function PostList() {
     } finally {
       setLoading(false);
     }
-  }, [page, filter.category_id, filter.status, filter.title_q, orderBy]);
+  }, [page, filter.category_id, filter.status, filter.prefix_id, filter.title_q, orderBy]);
 
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
+
+  useEffect(() => {
+    fetchPrefixes();
+  }, [fetchPrefixes]);
 
   useEffect(() => {
     fetchPosts();
@@ -176,6 +192,18 @@ export default function PostList() {
               <option value="">전체 카테고리</option>
               {categories.map((c) => (
                 <option key={c.id} value={String(c.id)}>{c.parentName ? `${c.parentName} > ${c.name}` : (c.label || c.name)}</option>
+              ))}
+            </select>
+          </div>
+          <div className="min-w-[140px]">
+            <select
+              value={filter.prefix_id}
+              onChange={(e) => setFilter((f) => ({ ...f, prefix_id: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">전체 말머리</option>
+              {prefixes.map((p) => (
+                <option key={p.id} value={String(p.id)}>{p.name}</option>
               ))}
             </select>
           </div>
