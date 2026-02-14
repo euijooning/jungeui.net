@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import SharedLayout from '../components/SharedLayout';
 import ProjectCard, { CARD_WIDTH, CARD_GAP } from '../components/ProjectCard';
 import { fetchAboutMessages, fetchTags, fetchProjects, fetchCareers } from '../api';
@@ -131,7 +132,7 @@ export default function About() {
               href="mailto:ej@jungui.net"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-primary/40 bg-primary text-white hover:bg-primary-hover transition-colors text-[0.9375rem]"
             >
-              <i className="fa-regular fa-message" aria-hidden />
+              <MessageCircle className="lucide-icon" aria-hidden />
               <span className="tracking-wider font-normal">ej<span className="mx-[0.05rem]">@</span>jungui.net</span>
             </a>
           </div>
@@ -215,7 +216,7 @@ export default function About() {
                     disabled={!canPrev}
                     aria-label="이전"
                   >
-                    <i className="fa-solid fa-chevron-left" />
+                    <ChevronLeft className="lucide-icon" />
                   </button>
                   <button
                     type="button"
@@ -224,7 +225,7 @@ export default function About() {
                     disabled={!canNext}
                     aria-label="다음"
                   >
-                    <i className="fa-solid fa-chevron-right" />
+                    <ChevronRight className="lucide-icon" />
                   </button>
                 </>
               )}

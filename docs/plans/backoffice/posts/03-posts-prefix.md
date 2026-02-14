@@ -53,7 +53,7 @@
 
 ### 4.1 메뉴 및 라우팅
 
-* **메뉴**: 포스트 관리 > **말머리 관리** (아이콘: `fa-trademark`).
+* **메뉴**: 포스트 관리 > **말머리 관리** (아이콘: Lucide `Tags`).
 * **경로**: `/posts/prefixes`
 * **페이지**: `apps/backoffice/src/pages/posts/PrefixList.jsx`
 

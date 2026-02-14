@@ -1,11 +1,50 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useLogout } from "react-admin";
+import {
+  LayoutDashboard,
+  FileText,
+  List,
+  Layers,
+  Tags,
+  User,
+  Mail,
+  FolderKanban,
+  Briefcase,
+  ChevronUp,
+  ChevronDown,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Bell,
+  Sun,
+  Moon,
+} from "lucide-react";
 import apiClient, { resetSessionExpiredFlag } from "../lib/apiClient";
 import { STORAGE_TOKEN, STORAGE_USER } from "../authProvider";
 
 const STORAGE_KEY_SIDEBAR = "sidebarCollapsed";
 const STORAGE_KEY_THEME = "backoffice-theme";
+
+const ICON_MAP = {
+  dashboard: LayoutDashboard,
+  posts: FileText,
+  postList: List,
+  categories: Layers,
+  prefixes: Tags,
+  about: User,
+  messages: Mail,
+  projects: FolderKanban,
+  careers: Briefcase,
+  menu: Menu,
+  chevronUp: ChevronUp,
+  chevronDown: ChevronDown,
+  panelLeftClose: PanelLeftClose,
+  panelLeftOpen: PanelLeftOpen,
+  bell: Bell,
+  sun: Sun,
+  moon: Moon,
+};
 
 function useWindowWidth() {
   const [width, setWidth] = useState(
@@ -208,31 +247,31 @@ const AdminLayout = ({ children }) => {
 
   // 대메뉴 > 하위메뉴: 대시보드, 포스트 관리, 소개 관리
   const navSections = [
-    { type: "single", href: "/", icon: "fa-desktop", label: "대시보드" },
+    { type: "single", href: "/", icon: "dashboard", label: "대시보드" },
     {
       type: "accordion",
       title: "포스트 관리",
-      icon: "fa-file-alt",
+      icon: "posts",
       open: postsAccordionOpen,
       setOpen: setPostsAccordionOpen,
       singleLinkHref: "/posts",
       items: [
-        { href: "/posts", icon: "fa-list", label: "포스트 목록" },
-        { href: "/posts/categories", icon: "fa-layer-group", label: "카테고리 관리" },
-        { href: "/posts/prefixes", icon: "fa-tags", label: "말머리 관리" },
+        { href: "/posts", icon: "postList", label: "포스트 목록" },
+        { href: "/posts/categories", icon: "categories", label: "카테고리 관리" },
+        { href: "/posts/prefixes", icon: "prefixes", label: "말머리 관리" },
       ],
     },
     {
       type: "accordion",
       title: "소개 관리",
-      icon: "fa-user",
+      icon: "about",
       open: aboutAccordionOpen,
       setOpen: setAboutAccordionOpen,
       singleLinkHref: "/messages",
       items: [
-        { href: "/messages", icon: "fa-envelope", label: "메시지" },
-        { href: "/projects", icon: "fa-project-diagram", label: "프로젝트" },
-        { href: "/careers", icon: "fa-briefcase", label: "경력" },
+        { href: "/messages", icon: "messages", label: "메시지" },
+        { href: "/projects", icon: "projects", label: "프로젝트" },
+        { href: "/careers", icon: "careers", label: "경력" },
       ],
     },
   ];
@@ -286,7 +325,10 @@ const AdminLayout = ({ children }) => {
                         active ? "bg-green-200 text-green-800" : "text-gray-300"
                       }`}
                     >
-                      <i className={`fas ${section.icon} nav-icon mr-3 text-lg ${active ? "text-green-800" : "text-gray-400"}`}></i>
+                      {(() => {
+                        const Icon = ICON_MAP[section.icon];
+                        return Icon ? <Icon size={18} strokeWidth={1.5} className={`mr-3 flex-shrink-0 ${active ? "text-green-800" : "text-gray-400"}`} /> : null;
+                      })()}
                       <span className={`sidebar-text ${active ? "text-green-800" : "text-gray-300"}`}>{section.label}</span>
                     </Link>
                   );
@@ -300,6 +342,7 @@ const AdminLayout = ({ children }) => {
                     const active =
                       isActive(singleHref) ||
                       (section.title === "소개 관리" && (currentPath === "/messages" || currentPath === "/careers" || currentPath === "/projects"));
+                    const Icon = ICON_MAP[section.icon];
                     return (
                       <Link
                         key={`${section.title}-single`}
@@ -309,11 +352,13 @@ const AdminLayout = ({ children }) => {
                           active ? "bg-green-200 text-green-800" : "text-gray-300"
                         }`}
                       >
-                        <i className={`fas ${section.icon} nav-icon mr-3 text-lg ${active ? "text-green-800" : "text-gray-400"}`}></i>
+                        {Icon ? <Icon size={18} strokeWidth={1.5} className={`mr-3 flex-shrink-0 ${active ? "text-green-800" : "text-gray-400"}`} /> : null}
                         <span className={`sidebar-text ${active ? "text-white" : "text-gray-300"}`}>{section.title}</span>
                       </Link>
                     );
                   }
+                  const SectionIcon = ICON_MAP[section.icon];
+                  const ChevronIcon = section.open ? ICON_MAP.chevronUp : ICON_MAP.chevronDown;
                   return (
                     <div key={`accordion-${idx}`} className="space-y-1">
                       <div className="flex items-center text-sm font-medium text-gray-300 rounded-md overflow-visible">
@@ -322,7 +367,7 @@ const AdminLayout = ({ children }) => {
                           onClick={() => section.setOpen(!section.open)}
                           className="nav-item group flex items-center flex-1 text-left px-3 py-2 rounded-l-md cursor-pointer min-w-0"
                         >
-                          <i className={`fas ${section.icon} nav-icon mr-3 text-lg text-gray-400 flex-shrink-0`}></i>
+                          {SectionIcon ? <SectionIcon size={18} strokeWidth={1.5} className="mr-3 text-gray-400 flex-shrink-0" /> : null}
                           <span className="sidebar-text text-gray-300 truncate">{section.title}</span>
                         </button>
                         <button
@@ -330,13 +375,14 @@ const AdminLayout = ({ children }) => {
                           onClick={(e) => { e.stopPropagation(); section.setOpen(!section.open); }}
                           className="flex-shrink-0 p-2 cursor-pointer rounded-r-md"
                         >
-                          <i className={`fas fa-chevron-${section.open ? "up" : "down"} text-xs text-gray-400`}></i>
+                          {ChevronIcon ? <ChevronIcon size={14} strokeWidth={1.5} className="text-gray-400" /> : null}
                         </button>
                       </div>
                       {section.open && (
                         <div className="ml-4 space-y-1 border-l-2 border-gray-600 pl-2">
                           {section.items.map((sub) => {
                             const active = isActive(sub.href);
+                            const SubIcon = ICON_MAP[sub.icon];
                             return (
                               <Link
                                 key={sub.href}
@@ -346,7 +392,7 @@ const AdminLayout = ({ children }) => {
                                   active ? "bg-green-200 text-green-800" : "text-gray-300"
                                 }`}
                               >
-                                <i className={`fas ${sub.icon} nav-icon mr-3 text-lg ${active ? "text-green-800" : "text-gray-400"}`}></i>
+                                {SubIcon ? <SubIcon size={18} strokeWidth={1.5} className={`mr-3 flex-shrink-0 ${active ? "text-green-800" : "text-gray-400"}`} /> : null}
                                 <span className={`sidebar-text ${active ? "text-green-800" : "text-gray-300"}`}>{sub.label}</span>
                               </Link>
                             );
@@ -385,7 +431,7 @@ const AdminLayout = ({ children }) => {
                     className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                     aria-label="메뉴 열기"
                   >
-                    <i className="fas fa-bars text-lg" />
+                    <Menu size={20} strokeWidth={1.5} className="text-gray-500 dark:text-gray-400" />
                   </button>
                 ) : (
                   <button
@@ -394,7 +440,7 @@ const AdminLayout = ({ children }) => {
                     className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                     aria-label={sidebarCollapsed ? "사이드바 펼치기" : "사이드바 접기"}
                   >
-                    <i className={`fas fa-${sidebarCollapsed ? "indent" : "outdent"} text-lg`} />
+                    {sidebarCollapsed ? <PanelLeftOpen size={20} strokeWidth={1.5} className="text-gray-500 dark:text-gray-400" /> : <PanelLeftClose size={20} strokeWidth={1.5} className="text-gray-500 dark:text-gray-400" />}
                   </button>
                 )}
                 <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -409,7 +455,7 @@ const AdminLayout = ({ children }) => {
                   className="flex items-center justify-center w-10 h-10 rounded-md text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                   aria-label="알림"
                 >
-                  <i className="fas fa-bell" />
+                  <Bell size={20} strokeWidth={1.5} className="text-gray-500 dark:text-gray-400" />
                 </Link>
                 <button
                   type="button"
@@ -417,7 +463,7 @@ const AdminLayout = ({ children }) => {
                   className="flex items-center justify-center w-10 h-10 rounded-md text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                   aria-label={isDark ? "라이트 모드" : "다크 모드"}
                 >
-                  {isDark ? <i className="fa-regular fa-sun" /> : <i className="fa-regular fa-moon" />}
+                  {isDark ? <Sun size={20} strokeWidth={1.5} className="text-gray-500 dark:text-gray-400" /> : <Moon size={20} strokeWidth={1.5} className="text-gray-500 dark:text-gray-400" />}
                 </button>
                 {/* User menu */}
                 <div className="relative">
@@ -427,12 +473,12 @@ const AdminLayout = ({ children }) => {
                     className="flex items-center space-x-2 p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700"
                   >
                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                      <i className="fas fa-user text-white text-sm"></i>
+                      <User size={18} strokeWidth={1.5} className="text-white" />
                     </div>
                     <span className="hidden md:block text-sm font-medium text-gray-900 dark:text-gray-100">
                       {userName}
                     </span>
-                    <i className="fas fa-chevron-down text-sm"></i>
+                    <ChevronDown size={16} strokeWidth={1.5} className="text-gray-400" />
                   </button>
 
                   {/* User dropdown */}

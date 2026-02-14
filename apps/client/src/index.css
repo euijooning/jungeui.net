@@ -60,17 +60,18 @@ body {
   overflow-x: hidden;
 }
 
-/* Font Awesome 아이콘 기본 스타일 (촌스러움 방지) */
-i.fa-solid,
-i.fa-regular,
-i.fa-brands {
-  font-size: 18px;
+/* Lucide 아이콘 기본 스타일 (strokeWidth 1.5 통일, 버튼 정렬 흔들림 방지) */
+.lucide-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke-width: 1.5;
   opacity: 0.85;
 }
-button i.fa-solid,
-button i.fa-regular,
-button i.fa-brands {
-  font-size: 16px;
+/* 버튼/링크 호버 시 아이콘 opacity 보강 (FA 제거 후 유지) */
+button:hover .lucide-icon,
+a:hover .lucide-icon {
+  opacity: 1;
 }
 
 :root {

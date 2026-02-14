@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Paperclip, Download } from 'lucide-react';
 import SharedLayout from '../components/SharedLayout';
 import { fetchPost, fetchPostNeighbors, fetchCategories, getStaticUrl } from '../api';
 import { useTheme } from '../ThemeContext';
@@ -184,7 +185,7 @@ export default function PostDetail() {
             <div className="theme-bg-card theme-card-border rounded-xl shadow-sm overflow-hidden">
               <div className="flex items-center gap-2 py-2.5 px-4 border-b theme-border">
                 <span className="flex items-center justify-center theme-text-secondary" aria-hidden>
-                  <i className="fa-solid fa-paperclip" />
+                  <Paperclip className="lucide-icon" />
                 </span>
                 <h2 className="text-[0.9375rem] font-semibold theme-text m-0">첨부 파일</h2>
               </div>
@@ -211,7 +212,7 @@ export default function PostDetail() {
                         className="shrink-0 inline-flex items-center justify-center min-w-9 min-h-9 p-1.5 text-[0.8125rem] font-semibold text-white rounded-lg no-underline transition-colors bg-[var(--ui-primary)] hover:bg-[var(--ui-primary-hover)] focus:outline-none focus:ring-2 focus:ring-[rgba(53,197,240,0.4)]"
                         aria-label="다운로드"
                       >
-                        <i className="fa-solid fa-download" />
+                        <Download className="lucide-icon" />
                       </a>
                     </li>
                   );
