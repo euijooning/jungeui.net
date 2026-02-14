@@ -152,6 +152,8 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     thumbnail_asset_id: null,
     post_tags: [],
   });
+  // DB에 저장되어 있던 원래 발행일시 보관용 (수정 시 비교·복구 기준)
+  const [originPublishedAt, setOriginPublishedAt] = useState(null);
   const [attachmentList, setAttachmentList] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const [contentHtml, setContentHtml] = useState('');
@@ -170,6 +172,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       const res = await apiClient.get(`/api/posts/${postId}`);
       const d = res.data;
       const status = d.status ?? 'DRAFT';
+      setOriginPublishedAt(d.published_at);
       const pubAt = d.published_at ? toLocalISOString(d.published_at) : '';
       const isScheduled = status === 'PUBLISHED' && pubAt && new Date(pubAt) > new Date();
       const visibility = status === 'DRAFT' ? 'PUBLISHED' : status;
@@ -553,17 +556,21 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         // datetime-local 값("2025-02-14T15:00") → Date(로컬 해석) → toISOString() → UTC
         published_at = new Date(form.published_at).toISOString();
       } else {
-        // 2. 즉시 공개(Now)인 경우 로직 개선:
-        // - 기존에 날짜가 있고(form.published_at), 그게 과거라면(이미 발행된 글) => 기존 날짜 유지
-        // - 날짜가 없거나(초안), 미래였다면(예약->즉시 변경) => 현재 날짜(new Date) 부여
-        const existingDate = form.published_at ? new Date(form.published_at) : null;
+        // 2. 즉시 공개(Now): form.published_at(사용자가 만진 값)이 아니라 originPublishedAt(DB 원본) 기준.
+        // 예약으로 미래 날짜 넣었다가 다시 즉시로 돌아와도, 원래 과거 글이면 원래 날짜 복구.
+        const originDate = originPublishedAt ? new Date(originPublishedAt) : null;
         const now = new Date();
 
-        if (existingDate && existingDate <= now) {
-          published_at = existingDate.toISOString();
+        if (originDate && originDate <= now) {
+          published_at = originDate.toISOString();
         } else {
           published_at = now.toISOString();
         }
+      }
+    } else {
+      // 3. 비공개/일부공개로 저장할 때: 원래 발행일이 있으면 그대로 유지 (DB에서 날짜가 날아가지 않도록)
+      if (originPublishedAt) {
+        published_at = new Date(originPublishedAt).toISOString();
       }
     }
 
