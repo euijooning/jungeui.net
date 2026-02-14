@@ -66,14 +66,14 @@
 
 ### 체크리스트
 
-- [ ] `apiClient.js`(또는 backoffice config)에 `getUploadUrl()` 또는 `UPLOAD_URL` 상수 추가
-- [ ] `PostEditor.jsx`: 업로드 URL 로컬 정의 제거 후 apiClient(config)에서 import
-- [ ] `ProjectForm.jsx`: `UPLOAD_URL` 로컬 정의 제거 후 apiClient(config)에서 import
-- [ ] `CareerForm.jsx`: `UPLOAD_URL` 로컬 정의 제거 후 apiClient(config)에서 import
+- [x] `apiClient.js`(또는 backoffice config)에 `getUploadUrl()` 또는 `UPLOAD_URL` 상수 추가 — `apiConfig.js`에 정의 후 apiClient에서 재export
+- [x] `PostEditor.jsx`: 업로드 URL 로컬 정의 제거 후 apiClient에서 `UPLOAD_URL` import (이미지·첨부 업로드 모두 동일 URL 사용)
+- [x] `ProjectForm.jsx`: `UPLOAD_URL` 로컬 정의 제거 후 apiClient에서 import
+- [x] `CareerForm.jsx`: `UPLOAD_URL` 로컬 정의 제거 후 apiClient에서 import
 
 ### 수정 방향 (참고)
 
-- 로직: `API_BASE ? \`${API_BASE}/api/assets/upload\` : '/api/assets/upload'` 를 apiClient 한 곳에서만 작성.
+- 로직: `API_BASE ? \`${API_BASE}/api/assets/upload\` : '/api/assets/upload'` 를 apiConfig 한 곳에서만 작성.
 
 ---
 

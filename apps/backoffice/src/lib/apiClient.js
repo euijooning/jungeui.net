@@ -6,7 +6,7 @@
  * - 네트워크 실패 시 status=0, isNetworkError=true 인 Error throw (호출부에서 구분 가능)
  * - 401/403 시: 저장소 정리 후 'session-expired' 이벤트 → 모달 표시, 확인 시 로그인 페이지로
  */
-import { API_BASE, isDev } from './apiConfig';
+import { API_BASE, isDev, UPLOAD_URL } from './apiConfig';
 import { STORAGE_TOKEN, STORAGE_USER } from '../authProvider';
 
 if (isDev && !import.meta.env.VITE_API_URL) {
@@ -158,5 +158,5 @@ const apiClient = {
   },
 };
 
-export { getAccessToken, API_BASE, isDev };
+export { getAccessToken, API_BASE, isDev, UPLOAD_URL };
 export default apiClient;

@@ -8,9 +8,7 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
-import apiClient, { getAccessToken, API_BASE } from '../../lib/apiClient';
-
-const UPLOAD_URL = API_BASE ? `${API_BASE}/api/assets/upload` : '/api/assets/upload';
+import apiClient, { getAccessToken, API_BASE, UPLOAD_URL } from '../../lib/apiClient';
 const LOGO_SIZE = 200;
 
 const LINK_TYPES = [

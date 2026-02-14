@@ -4,5 +4,6 @@
  */
 const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 const isDev = import.meta.env.DEV;
+const UPLOAD_URL = API_BASE ? `${API_BASE}/api/assets/upload` : '/api/assets/upload';
 
-export { API_BASE, isDev };
+export { API_BASE, isDev, UPLOAD_URL };
