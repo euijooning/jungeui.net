@@ -321,14 +321,14 @@ export default function CategoryList() {
 
   return (
     <div className="w-full">
-      <div className="mb-6 flex flex-col gap-4">
-        <div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">카테고리 관리</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             대카테고리·소카테고리 순서 변경 및 추가/수정. 드래그 앤 드롭은 순서 저장 버튼으로 반영할 수 있습니다.
           </p>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Button variant="contained" startIcon={<Add />} onClick={() => openAdd(null)}>
             대카테고리 추가
           </Button>

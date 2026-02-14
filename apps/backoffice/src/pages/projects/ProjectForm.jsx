@@ -148,15 +148,20 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
       });
       setIsOngoing(!p.end_date && !!p.start_date);
       setProjectNoLinks((p.links || []).length === 0);
+      const base = API_BASE || '';
       if (p.thumbnail) {
-        const url = p.thumbnail.startsWith('http') ? p.thumbnail : `${API_BASE || ''}${p.thumbnail}`;
+        const url = p.thumbnail.startsWith('http') ? p.thumbnail : base + (p.thumbnail.startsWith('/') ? p.thumbnail : `/${p.thumbnail}`);
         setThumbPreview(url);
+      } else if (p.thumbnail_asset_id) {
+        setThumbPreview(`${base}/api/assets/${p.thumbnail_asset_id}/download`);
       } else {
         setThumbPreview(null);
       }
       if (p.intro_image) {
-        const url = p.intro_image.startsWith('http') ? p.intro_image : `${API_BASE || ''}${p.intro_image}`;
+        const url = p.intro_image.startsWith('http') ? p.intro_image : base + (p.intro_image.startsWith('/') ? p.intro_image : `/${p.intro_image}`);
         setIntroPreview(url);
+      } else if (p.intro_image_asset_id) {
+        setIntroPreview(`${base}/api/assets/${p.intro_image_asset_id}/download`);
       } else {
         setIntroPreview(null);
       }
@@ -296,8 +301,8 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
       setSaveError('프로젝트명을 입력하세요.');
       return;
     }
-    if (form.title.length > 10) {
-      setSaveError('프로젝트명은 최대 10자까지 입력 가능합니다.');
+    if (form.title.length > 25) {
+      setSaveError('프로젝트명은 최대 25자까지 입력 가능합니다.');
       return;
     }
     if (form.description.length > 100) {
@@ -413,19 +418,19 @@ export default function ProjectForm({ isEdit = false, projectId = null, onSucces
         className="space-y-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
       >
         <div>
-          <label htmlFor="title" className={labelCls}>프로젝트명 * (최대 10자)</label>
+          <label htmlFor="title" className={labelCls}>프로젝트명 * (최대 25자)</label>
           <input
             id="title"
             type="text"
             value={form.title}
-            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value.slice(0, 10) }))}
+            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value.slice(0, 25) }))}
             className={blockInputCls}
             placeholder="프로젝트명"
-            maxLength={10}
+            maxLength={25}
             required
           />
           {form.title.length > 0 && (
-            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{form.title.length}/10자</p>
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{form.title.length}/25자</p>
           )}
         </div>
 

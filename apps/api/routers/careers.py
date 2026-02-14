@@ -210,7 +210,7 @@ def create_career(body: CareerBody, db=Depends(get_db)):
         if "career_links" in err or "career_highlights" in err or "career_tags" in err or "doesn't exist" in err or "unknown table" in err:
             raise HTTPException(
                 status_code=500,
-                detail="경력 확장 테이블이 없습니다. 프로젝트 루트에서 python scripts/add_career_links_highlights_tags.py 를 실행한 뒤 다시 시도하세요.",
+                detail="경력 확장 테이블이 없습니다. API 서버를 재시작하면 자동으로 생성됩니다. 재시작 후 다시 시도하세요.",
             )
         raise HTTPException(status_code=500, detail=str(e))
 

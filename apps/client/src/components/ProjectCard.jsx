@@ -6,7 +6,7 @@ const CARD_GAP = 24;
 
 export default function ProjectCard({ project, style = {} }) {
   const thumbUrl = project.thumbnail ? getStaticUrl(project.thumbnail) : '/favicon.png';
-  const title = (project.title || '').slice(0, 10);
+  const title = (project.title || '').slice(0, 25);
   const desc = (project.description || '').slice(0, 100);
   const tags = (project.tags || []).slice(0, 6);
   const links = (project.links || [])

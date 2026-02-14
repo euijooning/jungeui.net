@@ -82,18 +82,16 @@ export default function PrefixList() {
 
   return (
     <div className="w-full">
-      <div className="mb-6 flex flex-col gap-4">
-        <div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">말머리 관리</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             게시글에 붙일 말머리(예: 수업명, 공지)를 추가·수정합니다. 최대 20자입니다.
           </p>
         </div>
-        <div>
-          <Button variant="contained" startIcon={<Add />} onClick={openAdd}>
-            말머리 추가
-          </Button>
-        </div>
+        <Button variant="contained" startIcon={<Add />} onClick={openAdd}>
+          말머리 추가
+        </Button>
       </div>
 
       {loading ? (

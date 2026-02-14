@@ -153,16 +153,14 @@ export default function MessageList() {
 
   return (
     <div className="w-full">
-      <div className="mb-6 flex flex-col gap-4">
-        <div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">메시지</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">소개 페이지 인사말 메시지 (과거/현재/미래 등). 최대 3개 권장.</p>
         </div>
-        <div>
-          <Button variant="contained" startIcon={<Add />} onClick={openAdd}>
-            메시지 추가
-          </Button>
-        </div>
+        <Button variant="contained" startIcon={<Add />} onClick={openAdd}>
+          메시지 추가
+        </Button>
       </div>
 
       {loading ? (
