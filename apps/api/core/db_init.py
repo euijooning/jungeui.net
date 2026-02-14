@@ -263,6 +263,30 @@ def _ensure_posts_prefix_id():
         conn.close()
 
 
+def _ensure_site_settings():
+    """site_settings 테이블 없으면 생성 (프로젝트/경력 소개 문구 등)."""
+    conn = _get_conn(use_db=True)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT 1 FROM information_schema.TABLES "
+                "WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'site_settings'",
+                (MYSQL_DATABASE,),
+            )
+            if cur.fetchone() is None:
+                cur.execute("""
+                    CREATE TABLE site_settings (
+                      `key` VARCHAR(64) NOT NULL PRIMARY KEY COMMENT '설정 키',
+                      value VARCHAR(255) NULL COMMENT '값 (예: 프로젝트/경력 소개 문구 최대 20자)',
+                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                    ) COMMENT='사이트 설정 (키-값)'
+                """)
+                conn.commit()
+                logger.info("site_settings 테이블 생성됨")
+    finally:
+        conn.close()
+
+
 def _ensure_admin():
     """env 관리자 계정이 없을 때만 생성. 있으면 아무것도 하지 않음."""
     conn = _get_conn(use_db=True)
@@ -290,6 +314,7 @@ def init_on_startup():
         _ensure_tables()
         _ensure_posts_view_count()
         _ensure_posts_prefix_id()
+        _ensure_site_settings()
         _ensure_admin()
     except Exception as e:
         logger.exception("DB 초기화 실패: %s", e)

@@ -12,7 +12,7 @@ export default function CareerModal({ open, onClose, careers = [] }) {
 
   return (
     <div
-      className="fixed inset-0 z-1000 flex items-center justify-center p-4 bg-black/50"
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/50"
       role="dialog"
       aria-modal="true"
       aria-labelledby="career-modal-title"

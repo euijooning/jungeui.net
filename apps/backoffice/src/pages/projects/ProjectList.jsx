@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField } from '@mui/material';
 import DragIndicator from '@mui/icons-material/DragIndicator';
 import apiClient from '../../lib/apiClient';
 import ProjectDetailModal from './ProjectDetailModal';
@@ -35,6 +35,10 @@ export default function ProjectList() {
 
   const [detailModal, setDetailModal] = useState({ open: false, project: null });
   const [formModal, setFormModal] = useState({ open: false, projectId: null });
+  const [introModalOpen, setIntroModalOpen] = useState(false);
+  const [introText, setIntroText] = useState('');
+  const [introSaving, setIntroSaving] = useState(false);
+  const [introError, setIntroError] = useState(null);
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -124,18 +128,75 @@ export default function ProjectList() {
 
   return (
     <div className="w-full">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">프로젝트 관리</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">프로젝트 목록·드래그 정렬·등록/수정</p>
         </div>
-        <button
-          onClick={openFormAdd}
-          className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
-        >
-          새 프로젝트
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={async () => {
+              setIntroModalOpen(true);
+              setIntroError(null);
+              try {
+                const res = await apiClient.get('/api/about/projects-careers-intro');
+                setIntroText(res?.data?.text ?? '');
+              } catch {
+                setIntroText('');
+              }
+            }}
+            className="px-4 py-2 text-sm font-medium text-white bg-sky-500 dark:bg-sky-600 rounded-lg hover:bg-sky-600 dark:hover:bg-sky-700 transition-colors"
+          >
+            소개 문구
+          </button>
+          <button
+            onClick={openFormAdd}
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            새 프로젝트
+          </button>
+        </div>
       </div>
+
+      <Dialog open={introModalOpen} onClose={() => !introSaving && setIntroModalOpen(false)} aria-labelledby="intro-dialog-title" maxWidth="sm" fullWidth>
+        <DialogTitle id="intro-dialog-title">프로젝트/경력 소개 문구</DialogTitle>
+        <DialogContent className="pt-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">클라이언트 소개 페이지의 프로젝트·경력 섹션 제목 아래에 표시됩니다. 최대 20자.</p>
+          <TextField
+            autoFocus
+            fullWidth
+            label="소개 문구"
+            value={introText}
+            onChange={(e) => setIntroText(e.target.value)}
+            error={Boolean(introError) || introText.length > 20}
+            helperText={introError || `${introText.length}/20자`}
+            className="dark:[&_.MuiOutlinedInput-root]:bg-gray-700"
+          />
+        </DialogContent>
+        <DialogActions className="dark:border-t dark:border-gray-700">
+          <Button onClick={() => !introSaving && setIntroModalOpen(false)} disabled={introSaving}>취소</Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={async () => {
+              setIntroSaving(true);
+              setIntroError(null);
+              try {
+                await apiClient.put('/api/about_messages/projects-careers-intro', { text: introText.trim().slice(0, 20) });
+                setIntroModalOpen(false);
+              } catch (e) {
+                setIntroError(e?.message || '저장에 실패했습니다.');
+              } finally {
+                setIntroSaving(false);
+              }
+            }}
+            disabled={introSaving || introText.length > 20}
+          >
+            저장
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={Boolean(error)} onClose={() => setError(null)} aria-labelledby="projectlist-error-dialog-title">
         <DialogTitle id="projectlist-error-dialog-title">오류</DialogTitle>

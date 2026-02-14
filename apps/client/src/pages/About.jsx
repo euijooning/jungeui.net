@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import SharedLayout from '../components/SharedLayout';
 import ProjectCard, { CARD_WIDTH, CARD_GAP } from '../components/ProjectCard';
-import { fetchAboutMessages, fetchTags, fetchProjects, fetchCareers } from '../api';
+import { fetchAboutMessages, fetchTags, fetchProjects, fetchCareers, fetchProjectsCareersIntro } from '../api';
 import CareerModal from '../components/CareerModal';
 
 const ARROW_BTN = 'absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-blue-600 dark:bg-blue-800 shadow-lg flex items-center justify-center text-white hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
@@ -23,6 +23,7 @@ export default function About() {
   const [projects, setProjects] = useState([]);
   const [careers, setCareers] = useState([]);
   const [careerModalOpen, setCareerModalOpen] = useState(false);
+  const [projectsCareersIntro, setProjectsCareersIntro] = useState('');
   
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [cardWidth, setCardWidth] = useState(CARD_WIDTH);
@@ -56,8 +57,16 @@ export default function About() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchCareers().then((list) => { 
-      if (!cancelled && Array.isArray(list)) setCareers(sortCareersByPeriodDesc(list)); 
+fetchCareers().then((list) => {
+      if (!cancelled && Array.isArray(list)) setCareers(sortCareersByPeriodDesc(list));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchProjectsCareersIntro().then((text) => {
+      if (!cancelled && typeof text === 'string') setProjectsCareersIntro(text);
     }).catch(() => {});
     return () => { cancelled = true; };
   }, []);
@@ -158,16 +167,23 @@ export default function About() {
 
       <section className="relative left-1/2 -translate-x-1/2 w-screen py-10 md:py-14 bg-[#F0F9FF] dark:bg-(--ui-background) overflow-hidden -mb-8">
         <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6">
-          <div className="flex justify-center items-center gap-4 mb-12">
+          <div className="flex justify-center items-center gap-4 mb-2">
             <h1 className="text-3xl font-bold text-black dark:text-white">프로젝트</h1>
             <button
               type="button"
               onClick={() => setCareerModalOpen(true)}
-              className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium cursor-pointer transition-colors"
+              className="px-4 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-700 text-white text-base font-medium cursor-pointer transition-colors"
             >
               경력
             </button>
           </div>
+          {projectsCareersIntro ? (
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-8 max-w-[600px] mx-auto">
+              {projectsCareersIntro}
+            </p>
+          ) : (
+            <div className="h-5 mb-8" aria-hidden />
+          )}
         </div>
 
         {projects.length > 0 ? (
@@ -249,7 +265,7 @@ export default function About() {
           </div>
         ) : (
           <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6">
-            <p className="text-center theme-text-secondary py-8">등록된 프로젝트가 없습니다.</p>
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400 py-8">등록된 프로젝트가 없습니다.</p>
           </div>
         )}
       </section>
