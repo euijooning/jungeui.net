@@ -422,7 +422,11 @@ def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
     if published and parsed and _published_at_in_past(parsed):
         existing_str = existing_published_at.isoformat()[:19] if existing_published_at else None
         body_str = parsed.isoformat()[:19] if parsed else None
-        if body_str != existing_str:
+        # 프론트엔드에서 toLocalISOString이 .slice(0,16)으로 초 단위를 절삭해 보내므로,
+        # 분 단위(앞 16자리)까지만 비교해 실제 날짜/시간 변경이 아닌 경우 에러를 내지 않음.
+        old_val = existing_str[:16] if existing_str else ""
+        new_val = body_str[:16] if body_str else ""
+        if new_val != old_val:
             raise HTTPException(
                 status_code=400,
                 detail="발행일은 현재 시각 이전으로 설정할 수 없습니다.",
