@@ -12,7 +12,8 @@ API 명세는 [02-api-spec.md](02-api-spec.md)를 참조하세요.
 - **루트 `.env`** — DB·API URL·포트 등(선택: MySQL 사용 시 필수)
 
 환경변수는 프로젝트 루트의 `.env`에서 로드됩니다. Vite 앱(백오피스·클라이언트)은 `envDir`로 루트를 사용합니다.  
-운영: `ENV=production`(또는 생략), 스테이징: `ENV=staging`. systemd에서는 `Environment=`로 설정.
+운영: `ENV=production`(또는 생략), 스테이징: `ENV=staging`. systemd에서는 `Environment=`로 설정.  
+**운영·스테이징**에서는 `SECRET_KEY`가 필수이며, 미설정 시 API가 기동하지 않습니다. [07-deploy-strategy.md](07-deploy-strategy.md), [09-security-and-shared-config.md](09-security-and-shared-config.md) 참고.
 
 ---
 
@@ -113,3 +114,5 @@ npm run build
 - 클라이언트: http://localhost:5182  
 
 한 번에 실행하려면 루트에 `package.json`을 두고 `concurrently` 등으로 스크립트를 묶는 방식으로 확장할 수 있습니다.
+
+**참고 문서**: [07-deploy-strategy.md](07-deploy-strategy.md)(ENV·.env·배포), [09-security-and-shared-config.md](09-security-and-shared-config.md)(SECRET_KEY·API 단일 소스·공통 유틸).

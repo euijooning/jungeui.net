@@ -7,7 +7,7 @@
 
 - **docs/** — 문서 루트: `guides/`(구현 가이드·스펙), `plans/`(구현 계획)
 - **scripts/** — DB 초기화, 시딩, 배포 스크립트
-- **shared/ui-kit/** — 클라이언트·백오피스 공통 UI 컴포넌트
+- **shared/** — 클라이언트·백오피스 공통: `ui-kit/`(UI 컴포넌트), `utils/`(예: 날짜 포맷)
 - **apps/api/** — Python FastAPI REST API 서버
 - **apps/client/** — 방문자용 블로그/포트폴리오 프론트
 - **apps/backoffice/** — 관리자용 어드민 (MUI·다크 모드, 글/경력/프로젝트/카테고리/메시지, Toast UI 에디터)
@@ -24,6 +24,7 @@
 - [05-server-run-guide.md](docs/guides/common/05-server-run-guide.md) — 서버 실행·환경 변수(운영/스테이징)
 - [06-ui-ux-guide.md](docs/guides/common/06-ui-ux-guide.md) — UI/UX 가이드
 - [07-deploy-strategy.md](docs/guides/common/07-deploy-strategy.md) — 배포 전략 (ENV·.env, 운영/스테이징)
+- [09-security-and-shared-config.md](docs/guides/common/09-security-and-shared-config.md) — 보안(SECRET_KEY)·API 단일 소스·공통 유틸(날짜)
 
 **백오피스 (docs/guides/backoffice/)**  
 - [01-implementation-guide.md](docs/guides/backoffice/01-implementation-guide.md) — 구현 가이드

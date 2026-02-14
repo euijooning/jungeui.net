@@ -30,9 +30,11 @@ jungeui/
 │   └── deploy.sh         # 배포 자동화
 │
 ├── shared/                # 앱 간 재사용 리소스
-│   └── ui-kit/            # 공통 디자인 컴포넌트
-│       ├── components/
-│       └── design-guide.md
+│   ├── ui-kit/            # 공통 디자인 컴포넌트
+│   │   ├── components/
+│   │   └── design-guide.md
+│   └── utils/             # 공통 유틸 (날짜 포맷 등)
+│       └── date.js        # formatDate(iso, options) — client·backoffice 공용
 │
 └── apps/
     ├── api/               # (Backend) REST API 서버
@@ -57,6 +59,7 @@ jungeui/
 - **docs**: 스펙 확인 시 `docs/guides/`(common, backoffice, client, deploy, convention), 구현 계획은 `docs/plans/` 참고.
 - **scripts**: `python scripts/db_reset.py` 등. (관리자 계정은 서버 기동 시 `apps/api/core/db_init.py`에서 없을 때만 자동 생성)
 - **shared/ui-kit**: Button, Card, Modal, Layout 등; client·backoffice 에서 import.
+- **shared/utils**: 공통 유틸(예: `date.js`의 `formatDate`). client·backoffice에서 상대 경로로 import. 포맷 정책 변경 시 한 곳만 수정.
 - **apps/api**: FastAPI 앱, DB 접근, 인증.
 - **apps/client**: 읽기 위주 블로그/About/프로젝트.
 - **apps/backoffice**: 글/경력/프로젝트/카테고리/메시지/에디터 관리. 레이아웃·테마는 `components/AdminLayout.jsx`, `styles/AdminTheme.js`, [guides/backoffice/07-theme-and-dark-mode.md](../backoffice/07-theme-and-dark-mode.md) 참고.

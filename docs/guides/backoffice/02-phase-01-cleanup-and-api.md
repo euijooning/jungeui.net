@@ -22,9 +22,9 @@
 
 ## 2. API·인증 연동
 
-- **authProvider**: 이미 POST /api/auth/login, JWT 저장. 02-api-spec과 일치하는지 확인.
-- **dataProvider**: `apiUrl` = `VITE_API_URL` + `/api`. getList/getOne/create/update/delete 시 리소스명을 API 경로와 맞춤 (posts, categories, tags, careers, projects, assets). 02-api-spec 엔드포인트와 동일한 prefix 사용.
-- **apiClient**: 루트 .env의 `VITE_API_URL` 사용 (이미 반영된 경우 유지).
+- **authProvider**: POST /api/auth/login, JWT 저장. 02-api-spec과 일치. `API_BASE`는 **apiConfig**에서만 import (apiClient와 순환 의존성 회피).
+- **dataProvider**: `API_BASE`를 apiClient에서 import. `apiUrl` = `API_BASE` + `/api`. getList/getOne/create/update/delete 시 리소스명을 API 경로와 맞춤 (posts, categories, tags, careers, projects, assets). 02-api-spec 엔드포인트와 동일한 prefix 사용.
+- **apiClient** · **apiConfig**: 루트 .env의 `VITE_API_URL`을 **단일 소스**로 사용. `lib/apiConfig.js`에 `API_BASE`, `isDev`, `UPLOAD_URL` 정의, `lib/apiClient.js`가 사용·재export. 페이지·authProvider·dataProvider는 apiClient(또는 authProvider만 apiConfig)에서 import. 상세는 [../common/09-security-and-shared-config.md](../common/09-security-and-shared-config.md) 참고.
 
 ## 3. 대시보드
 
