@@ -139,7 +139,7 @@ export default function PostDetail() {
 
   return (
     <SharedLayout categories={categories} currentCategoryId={currentCategoryId}>
-      <article className="max-w-[680px] mx-auto mt-8 md:mt-12 px-4 md:px-0">
+      <article className="max-w-[740px] mt-8 md:mt-12 px-4 md:px-0 w-full md:mr-auto">
         <header className="mb-10 text-center md:text-left">
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4 justify-center md:justify-start">
