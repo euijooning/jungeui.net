@@ -539,22 +539,39 @@ export default function PostEditor({ isEdit = false, postId = null }) {
 
   const handleSave = async () => {
     let content_html = editorRef.current ? editorRef.current.getHTML() : '';
-    // H5/H6는 사용하지 않음 → H4로 통일 (에디터 툴바에는 H5/H6가 있으나 저장 시 h1~h4만 유지)
+    // H5/H6는 사용하지 않음 → H4로 통일
     content_html = content_html.replace(/<\/h[56]>/gi, '</h4>').replace(/<h[56](\s|>)/gi, '<h4$1');
+
     const visibility = form.visibility || form.status;
     const isScheduled = visibility === 'PUBLISHED' && form.publishType === 'scheduled';
+
     let published_at = null;
+
     if (visibility === 'PUBLISHED') {
       if (isScheduled && form.published_at) {
+        // 1. 예약 발행: 사용자가 입력한 미래 날짜 사용
         // datetime-local 값("2025-02-14T15:00") → Date(로컬 해석) → toISOString() → UTC
         published_at = new Date(form.published_at).toISOString();
-      } else if (!isScheduled) {
-        published_at = new Date().toISOString();
+      } else {
+        // 2. 즉시 공개(Now)인 경우 로직 개선:
+        // - 기존에 날짜가 있고(form.published_at), 그게 과거라면(이미 발행된 글) => 기존 날짜 유지
+        // - 날짜가 없거나(초안), 미래였다면(예약->즉시 변경) => 현재 날짜(new Date) 부여
+        const existingDate = form.published_at ? new Date(form.published_at) : null;
+        const now = new Date();
+
+        if (existingDate && existingDate <= now) {
+          published_at = existingDate.toISOString();
+        } else {
+          published_at = now.toISOString();
+        }
       }
     }
+
     const postTagsRaw = (form.post_tags || []).filter((x) => typeof x === 'number' || (typeof x === 'string' && /^\d+$/.test(x)));
     const attachment_asset_ids = (attachmentList || []).map((a) => Number(a.id)).filter((n) => !Number.isNaN(n) && n > 0);
+
     console.log('[저장] attachmentList=', attachmentList, 'attachment_asset_ids=', attachment_asset_ids);
+
     const payload = {
       title: form.title || '제목 없음',
       slug: slugFromTitle(form.title) || 'untitled',
@@ -568,6 +585,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       post_tags: postTagsRaw.map((x) => Number(x)),
       attachment_asset_ids,
     };
+
     setSaving(true);
     setSaveError(null);
     try {
