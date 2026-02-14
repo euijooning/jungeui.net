@@ -38,19 +38,20 @@
 
 **현재**: backoffice에서 `API_BASE`/`apiBase`/`(import.meta.env.VITE_API_URL || '').replace(/\/$/, '')` 를 여러 파일에서 각각 정의.  
 **대상 파일**: apiClient.js, authProvider.js, dataProvider.js, PostDetail.jsx, PostEditor.jsx, ProjectForm.jsx, ProjectDetailModal.jsx, CareerForm.jsx.  
-**목표**: backoffice는 `apiClient` 하나에서만 API 베이스 사용. client는 `config.js` 유지.
+**목표**: backoffice는 `apiClient` 하나에서만 API 베이스 사용. client는 `config.js` 유지.  
+**구현 참고**: 순환 의존성(apiClient ↔ authProvider) 회피를 위해 `lib/apiConfig.js`에 API_BASE·isDev 단일 정의, apiClient가 사용·재export, authProvider만 apiConfig에서 직접 import.
 
 ### 체크리스트
 
-- [ ] `apiClient.js`에서 `API_BASE`(또는 `getApiBase()`) export
-- [ ] 필요 시 `apiClient.js`에서 `isDev` export (상대/절대 URL 판단용)
-- [ ] `authProvider.js`: 상단 `const API_BASE = ...` 제거 후 apiClient에서 import
-- [ ] `dataProvider.js`: 상단 `const apiBase = ...` 제거 후 apiClient에서 import
-- [ ] `PostDetail.jsx`: 상단 `apiBase`/`isDev` 로컬 정의 제거 후 apiClient에서 import
-- [ ] `PostEditor.jsx`: 상단 `apiBase` 로컬 정의 제거 후 apiClient에서 import
-- [ ] `ProjectForm.jsx`: 상단 `const API_BASE = ...` 제거 후 apiClient에서 import
-- [ ] `ProjectDetailModal.jsx`: 상단 `const API_BASE = ...` 제거 후 apiClient에서 import
-- [ ] `CareerForm.jsx`: 상단 `const API_BASE = ...` 제거 후 apiClient에서 import
+- [x] `apiClient.js`에서 `API_BASE`(또는 `getApiBase()`) export
+- [x] 필요 시 `apiClient.js`에서 `isDev` export (상대/절대 URL 판단용)
+- [x] `authProvider.js`: 상단 `const API_BASE = ...` 제거 후 apiConfig에서 import
+- [x] `dataProvider.js`: 상단 `const apiBase = ...` 제거 후 apiClient에서 import
+- [x] `PostDetail.jsx`: 상단 `apiBase`/`isDev` 로컬 정의 제거 후 apiClient에서 import
+- [x] `PostEditor.jsx`: 상단 `apiBase` 로컬 정의 제거 후 apiClient에서 import
+- [x] `ProjectForm.jsx`: 상단 `const API_BASE = ...` 제거 후 apiClient에서 import
+- [x] `ProjectDetailModal.jsx`: 상단 `const API_BASE = ...` 제거 후 apiClient에서 import
+- [x] `CareerForm.jsx`: 상단 `const API_BASE = ...` 제거 후 apiClient에서 import
 
 ### 수정 방향 (참고)
 

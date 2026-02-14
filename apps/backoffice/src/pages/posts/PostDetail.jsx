@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Pencil, Trash2, Paperclip, Download } from 'lucide-react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import apiClient, { getAccessToken } from '../../lib/apiClient';
+import apiClient, { getAccessToken, API_BASE, isDev } from '../../lib/apiClient';
 
 function formatDate(iso) {
   if (!iso) return '-';
@@ -81,9 +81,7 @@ export default function PostDetail() {
   };
 
   const handleDownload = async (assetId, filename) => {
-    const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-    const isDev = import.meta.env.DEV;
-    const downloadBase = isDev ? '' : apiBase;
+    const downloadBase = isDev ? '' : API_BASE;
     const url = downloadBase ? `${downloadBase}/api/assets/${assetId}/download` : `/api/assets/${assetId}/download`;
     const token = getAccessToken();
     try {

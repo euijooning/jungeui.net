@@ -8,9 +8,8 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
-import apiClient, { getAccessToken } from '../../lib/apiClient';
+import apiClient, { getAccessToken, API_BASE } from '../../lib/apiClient';
 
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 const UPLOAD_URL = API_BASE ? `${API_BASE}/api/assets/upload` : '/api/assets/upload';
 const LOGO_SIZE = 200;
 

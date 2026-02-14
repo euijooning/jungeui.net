@@ -1,10 +1,8 @@
 import { fetchUtils } from 'react-admin';
 import { stringify } from 'query-string';
-import { getAccessToken } from './lib/apiClient';
+import { getAccessToken, API_BASE } from './lib/apiClient';
 
-// 빈 값이면 same-origin 상대 경로 사용 (/api/...)
-const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-const apiUrl = `${apiBase}/api`;
+const apiUrl = `${API_BASE}/api`;
 
 const getAuthHeaders = () => {
   const token = getAccessToken();
@@ -18,7 +16,7 @@ const getAuthHeaders = () => {
  * 공통 fetch 래퍼
  */
 const httpClient = async (url, options = {}) => {
-  const fullUrl = url.startsWith('http') ? url : `${apiBase}${url.startsWith('/') ? url : '/' + url}`;
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url.startsWith('/') ? url : '/' + url}`;
   options.headers = getAuthHeaders();
   options.credentials = 'include';
 
