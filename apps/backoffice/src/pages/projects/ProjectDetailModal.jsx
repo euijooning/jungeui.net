@@ -9,9 +9,13 @@ import { API_BASE } from '../../lib/apiClient';
 export default function ProjectDetailModal({ project, open, onClose, onEdit }) {
   if (!project) return null;
 
+  const base = API_BASE || '';
   const thumbUrl = project.thumbnail
-    ? (project.thumbnail.startsWith('http') ? project.thumbnail : `${API_BASE || ''}${project.thumbnail}`)
-    : null;
+    ? (project.thumbnail.startsWith('http') ? project.thumbnail : base + (project.thumbnail.startsWith('/') ? project.thumbnail : `/${project.thumbnail}`))
+    : (project.thumbnail_asset_id ? `${base}/api/assets/${project.thumbnail_asset_id}/download` : null);
+  const introUrl = project.intro_image
+    ? (project.intro_image.startsWith('http') ? project.intro_image : base + (project.intro_image.startsWith('/') ? project.intro_image : `/${project.intro_image}`))
+    : (project.intro_image_asset_id ? `${base}/api/assets/${project.intro_image_asset_id}/download` : null);
 
   const fmt = (d) => {
     if (!d) return '';
@@ -41,6 +45,12 @@ export default function ProjectDetailModal({ project, open, onClose, onEdit }) {
           <div>
             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">대표 이미지</p>
             <img src={thumbUrl} alt="" className="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
+          </div>
+        )}
+        {introUrl && (
+          <div>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">소개 이미지</p>
+            <img src={introUrl} alt="" className="w-full max-w-md aspect-video object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
           </div>
         )}
         {(project.links || []).length > 0 && (

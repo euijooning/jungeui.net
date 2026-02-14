@@ -106,9 +106,12 @@ export default function CareerForm({ isEdit = false, careerId = null, onSuccess,
         career_tags: tagNames,
       });
       setIsOngoing(!c.end_date && !!c.start_date);
+      const base = API_BASE || '';
       if (c.logo) {
-        const url = c.logo.startsWith('http') ? c.logo : `${API_BASE || ''}${c.logo}`;
+        const url = c.logo.startsWith('http') ? c.logo : base + (c.logo.startsWith('/') ? c.logo : `/${c.logo}`);
         setLogoPreview(url);
+      } else if (c.logo_asset_id) {
+        setLogoPreview(`${base}/api/assets/${c.logo_asset_id}/download`);
       } else {
         setLogoPreview(null);
       }

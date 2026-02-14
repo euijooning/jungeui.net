@@ -263,6 +263,56 @@ def _ensure_posts_prefix_id():
         conn.close()
 
 
+def _ensure_career_extension_tables():
+    """경력 확장 테이블(career_links, career_highlights, career_tags) 없으면 생성."""
+    conn = _get_conn(use_db=True)
+    try:
+        with conn.cursor() as cur:
+            for table in ("career_links", "career_highlights", "career_tags"):
+                cur.execute(
+                    "SELECT 1 FROM information_schema.TABLES "
+                    "WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s",
+                    (MYSQL_DATABASE, table),
+                )
+                if cur.fetchone() is not None:
+                    continue
+                if table == "career_links":
+                    cur.execute("""
+                        CREATE TABLE career_links (
+                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          career_id BIGINT NOT NULL COMMENT '경력 ID',
+                          link_name VARCHAR(50) NOT NULL COMMENT '버튼명',
+                          link_url VARCHAR(500) NOT NULL COMMENT '이동 URL',
+                          sort_order INT DEFAULT 0 COMMENT '버튼 순서',
+                          FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
+                        ) COMMENT='경력 관련 링크들'
+                    """)
+                elif table == "career_highlights":
+                    cur.execute("""
+                        CREATE TABLE career_highlights (
+                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          career_id BIGINT NOT NULL COMMENT '경력 ID',
+                          content VARCHAR(500) NOT NULL COMMENT '한 일 항목 (개조식)',
+                          sort_order INT DEFAULT 0 COMMENT '노출 순서',
+                          FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
+                        ) COMMENT='경력 한 일 (최대 5개)'
+                    """)
+                else:  # career_tags
+                    cur.execute("""
+                        CREATE TABLE career_tags (
+                          career_id BIGINT NOT NULL,
+                          tag_id BIGINT NOT NULL,
+                          PRIMARY KEY (career_id, tag_id),
+                          FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE,
+                          FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+                        ) COMMENT='경력-태그 N:M (최대 5개)'
+                    """)
+                conn.commit()
+                logger.info("%s 테이블 생성됨", table)
+    finally:
+        conn.close()
+
+
 def _ensure_site_settings():
     """site_settings 테이블 없으면 생성 (프로젝트/경력 소개 문구 등)."""
     conn = _get_conn(use_db=True)
@@ -314,6 +364,7 @@ def init_on_startup():
         _ensure_tables()
         _ensure_posts_view_count()
         _ensure_posts_prefix_id()
+        _ensure_career_extension_tables()
         _ensure_site_settings()
         _ensure_admin()
     except Exception as e:
