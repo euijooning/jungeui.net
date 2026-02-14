@@ -57,8 +57,35 @@
 
 - **대시보드 아이콘**: AdminLayout 사이드바 대시보드 메뉴 아이콘 Lucide `LayoutDashboard` 사용.
 - **저장 후 이동**: 글 등록/수정 완료 시 **포스트 목록**(`/posts`)으로 리다이렉트.
-- **수정 시 발행일 유지**: 수정 저장 시 `published_at` 덮어쓰지 않음. 예약 발행일 변경 시에만 갱신.
 - **포스트 상세**: 제목 상단 한 번만. "본문" 라벨은 카드 밖 상단, 본문 내용만 카드 안에 렌더링.
+
+## 5. 발행일(published_at) 처리
+
+수정 저장 시 기존 발행일이 덮어쓰이지 않도록 하고, 비공개 전환 시에도 날짜가 DB에서 사라지지 않도록 한다.
+
+### 5.1 프론트엔드 (PostEditor.jsx)
+
+- **originPublishedAt**: 로드 시(GET /api/posts/{id}) 서버에서 받은 `published_at`을 그대로 저장해 둔다. 폼에서 사용자가 날짜를 바꿔도 "원본 발행일" 비교·복구용으로 사용.
+- **로드 시**: `toLocalISOString(d.published_at)`으로 datetime-local용 문자열(`YYYY-MM-DDTHH:mm`)을 만들어 `form.published_at`에 넣는다. 이때 `.slice(0, 16)` 때문에 초 단위는 잘린다.
+- **저장 시(handleSave)**  
+  - **공개 + 예약 발행**: `form.published_at`(사용자 입력 미래 날짜)를 UTC ISO로 전송.  
+  - **공개 + 즉시 공개**: `originPublishedAt` 기준. 원본이 있고 과거면 그대로 전송(복구), 없거나 미래면 `new Date().toISOString()`. (예약으로 미래 날짜 넣었다가 다시 즉시로 돌려도 원래 과거 날짜로 복구됨.)  
+  - **비공개/일부공개**: `originPublishedAt`이 있으면 그대로 전송해 DB에 날짜를 유지. 없으면 null. (나중에 다시 공개로 돌릴 때 400 방지.)
+
+### 5.2 백엔드 (apps/api/routers/posts.py)
+
+- **update_post**: "발행일은 현재 시각 이전으로 설정할 수 없습니다" 검증 시, **분 단위(앞 16자리)**까지만 비교한다. 프론트에서 초가 `.slice(0,16)`으로 잘려 00초로 오기 때문에, 초 단위 차이로 같은 의도인데 400이 나지 않도록 한다. (`old_val = existing_str[:16]`, `new_val = body_str[:16]`, `new_val != old_val`일 때만 400.)
+- **과거 허용 조건**: 이미 DB에 있던 발행일과 동일한 값(분 단위까지 같음)을 보내면 과거여도 통과. 새로 과거로 바꾸려고 할 때만 400.
+
+### 5.3 시나리오 요약
+
+| 동작 | published_at 전송 값 |
+|------|----------------------|
+| 이미 발행된 글 수정(즉시 공개 유지) | originPublishedAt(기존 날짜 유지) |
+| 예약 → 즉시 공개로 변경 | origin이 과거면 origin, 아니면 now |
+| 공개 → 비공개 저장 | origin이 있으면 origin(날짜 유지) |
+| 비공개(초안) → 공개 | now |
+| 예약 발행 선택 | form.published_at(미래 날짜) |
 
 ## 완료 기준
 
