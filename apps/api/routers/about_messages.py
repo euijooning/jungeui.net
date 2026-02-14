@@ -1,12 +1,18 @@
 """소개 메시지 Admin API (CRUD)."""
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import text
 
 from apps.api.core import get_db
 from apps.api.routers.auth import get_current_user
+from apps.api.routers.about import KEY_PROJECTS_CAREERS_INTRO
 
 router = APIRouter(prefix="/about_messages", tags=["about_messages"])
+
+
+class ProjectsCareersIntroBody(BaseModel):
+    """프로젝트/경력 섹션 소개 문구 (최대 20자)."""
+    text: str = Field(default="", max_length=20)
 
 
 class AboutMessageBody(BaseModel):
@@ -46,6 +52,21 @@ def create_message(body: AboutMessageBody, db=Depends(get_db), user=Depends(get_
     )
     db.commit()
     return {"message": "created"}
+
+
+@router.put("/projects-careers-intro")
+def update_projects_careers_intro(body: ProjectsCareersIntroBody, db=Depends(get_db), user=Depends(get_current_user)):
+    """프로젝트/경력 섹션 소개 문구 저장 (최대 20자)."""
+    value = (body.text or "").strip()[:20]
+    db.execute(
+        text("""
+            INSERT INTO site_settings (`key`, value) VALUES (:key, :value)
+            ON DUPLICATE KEY UPDATE value = :value
+        """),
+        {"key": KEY_PROJECTS_CAREERS_INTRO, "value": value},
+    )
+    db.commit()
+    return {"text": value}
 
 
 @router.put("/{message_id}")

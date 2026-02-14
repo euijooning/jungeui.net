@@ -62,6 +62,12 @@ export async function fetchAboutMessages() {
   return request('/api/about/messages');
 }
 
+/** 프로젝트/경력 섹션 소개 문구 한 줄 (최대 20자). */
+export async function fetchProjectsCareersIntro() {
+  const res = await request('/api/about/projects-careers-intro');
+  return res?.text ?? '';
+}
+
 /** 프로젝트 목록 (sort_order 순). 링크·태그·썸네일 URL 포함. */
 export async function fetchProjects() {
   return request('/api/projects');
