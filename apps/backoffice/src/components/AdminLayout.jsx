@@ -7,19 +7,6 @@ import { STORAGE_TOKEN, STORAGE_USER } from "../authProvider";
 const STORAGE_KEY_SIDEBAR = "sidebarCollapsed";
 const STORAGE_KEY_THEME = "backoffice-theme";
 
-/* 클라이언트와 동일한 SVG 아이콘 (다크모드 토글용) */
-const sunIcon = (
-  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <circle cx="12" cy="12" r="4" />
-    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-  </svg>
-);
-const moonIcon = (
-  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-  </svg>
-);
-
 function useWindowWidth() {
   const [width, setWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1280
@@ -177,8 +164,8 @@ const AdminLayout = ({ children }) => {
   const isActive = (href) => {
     const navPath = href.replace(/\/$/, "") || "/";
     if (navPath === "/posts") {
-      // 포스트 목록: 목록(/posts) 또는 글 상세(/posts/:id)일 때만. 새글/카테고리/수정은 제외
-      if (currentPath === "/posts/new" || currentPath === "/posts/categories" || currentPath.endsWith("/edit")) return false;
+      // 포스트 목록: 목록(/posts) 또는 글 상세(/posts/:id)일 때만. 새글/카테고리/말머리/수정은 제외
+      if (currentPath === "/posts/new" || currentPath === "/posts/categories" || currentPath === "/posts/prefixes" || currentPath.endsWith("/edit")) return false;
       return currentPath === "/posts" || /^\/posts\/[^/]+$/.test(currentPath);
     }
     return currentPath === navPath;
@@ -190,6 +177,7 @@ const AdminLayout = ({ children }) => {
       "/posts": "포스트 목록",
       "/posts/new": "새 포스트",
       "/posts/categories": "카테고리 관리",
+      "/posts/prefixes": "말머리 관리",
       "/messages": "메시지 관리",
       "/careers": "경력 관리",
       "/careers/new": "경력 등록",
@@ -230,7 +218,8 @@ const AdminLayout = ({ children }) => {
       singleLinkHref: "/posts",
       items: [
         { href: "/posts", icon: "fa-list", label: "포스트 목록" },
-        { href: "/posts/categories", icon: "fa-paperclip", label: "카테고리 관리" },
+        { href: "/posts/categories", icon: "fa-layer-group", label: "카테고리 관리" },
+        { href: "/posts/prefixes", icon: "fa-tags", label: "말머리 관리" },
       ],
     },
     {
@@ -428,7 +417,7 @@ const AdminLayout = ({ children }) => {
                   className="flex items-center justify-center w-10 h-10 rounded-md text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                   aria-label={isDark ? "라이트 모드" : "다크 모드"}
                 >
-                  {isDark ? sunIcon : moonIcon}
+                  {isDark ? <i className="fa-regular fa-sun" /> : <i className="fa-regular fa-moon" />}
                 </button>
                 {/* User menu */}
                 <div className="relative">

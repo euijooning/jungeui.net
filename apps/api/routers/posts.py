@@ -23,6 +23,7 @@ class PostBody(BaseModel):
     status: str = "DRAFT"
     published_at: str | None = None
     category_id: int | None = None
+    prefix_id: int | None = None
     thumbnail_asset_id: int | None = None
     content_html: str | None = None
     content_json: str | None = None
@@ -246,19 +247,20 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
     """글 단건 조회. 비로그인 시 PUBLISHED만, 로그인 시 전체."""
     row = db.execute(
         text("""
-            SELECT p.id, p.title, p.slug, p.status, p.published_at, p.category_id, p.thumbnail_asset_id,
+            SELECT p.id, p.title, p.slug, p.status, p.published_at, p.category_id, p.prefix_id, p.thumbnail_asset_id,
                    p.content_html, p.content_json, p.created_at, p.updated_at,
-                   c.name AS category_name, COALESCE(p.view_count, 0) AS view_count
+                   c.name AS category_name, pp.name AS prefix_name, COALESCE(p.view_count, 0) AS view_count
             FROM posts p
             LEFT JOIN categories c ON c.id = p.category_id
+            LEFT JOIN post_prefixes pp ON pp.id = p.prefix_id
             WHERE p.id = :id
         """),
         {"id": post_id},
     ).fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
-    (pid, title, slug, status, published_at, category_id, thumbnail_asset_id,
-     content_html, content_json, created_at, updated_at, category_name, view_count) = row
+    (pid, title, slug, status, published_at, category_id, prefix_id, thumbnail_asset_id,
+     content_html, content_json, created_at, updated_at, category_name, prefix_name, view_count) = row
     if not current_user and status != "PUBLISHED":
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
     if not current_user and status == "PUBLISHED":
@@ -325,6 +327,8 @@ def get_post(post_id: int, db=Depends(get_db), current_user=Depends(get_optional
         "status": status,
         "published_at": _isoformat_utc(published_at),
         "category_id": category_id,
+        "prefix_id": prefix_id,
+        "prefix_name": prefix_name,
         "thumbnail_asset_id": thumbnail_asset_id,
         "content_html": content_html,
         "content_json": content_json,
@@ -352,8 +356,8 @@ def create_post(body: PostBody, db=Depends(get_db)):
     store_published = parsed if parsed else (published if published else None)
     db.execute(
         text("""
-            INSERT INTO posts (title, slug, status, published_at, category_id, thumbnail_asset_id, content_html, content_json, created_at, updated_at)
-            VALUES (:title, :slug, :status, :published_at, :category_id, :thumbnail_asset_id, :content_html, :content_json, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+            INSERT INTO posts (title, slug, status, published_at, category_id, prefix_id, thumbnail_asset_id, content_html, content_json, created_at, updated_at)
+            VALUES (:title, :slug, :status, :published_at, :category_id, :prefix_id, :thumbnail_asset_id, :content_html, :content_json, UTC_TIMESTAMP(), UTC_TIMESTAMP())
         """),
         {
             "title": (body.title or "제목 없음").strip(),
@@ -361,6 +365,7 @@ def create_post(body: PostBody, db=Depends(get_db)):
             "status": body.status or "DRAFT",
             "published_at": store_published,
             "category_id": body.category_id,
+            "prefix_id": body.prefix_id,
             "thumbnail_asset_id": body.thumbnail_asset_id,
             "content_html": body.content_html,
             "content_json": body.content_json,
@@ -422,7 +427,7 @@ def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
     db.execute(
         text("""
             UPDATE posts SET title = :title, slug = :slug, status = :status, published_at = :published_at,
-                   category_id = :category_id, thumbnail_asset_id = :thumbnail_asset_id,
+                   category_id = :category_id, prefix_id = :prefix_id, thumbnail_asset_id = :thumbnail_asset_id,
                    content_html = :content_html, content_json = :content_json, updated_at = UTC_TIMESTAMP()
             WHERE id = :id
         """),
@@ -433,6 +438,7 @@ def update_post(post_id: int, body: PostBody, db=Depends(get_db)):
             "status": body.status or "DRAFT",
             "published_at": store_published,
             "category_id": body.category_id,
+            "prefix_id": body.prefix_id,
             "thumbnail_asset_id": body.thumbnail_asset_id,
             "content_html": body.content_html,
             "content_json": body.content_json,

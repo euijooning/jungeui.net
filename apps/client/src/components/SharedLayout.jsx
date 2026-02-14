@@ -3,33 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import Layout from './Layout';
 import { useTheme } from '../ThemeContext';
 
-const sunIcon = (
-  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <circle cx="12" cy="12" r="4" />
-    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-  </svg>
-);
-const moonIcon = (
-  <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-  </svg>
-);
-
-const hamburgerIcon = (
-  <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <line x1="3" y1="6" x2="21" y2="6" />
-    <line x1="3" y1="12" x2="21" y2="12" />
-    <line x1="3" y1="18" x2="21" y2="18" />
-  </svg>
-);
-
-const closeIcon = (
-  <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
-
 const linkBase = "block text-[0.9375rem] no-underline py-2 px-3 rounded-lg transition-colors theme-link";
 const linkActive = "theme-link-active text-[0.9375rem]";
 
@@ -162,7 +135,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
             onClick={() => setOverlayOpen(true)}
             aria-label="카테고리 메뉴"
           >
-            {hamburgerIcon}
+            <i className="fa-solid fa-bars" />
           </button>
         )}
         <button
@@ -171,7 +144,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
           onClick={() => setTheme()}
           aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
         >
-          {theme === 'dark' ? sunIcon : moonIcon}
+          {theme === 'dark' ? <i className="fa-regular fa-sun" /> : <i className="fa-regular fa-moon" />}
         </button>
       </div>
     </nav>
@@ -207,7 +180,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
                 onClick={() => setOverlayOpen(false)}
                 aria-label="닫기"
               >
-                {closeIcon}
+                <i className="fa-solid fa-xmark" />
               </button>
             </div>
             <nav aria-label="카테고리">

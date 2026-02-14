@@ -233,6 +233,18 @@ export default function PostDetail() {
                 <div className="text-sm text-gray-900 dark:text-gray-100 font-medium">{post.view_count ?? 0}</div>
               </div>
               <div>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">말머리</label>
+                <div className="text-sm text-gray-900 dark:text-gray-100 font-medium">
+                  {post.prefix_name ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                      {post.prefix_name}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 dark:text-gray-500">미지정</span>
+                  )}
+                </div>
+              </div>
+              <div>
                 <label className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">태그</label>
                 <div className="flex flex-wrap gap-1.5 mt-1">
                   {post.tags?.length > 0 ? (

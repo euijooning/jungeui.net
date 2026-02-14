@@ -60,9 +60,17 @@ CREATE TABLE IF NOT EXISTS tags (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) COMMENT='공통 태그';
 
+CREATE TABLE IF NOT EXISTS post_prefixes (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(20) NOT NULL COMMENT '말머리 이름 (최대 20자)',
+  sort_order INT DEFAULT 0 COMMENT '노출 순서',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) COMMENT='게시글 말머리';
+
 CREATE TABLE IF NOT EXISTS posts (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   category_id BIGINT NULL COMMENT '카테고리 ID',
+  prefix_id BIGINT NULL COMMENT '말머리 ID',
   thumbnail_asset_id BIGINT NULL COMMENT '썸네일 이미지 ID',
   title VARCHAR(200) NOT NULL COMMENT '제목',
   slug VARCHAR(255) NOT NULL UNIQUE COMMENT 'URL 슬러그',
@@ -74,6 +82,7 @@ CREATE TABLE IF NOT EXISTS posts (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   view_count INT DEFAULT 0 COMMENT '조회수',
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
+  FOREIGN KEY (prefix_id) REFERENCES post_prefixes(id) ON DELETE SET NULL,
   FOREIGN KEY (thumbnail_asset_id) REFERENCES assets(id) ON DELETE SET NULL
 ) COMMENT='블로그 게시글';
 
@@ -215,6 +224,45 @@ def _ensure_posts_view_count():
         conn.close()
 
 
+def _ensure_posts_prefix_id():
+    """기존 DB에 post_prefixes 테이블 및 posts.prefix_id 컬럼이 없으면 추가."""
+    conn = _get_conn(use_db=True)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT 1 FROM information_schema.TABLES "
+                "WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'post_prefixes'",
+                (MYSQL_DATABASE,),
+            )
+            if cur.fetchone() is None:
+                cur.execute("""
+                    CREATE TABLE post_prefixes (
+                      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                      name VARCHAR(20) NOT NULL COMMENT '말머리 이름 (최대 20자)',
+                      sort_order INT DEFAULT 0 COMMENT '노출 순서',
+                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    ) COMMENT='게시글 말머리'
+                """)
+                conn.commit()
+                logger.info("post_prefixes 테이블 생성됨")
+            cur.execute(
+                "SELECT 1 FROM information_schema.COLUMNS "
+                "WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'posts' AND COLUMN_NAME = 'prefix_id'",
+                (MYSQL_DATABASE,),
+            )
+            if cur.fetchone() is None:
+                cur.execute(
+                    "ALTER TABLE posts ADD COLUMN prefix_id BIGINT NULL COMMENT '말머리 ID' AFTER category_id"
+                )
+                cur.execute(
+                    "ALTER TABLE posts ADD FOREIGN KEY (prefix_id) REFERENCES post_prefixes(id) ON DELETE SET NULL"
+                )
+                conn.commit()
+                logger.info("posts.prefix_id 컬럼 추가됨")
+    finally:
+        conn.close()
+
+
 def _ensure_admin():
     """env 관리자 계정이 없을 때만 생성. 있으면 아무것도 하지 않음."""
     conn = _get_conn(use_db=True)
@@ -241,6 +289,7 @@ def init_on_startup():
         _ensure_database()
         _ensure_tables()
         _ensure_posts_view_count()
+        _ensure_posts_prefix_id()
         _ensure_admin()
     except Exception as e:
         logger.exception("DB 초기화 실패: %s", e)
