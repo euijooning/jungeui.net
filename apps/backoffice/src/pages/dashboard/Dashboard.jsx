@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, FileText, Eye, List, ChevronRight, Briefcase, Folder } from 'lucide-react';
 import apiClient from '../../lib/apiClient';
+import { formatDate } from '../../../../../shared/utils/date';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -196,7 +197,7 @@ export default function Dashboard() {
                   >
                     <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex-1 mr-2">{post.title || '(제목 없음)'}</span>
                     <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
-                      {post.updated_at ? new Date(post.updated_at).toLocaleDateString('ko-KR') : '-'}
+                      {post.updated_at ? formatDate(post.updated_at) : '-'}
                     </span>
                   </button>
                   <div className="flex items-center gap-2 px-3 pb-2">

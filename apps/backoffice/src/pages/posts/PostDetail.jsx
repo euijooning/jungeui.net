@@ -3,18 +3,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Pencil, Trash2, Paperclip, Download } from 'lucide-react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import apiClient, { getAccessToken, API_BASE, isDev } from '../../lib/apiClient';
+import { formatDate as formatDateUtil } from '../../../../../shared/utils/date';
 
-function formatDate(iso) {
-  if (!iso) return '-';
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return '-';
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const da = String(d.getDate()).padStart(2, '0');
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mm = String(d.getMinutes()).padStart(2, '0');
-  return `${y}-${m}-${da} ${hh}:${mm}`;
-}
+const formatDate = (iso) => formatDateUtil(iso, { withTime: true }) || '-';
 
 function statusBadge(status, published_at) {
   const isScheduled = status === 'PUBLISHED' && published_at && new Date(published_at) > new Date();

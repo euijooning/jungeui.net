@@ -84,14 +84,14 @@
 
 ### 체크리스트
 
-- [ ] 공통 유틸 파일 추가: `shared/utils/date.js` 또는 `apps/backoffice/src/utils/date.js` (client·backoffice 둘 다 쓸지 여부에 따라 선택)
-- [ ] `formatDate(iso, options?)` 함수 정의 (예: `toLocaleDateString('ko-KR', { dateStyle: 'short' })` 등 통일)
-- [ ] client `Home.jsx`: 로컬 `formatDate` 제거 후 공통 유틸 import
-- [ ] client `PostDetail.jsx`: 로컬 `formatDate` 제거 후 공통 유틸 import
-- [ ] backoffice `PostList.jsx`: 로컬 `formatDate` 제거 후 공통 유틸 import
-- [ ] backoffice `PostDetail.jsx`: 로컬 `formatDate` 제거 후 공통 유틸 import
-- [ ] backoffice `NotificationsPage.jsx`: 로컬 `formatDate` 제거 후 공통 유틸 import
-- [ ] backoffice `Dashboard.jsx`: 날짜 표시 부분 공통 유틸로 교체
+- [x] 공통 유틸 파일 추가: `shared/utils/date.js` (client·backoffice 둘 다 사용)
+- [x] `formatDate(iso, options?)` 함수 정의 (dateStyle: 'short', withTime, format: 'dot', monthShortWithTime 등 옵션)
+- [x] client `Home.jsx`: 로컬 `formatDate` 제거 후 공통 유틸 import
+- [x] client `PostDetail.jsx`: 로컬 `formatDate` 제거 후 공통 유틸 import (`format: 'dot'`)
+- [x] backoffice `PostList.jsx`: 로컬 `formatDate` 제거 후 공통 유틸 import (`dateStyle: 'short'`)
+- [x] backoffice `PostDetail.jsx`: 로컬 `formatDate` 제거 후 공통 유틸 import (`withTime: true`)
+- [x] backoffice `NotificationsPage.jsx`: 로컬 `formatDate` 제거 후 공통 유틸 import (`monthShortWithTime: true`)
+- [x] backoffice `Dashboard.jsx`: 날짜 표시 부분 공통 유틸로 교체 (기본 포맷)
 
 ### 수정 방향 (참고)
 

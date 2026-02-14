@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import apiClient from "../../lib/apiClient";
+import { formatDate as formatDateUtil } from "../../../../../shared/utils/date";
 
 export default function NotificationsPage() {
   const navigate = useNavigate();
@@ -29,17 +30,7 @@ export default function NotificationsPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const formatDate = (iso) => {
-    if (!iso) return "-";
-    const d = new Date(iso);
-    return d.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const formatDate = (iso) => formatDateUtil(iso, { monthShortWithTime: true }) || '-';
 
   const statusLabel = {
     PUBLISHED: "발행됨",
