@@ -79,6 +79,19 @@
   background: #555;
 }
 
+/* Font Awesome 아이콘 기본 스타일 (촌스러움 방지) */
+i.fa-solid,
+i.fa-regular,
+i.fa-brands {
+  font-size: 18px;
+  opacity: 0.85;
+}
+button i.fa-solid,
+button i.fa-regular,
+button i.fa-brands {
+  font-size: 16px;
+}
+
 /* Sidebar scrollbar (dark theme) */
 .lnb-content.custom-scrollbar::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.2);

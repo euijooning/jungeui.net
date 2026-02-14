@@ -134,6 +134,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
   const editorRef = useRef(null);
   const multiImageInputRef = useRef(null);
   const [categories, setCategories] = useState([]);
+  const [prefixes, setPrefixes] = useState([]);
   const [tags, setTags] = useState([]);
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState(null);
@@ -147,6 +148,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     publishType: 'now',
     published_at: '',
     category_id: '__select__',
+    prefix_id: '__select__',
     thumbnail_asset_id: null,
     post_tags: [],
   });
@@ -179,6 +181,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         publishType: isScheduled ? 'scheduled' : 'now',
         published_at: pubAt,
         category_id: d.category_id != null ? String(d.category_id) : '',
+        prefix_id: d.prefix_id != null ? String(d.prefix_id) : '',
         thumbnail_asset_id: d.thumbnail_asset_id ?? null,
         post_tags: (Array.isArray(d.post_tags) ? d.post_tags : d.tags || []).map((t) =>
           typeof t === 'object' && t?.id != null ? t.id : t
@@ -197,8 +200,9 @@ export default function PostEditor({ isEdit = false, postId = null }) {
   useEffect(() => {
     (async () => {
       try {
-        const [catRes, tagRes] = await Promise.all([
+        const [catRes, prefixRes, tagRes] = await Promise.all([
           apiClient.get('/api/categories?tree=true'),
+          apiClient.get('/api/post_prefixes'),
           apiClient.get('/api/tags'),
         ]);
         const raw = Array.isArray(catRes.data) ? catRes.data : catRes.data?.items ?? [];
@@ -210,6 +214,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
           });
         });
         setCategories(flat);
+        setPrefixes(Array.isArray(prefixRes.data) ? prefixRes.data : prefixRes.data?.items ?? []);
         setTags(Array.isArray(tagRes.data) ? tagRes.data : tagRes.data?.items ?? []);
       } catch (_) {}
     })();
@@ -560,6 +565,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       status: visibility,
       published_at: published_at || null,
       category_id: (form.category_id && form.category_id !== '__select__') ? Number(form.category_id) : null,
+      prefix_id: (form.prefix_id && form.prefix_id !== '__select__' && form.prefix_id !== '') ? Number(form.prefix_id) : null,
       thumbnail_asset_id: form.thumbnail_asset_id || null,
       content_html,
       content_json: null,
@@ -661,6 +667,27 @@ export default function PostEditor({ isEdit = false, postId = null }) {
               <MenuItem value="">미지정</MenuItem>
               {categories.map((c) => (
                 <MenuItem key={c.id} value={String(c.id)}>{c.label || c.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">말머리</label>
+          <FormControl fullWidth size="small">
+            <Select
+              value={form.prefix_id}
+              onChange={(e) => setForm((f) => ({ ...f, prefix_id: e.target.value }))}
+              displayEmpty
+              renderValue={(v) => {
+                if (v === '__select__' || v === '' || v == null) return v === '' ? '미지정' : '선택';
+                const p = prefixes.find((x) => String(x.id) === v);
+                return p ? p.name : v;
+              }}
+            >
+              <MenuItem value="__select__" disabled>선택</MenuItem>
+              <MenuItem value="">미지정</MenuItem>
+              {prefixes.map((p) => (
+                <MenuItem key={p.id} value={String(p.id)}>{p.name}</MenuItem>
               ))}
             </Select>
           </FormControl>

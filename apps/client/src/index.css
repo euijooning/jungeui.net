@@ -60,6 +60,19 @@ body {
   overflow-x: hidden;
 }
 
+/* Font Awesome 아이콘 기본 스타일 (촌스러움 방지) */
+i.fa-solid,
+i.fa-regular,
+i.fa-brands {
+  font-size: 18px;
+  opacity: 0.85;
+}
+button i.fa-solid,
+button i.fa-regular,
+button i.fa-brands {
+  font-size: 16px;
+}
+
 :root {
   --ui-primary: var(--color-primary);
   --ui-primary-hover: var(--color-primary-hover);

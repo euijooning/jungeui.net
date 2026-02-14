@@ -7,24 +7,6 @@ import CareerModal from '../components/CareerModal';
 
 const ARROW_BTN = 'absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-blue-600 dark:bg-blue-800 shadow-lg flex items-center justify-center text-white hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
 
-const ArrowLeft = () => (
-  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-    <path d="M15 18l-6-6 6-6" />
-  </svg>
-);
-const ArrowRight = () => (
-  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-    <path d="M9 18l6-6-6-6" />
-  </svg>
-);
-
-const messageIcon = (
-  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-    <polyline points="22,6 12,13 2,6" />
-  </svg>
-);
-
 function sortCareersByPeriodDesc(list) {
   return [...list].sort((a, b) => {
     const endA = a.end_date || '9999-12';
@@ -149,7 +131,7 @@ export default function About() {
               href="mailto:ej@jungui.net"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-primary/40 bg-primary text-white hover:bg-primary-hover transition-colors text-[0.9375rem]"
             >
-              <span aria-hidden>{messageIcon}</span>
+              <i className="fa-regular fa-message" aria-hidden />
               <span className="tracking-wider font-normal">ej<span className="mx-[0.05rem]">@</span>jungui.net</span>
             </a>
           </div>
@@ -233,7 +215,7 @@ export default function About() {
                     disabled={!canPrev}
                     aria-label="이전"
                   >
-                    <ArrowLeft />
+                    <i className="fa-solid fa-chevron-left" />
                   </button>
                   <button
                     type="button"
@@ -242,7 +224,7 @@ export default function About() {
                     disabled={!canNext}
                     aria-label="다음"
                   >
-                    <ArrowRight />
+                    <i className="fa-solid fa-chevron-right" />
                   </button>
                 </>
               )}
