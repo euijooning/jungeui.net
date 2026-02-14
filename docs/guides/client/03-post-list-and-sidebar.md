@@ -4,7 +4,7 @@
 
 참조: [01-implementation-guide.md](01-implementation-guide.md), [../common/02-api-spec.md](../common/02-api-spec.md), [codegradation 레퍼런스](https://codegradation.tistory.com/)
 
-**구현 노트**: 현재 목록은 **리스트형 카드**(세로 1열, 가로형 카드)로 구현됨. 반응형 다열 그리드(5/4/3/2열)는 추후 적용 가능. **카드 제목 위**에 카테고리 필(둥근 원) 표시·클릭 시 필터. 카드 테두리 #C2CFDA. **scrollbar-gutter: stable**로 목록↔상세 전환 시 재정렬 방지.
+**구현 노트**: 현재 목록은 **리스트형 카드**(세로 1열, 가로형 카드)로 구현됨. 반응형 다열 그리드(5/4/3/2열)는 추후 적용 가능. **카드 제목 위**에 카테고리 칩은 표시만 하며, 목록 카드(listMode)에서는 **카드 전체 클릭 시 무조건 글 상세**로 이동한다(카테고리 칩 클릭해도 필터로 가지 않음). 필터는 사이드바 카테고리에서만 사용. 카드 테두리 #C2CFDA. **scrollbar-gutter: stable**로 목록↔상세 전환 시 재정렬 방지.
 
 ---
 
@@ -73,7 +73,7 @@
 
 - [x] **13** GET /posts (status=PUBLISHED). 공개 글만 노출.
 - [x] **14** 카테고리 필터: GET /posts?category= 또는 category_id 반영.
-- [x] **15** 카드 클릭 시 `/posts/:postId` 로 이동.
+- [x] **15** 카드 클릭 시 `/posts/:postId` 로 이동. (카드 내 카테고리 칩 포함 전체가 상세 링크, 칩은 클릭해도 필터 미적용)
 
 ---
 

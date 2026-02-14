@@ -53,7 +53,7 @@
 | 파일 | 수정 내용 |
 |------|----------|
 | [About.jsx](../../apps/client/src/pages/About.jsx) | 1) 가운데 정렬(paddingLeft), 2) 카드 크기 0.95, 3) mask-image 페이드 |
-| [ProjectCard.jsx](../../apps/client/src/components/ProjectCard.jsx) | 4) px-5 py-4, 5) shadow-lg |
+| [ProjectCard.jsx](../../apps/client/src/components/ProjectCard.jsx) | 4) px-5 py-4, 5) shadow-lg, 프로젝트명 최대 25자 |
 | [index.css](../../apps/client/src/index.css) | (선택) `.carousel-fade` 유틸 클래스 |
 
 ---
@@ -76,6 +76,7 @@
 
 1. **내부 여백**: `p-4` → `px-5 py-4`
 2. **그림자**: `shadow-md` → `shadow-lg`
+3. **프로젝트명**: 최대 25자까지 표시 (slice(0, 25))
 
 ### index.css (선택)
 

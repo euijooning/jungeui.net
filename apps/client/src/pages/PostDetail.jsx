@@ -156,7 +156,7 @@ export default function PostDetail() {
           <div className="flex items-center justify-center md:justify-start gap-3 text-[0.9375rem] theme-text-secondary flex-wrap">
             {dateStr && <time dateTime={post.published_at || post.created_at}>{dateStr}</time>}
             {post.prefix_name && (
-              <span className="inline-block bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 text-xs font-bold px-2 py-0.5 rounded border border-sky-200 dark:border-sky-800">
+              <span className="inline-block bg-green-200 dark:bg-green-900/40 text-green-800 dark:text-green-300 text-xs font-bold px-2 py-0.5 rounded border border-green-300 dark:border-green-700">
                 {post.prefix_name}
               </span>
             )}
@@ -225,7 +225,7 @@ export default function PostDetail() {
             <div className="flex flex-col gap-0.5">
               <span className="text-[0.8125rem] font-semibold theme-text-secondary">이전글:</span>
               {neighbors.prev ? (
-                <Link to={`/posts/${neighbors.prev.id}`} className="text-[0.875rem] text-[var(--ui-primary-hover)] underline underline-offset-2 hover:text-[var(--ui-primary)]">{neighbors.prev.title}</Link>
+                <Link to={`/posts/${neighbors.prev.id}`} className="text-[0.875rem] text-[var(--ui-primary-hover)] hover:text-[var(--ui-primary)]">{neighbors.prev.title}</Link>
               ) : (
                 <span className="text-[0.875rem] theme-text-secondary">없음</span>
               )}
@@ -233,7 +233,7 @@ export default function PostDetail() {
             <div className="flex flex-col gap-0.5">
               <span className="text-[0.8125rem] font-semibold theme-text-secondary">다음글:</span>
               {neighbors.next ? (
-                <Link to={`/posts/${neighbors.next.id}`} className="text-[0.875rem] text-[var(--ui-primary-hover)] underline underline-offset-2 hover:text-[var(--ui-primary)]">{neighbors.next.title}</Link>
+                <Link to={`/posts/${neighbors.next.id}`} className="text-[0.875rem] text-[var(--ui-primary-hover)] hover:text-[var(--ui-primary)]">{neighbors.next.title}</Link>
               ) : (
                 <span className="text-[0.875rem] theme-text-secondary">없음</span>
               )}
