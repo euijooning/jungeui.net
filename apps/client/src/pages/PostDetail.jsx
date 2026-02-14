@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Paperclip, Download } from 'lucide-react';
 import SharedLayout from '../components/SharedLayout';
+// import AdBanner from '../components/AdBanner';
 import { fetchPost, fetchPostNeighbors, fetchCategories, getStaticUrl } from '../api';
 import { useTheme } from '../ThemeContext';
 import { VITE_UTTERANCES_REPO } from '../config';
@@ -32,6 +33,7 @@ export default function PostDetail() {
   const [categories, setCategories] = useState([]);
   const bodyRef = useRef(null);
 
+  // 카테고리 로드
   useEffect(() => {
     let cancelled = false;
     fetchCategories({ tree: true })
@@ -40,6 +42,7 @@ export default function PostDetail() {
     return () => { cancelled = true; };
   }, []);
 
+  // 포스트 상세 로드
   useEffect(() => {
     if (!postId) return;
     let cancelled = false;
@@ -59,6 +62,7 @@ export default function PostDetail() {
     return () => { cancelled = true; };
   }, [postId]);
 
+  // 이전글/다음글 로드
   useEffect(() => {
     if (!postId || error) return;
     let cancelled = false;
@@ -70,6 +74,7 @@ export default function PostDetail() {
     return () => { cancelled = true; };
   }, [postId, error]);
 
+  // 이미지 클릭 시 라이트박스 처리
   useEffect(() => {
     const el = bodyRef.current;
     if (!el || !post?.content_html) return;
@@ -92,6 +97,7 @@ export default function PostDetail() {
     };
   }, [post?.content_html]);
 
+  // Utterances 댓글 로드
   useEffect(() => {
     if (!post || !VITE_UTTERANCES_REPO) return;
     const container = document.getElementById('utterances-root');
@@ -139,6 +145,12 @@ export default function PostDetail() {
 
   return (
     <SharedLayout categories={categories} currentCategoryId={currentCategoryId}>
+      {/* ✅ 레이아웃 수정: 
+        - max-w-[740px]: 너비 확장
+        - w-full: 모바일 대응
+        - md:mr-auto: 왼쪽 정렬 (Home 목록 시작선과 일치)
+        - md:-ml-[60px] 제거: 자연스러운 흐름 유지
+      */}
       <article className="max-w-[740px] mt-8 md:mt-12 px-4 md:px-0 w-full md:mr-auto">
         <header className="mb-10 text-center md:text-left">
           {tags.length > 0 && (
@@ -164,6 +176,11 @@ export default function PostDetail() {
           <hr className="mt-8 border-t theme-border opacity-60" />
         </header>
 
+        {/* [광고 위치 1] 상단 배너: 헤더 직후, 본문 전 — 사용 시 주석 해제
+        <AdBanner slot="top" />
+        */}
+
+        {/* 본문 영역 */}
         <div className="mb-12">
           <div
             ref={bodyRef}
@@ -172,8 +189,9 @@ export default function PostDetail() {
           />
         </div>
 
+        {/* 1. 첨부파일 (본문의 연장선으로 먼저 표시) */}
         {post.attachments?.length > 0 && (
-          <section className="mt-8" aria-label="첨부 파일">
+          <section className="mt-8 mb-12" aria-label="첨부 파일">
             <div className="theme-bg-card theme-card-border rounded-xl shadow-sm overflow-hidden">
               <div className="flex items-center gap-2 py-2.5 px-4 border-b theme-border">
                 <span className="flex items-center justify-center theme-text-secondary" aria-hidden>
@@ -214,12 +232,18 @@ export default function PostDetail() {
           </section>
         )}
 
+        {/* [광고 위치 2] 하단 배너: 본문/첨부파일 종료 후, 댓글/네비 전 — 사용 시 주석 해제
+        <AdBanner slot="bottom" />
+        */}
+
+        {/* 2. 댓글 영역 */}
         {VITE_UTTERANCES_REPO && (
           <section className="mt-12 pt-8 border-t theme-border" aria-label="댓글">
             <div id="utterances-root" />
           </section>
         )}
 
+        {/* 3. 이전글/다음글 네비게이션 */}
         <nav className="mt-8 py-4 px-4 theme-bg-card theme-card-border rounded-xl shadow-sm md:py-[0.9rem] md:px-[1.1rem]">
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-0.5">
@@ -241,6 +265,7 @@ export default function PostDetail() {
           </div>
         </nav>
       </article>
+      
       <Lightbox
         open={lightbox.open}
         onClose={() => setLightbox({ open: false, src: '' })}
