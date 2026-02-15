@@ -32,6 +32,11 @@ export default function About() {
   const carouselRef = useRef(null);
 
   useEffect(() => {
+    document.title = 'About';
+    return () => { document.title = '정의랩'; };
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     fetchAboutMessages().then((list) => {
       if (!cancelled && Array.isArray(list)) setMessages(list.slice(0, 3));
