@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Editor } from '@tinymce/tinymce-react';
 import {
   Button,
   TextField,
@@ -18,11 +19,7 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
-import apiClient, { getAccessToken, API_BASE, isDev, UPLOAD_URL } from '../../lib/apiClient';
-
-const TOAST_UI_SCRIPT = 'https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js';
-const TOAST_UI_I18N = 'https://uicdn.toast.com/editor/latest/i18n/ko-kr.js';
-const TOAST_UI_CSS = 'https://uicdn.toast.com/editor/latest/toastui-editor.min.css';
+import apiClient, { getAccessToken, API_BASE, UPLOAD_URL } from '../../lib/apiClient';
 
 const ATTACH_ACCEPT = '.png,.jpg,.jpeg,.pdf,.ppt,.pptx,.hwp,.hwpx,.docx';
 const ATTACH_EXT_SET = new Set(['png', 'jpg', 'jpeg', 'pdf', 'ppt', 'pptx', 'hwp', 'hwpx', 'docx']);
@@ -43,7 +40,6 @@ function getLocalISOMin() {
   return new Date(n.getTime() - n.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 
-// UTC 문자열(..Z)을 받아서 로컬 datetime-local 포맷(YYYY-MM-DDTHH:mm)으로 변환
 function toLocalISOString(utcStr) {
   if (!utcStr) return '';
   const date = new Date(utcStr);
@@ -53,94 +49,27 @@ function toLocalISOString(utcStr) {
   return localDate.toISOString().slice(0, 16);
 }
 
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) {
-      resolve();
-      return;
-    }
-    const s = document.createElement('script');
-    s.src = src;
-    s.async = true;
-    s.onload = resolve;
-    s.onerror = reject;
-    document.head.appendChild(s);
-  });
-}
-
-function loadCss(href) {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`link[href="${href}"]`)) {
-      resolve();
-      return;
-    }
-    const l = document.createElement('link');
-    l.rel = 'stylesheet';
-    l.href = href;
-    l.onload = resolve;
-    l.onerror = reject;
-    document.head.appendChild(l);
-  });
-}
-
-const YT_URL_RE = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/;
-const makeIframeHTML = (id) =>
-  `<iframe src="https://www.youtube.com/embed/${id}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" style="width:100%; aspect-ratio:16/9;"></iframe>`;
-
-function youtubeAndImageSanitizer(html) {
-  try {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const allowed = new Set(['DIV', 'IFRAME', '#text', 'P', 'BR', 'SPAN', 'B', 'I', 'EM', 'STRONG', 'UL', 'OL', 'LI', 'H1', 'H2', 'H3', 'H4', 'BLOCKQUOTE', 'CODE', 'PRE', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'HR', 'A', 'IMG', 'STYLE']);
-    doc.body.querySelectorAll('*').forEach((el) => {
-      const nm = el.nodeName;
-      if (!allowed.has(nm)) {
-        el.remove();
-        return;
-      }
-      [...el.attributes].forEach((a) => {
-        if (a.name.toLowerCase().startsWith('on')) el.removeAttribute(a.name);
-      });
-      if (nm === 'A') {
-        el.setAttribute('rel', 'noopener noreferrer');
-        el.setAttribute('target', '_blank');
-      }
-      if (nm === 'IMG') {
-        const safe = new Set(['src', 'alt', 'style', 'width', 'height', 'loading']);
-        [...el.attributes].forEach((a) => {
-          if (!safe.has(a.name.toLowerCase())) el.removeAttribute(a.name);
-        });
-      }
-      if (nm === 'IFRAME') {
-        const src = el.getAttribute('src') || '';
-        const ok = /^https:\/\/(?:www\.)?youtube\.com\/embed\/[A-Za-z0-9_-]{11}$/.test(src);
-        if (!ok) {
-          el.remove();
-          return;
-        }
-        const safe = new Set(['src', 'title', 'frameborder', 'allow', 'allowfullscreen', 'loading', 'style']);
-        [...el.attributes].forEach((a) => {
-          if (!safe.has(a.name.toLowerCase())) el.removeAttribute(a.name);
-        });
-      }
-    });
-    return doc.body.innerHTML;
-  } catch {
-    return '';
-  }
-}
+const YT_EXACT_URL_RE =
+  /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:[?&].*)?$/;
+const makeYoutubeIframe = (videoId) =>
+  `<iframe src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" style="width:100%; aspect-ratio:16/9;"></iframe>`;
 
 export default function PostEditor({ isEdit = false, postId = null }) {
   const navigate = useNavigate();
   const editorRef = useRef(null);
+  const attachmentInputRef = useRef(null);
   const multiImageInputRef = useRef(null);
+
   const [categories, setCategories] = useState([]);
   const [prefixes, setPrefixes] = useState([]);
   const [tags, setTags] = useState([]);
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState(null);
   const [saveError, setSaveError] = useState(null);
-  const [toastUILoaded, setToastUILoaded] = useState(false);
-  const [initialEditorContent, setInitialEditorContent] = useState(null);
+  const [initialContent, setInitialContent] = useState('');
+  const [isEditorReady, setIsEditorReady] = useState(false);
+  const [contentHtml, setContentHtml] = useState('');
+
   const [form, setForm] = useState({
     title: '',
     status: '',
@@ -152,13 +81,11 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     thumbnail_asset_id: null,
     post_tags: [],
   });
-  // DB에 저장되어 있던 원래 발행일시 보관용 (수정 시 비교·복구 기준)
   const [originPublishedAt, setOriginPublishedAt] = useState(null);
   const [attachmentList, setAttachmentList] = useState([]);
   const [tagInput, setTagInput] = useState('');
-  const [contentHtml, setContentHtml] = useState('');
+  const [attachmentUploading, setAttachmentUploading] = useState(false);
 
-  // API_BASE가 있으면 절대 URL로 넣어서 API에서 직접 로드(에디터에서 이미지 표시). 없으면 상대 URL(프록시 경유).
   const toImageSrc = (url) => {
     if (!url) return url;
     if (url.startsWith('http')) return url;
@@ -176,6 +103,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       const pubAt = d.published_at ? toLocalISOString(d.published_at) : '';
       const isScheduled = status === 'PUBLISHED' && pubAt && new Date(pubAt) > new Date();
       const visibility = status === 'DRAFT' ? 'PUBLISHED' : status;
+
       setForm({
         title: d.title ?? '',
         status: visibility,
@@ -193,7 +121,9 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         id: a.id,
         original_name: a.original_name || `파일 ${a.id}`,
       })));
-      setInitialEditorContent(d.content_html || '');
+
+      setInitialContent(d.content_html || '');
+      setIsEditorReady(true);
     } catch (e) {
       setLoadError(e?.message || '글을 불러오지 못했습니다.');
     }
@@ -223,236 +153,54 @@ export default function PostEditor({ isEdit = false, postId = null }) {
   }, []);
 
   useEffect(() => {
-    if (isEdit && postId) loadPost();
-    else setInitialEditorContent('');
+    if (isEdit && postId) {
+      loadPost();
+    } else {
+      setInitialContent('');
+      setIsEditorReady(true);
+    }
   }, [isEdit, postId, loadPost]);
 
-  useEffect(() => {
-    const load = async () => {
-      if (window.toastui?.Editor) {
-        setToastUILoaded(true);
-        return;
-      }
-      await loadScript(TOAST_UI_SCRIPT);
-      await loadCss(TOAST_UI_CSS);
-      for (let i = 0; i < 50; i++) {
-        if (window.toastui?.Editor) break;
-        await new Promise((r) => setTimeout(r, 100));
-      }
-      if (window.toastui?.Editor) {
-        await loadScript(TOAST_UI_I18N);
-      }
-      for (let i = 0; i < 30; i++) {
-        if (window.toastui?.Editor) {
-          setToastUILoaded(true);
+  const handleEditorImageUpload = (blobInfo, progress) =>
+    new Promise((resolve, reject) => {
+      const file = blobInfo.blob();
+      const token = getAccessToken();
+      const pid = isEdit && postId ? String(postId) : 'temp';
+      const fd = new FormData();
+      fd.append('file', file, file.name || 'image.jpg');
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `${UPLOAD_URL}?post_id=${encodeURIComponent(pid)}`);
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          progress((e.loaded / e.total) * 100);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status < 200 || xhr.status >= 300) {
+          reject(new Error('HTTP Error: ' + xhr.status));
           return;
         }
-        await new Promise((r) => setTimeout(r, 100));
-      }
-      console.warn('[PostEditor] Toast UI Editor not found on window.toastui after load');
-      setToastUILoaded(true);
-    };
-    load();
-  }, []);
-
-  const canInitEditor = toastUILoaded && (!isEdit || initialEditorContent !== null);
-
-  useEffect(() => {
-    if (!canInitEditor) return;
-    if (!window.toastui?.Editor) {
-      console.warn('[PostEditor] window.toastui.Editor not available, skipping editor init');
-      return;
-    }
-
-    let cancelled = false;
-    const t = setTimeout(() => {
-      const el = document.getElementById('post-editor');
-      if (cancelled || !el) return;
-      const Editor = window.toastui?.Editor;
-      if (!Editor) {
-        console.warn('[PostEditor] window.toastui.Editor lost in setTimeout');
-        return;
-      }
-
-      if (editorRef.current) {
         try {
-          editorRef.current.destroy();
-        } catch (e) {}
-        editorRef.current = null;
-      }
-
-      const initialValue = isEdit ? (initialEditorContent || '') : '';
-
-      const customHTMLRenderer = {
-        htmlBlock: {
-          iframe(node) {
-            return [
-              { type: 'openTag', tagName: 'iframe', outerNewLine: true, attributes: node.attrs },
-              { type: 'html', content: node.childrenHTML },
-              { type: 'closeTag', tagName: 'iframe', outerNewLine: true },
-            ];
-          },
-        },
+          const json = JSON.parse(xhr.responseText);
+          const url = json.url ?? json.file_path ?? json.file_url;
+          resolve(toImageSrc(url));
+        } catch (e) {
+          reject(new Error('Invalid JSON: ' + xhr.responseText));
+        }
       };
 
-      const token = getAccessToken();
-      const pid = (isEdit && postId) ? String(postId) : 'temp';
-      const uploadImageBlob = async (blob, source) => {
-        console.log(`[이미지업로드] ${source} 시작`, { size: blob?.size, type: blob?.type });
-        const fd = new FormData();
-        fd.append('file', blob, blob.name || 'image.jpg');
-        const res = await fetch(`${UPLOAD_URL}?post_id=${encodeURIComponent(pid)}`, {
-          method: 'POST',
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-          body: fd,
-        });
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.detail || '이미지 업로드에 실패했습니다.');
-        }
-        const data = await res.json();
-        const url = data.url ?? data.file_path ?? data.file_url;
-        console.log(`[이미지업로드] ${source} 성공`, { url, id: data.id });
-        return { url, id: data.id };
+      xhr.onerror = () => {
+        reject(new Error('Image upload failed due to a XHR Transport error. Code: ' + xhr.status));
       };
 
-      const ed = new Editor({
-        el,
-        height: '600px',
-        initialEditType: 'wysiwyg',
-        previewStyle: 'tab',
-        usageStatistics: false,
-        language: 'ko-KR',
-        placeholder: '내용을 입력하세요',
-        initialValue,
-        toolbarItems: [
-          ['heading', 'bold', 'italic', 'strike'],
-          ['hr', 'quote'],
-          ['ul', 'ol', 'task'],
-          ['table', 'image', 'link'],
-          ['code', 'codeblock'],
-        ],
-        customHTMLSanitizer: youtubeAndImageSanitizer,
-        customHTMLRenderer,
-        hooks: {
-          addImageBlobHook: async (blob, callback) => {
-            try {
-              const { url } = await uploadImageBlob(blob, 'addImageBlobHook');
-              callback(toImageSrc(url), '');
-            } catch (err) {
-              console.error('[이미지업로드] addImageBlobHook 실패', err);
-              callback('', err.message || '이미지 업로드에 실패했습니다.');
-            }
-          },
-        },
-      });
+      xhr.send(fd);
+    });
 
-      const onPaste = (e) => {
-        const cd = e.clipboardData || window.clipboardData;
-        if (!cd) return;
-        const text = cd.getData('text') || '';
-        const items = cd.items;
-        if (items) {
-          for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-              const blob = items[i].getAsFile();
-              if (blob) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('[이미지업로드] paste 이벤트에서 이미지 감지, 업로드 시작');
-                uploadImageBlob(blob, 'Ctrl+V')
-                  .then(({ url }) => {
-                    if (url) {
-                      const src = toImageSrc(url);
-                      const html = ed.getHTML();
-                      ed.setHTML(html + `<img src="${src}" alt="업로드" style="max-width:100%;height:auto;"><br>`);
-                    }
-                  })
-                  .catch((err) => console.error('[이미지업로드] Ctrl+V 실패', err));
-                return;
-              }
-            }
-          }
-        }
-        const m = text.match(YT_URL_RE);
-        if (!m) return;
-        setTimeout(() => {
-          const html = ed.getHTML();
-          const replaced = html.replace(
-            /<p>(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)[^<\s]+)<\/p>/i,
-            () => makeIframeHTML(m[1])
-          );
-          if (replaced !== html) ed.setHTML(replaced);
-        }, 0);
-      };
-      el.addEventListener('paste', onPaste, true);
-
-      const onChange = (() => {
-        let t;
-        return () => {
-          clearTimeout(t);
-          t = setTimeout(() => {
-            const html = ed.getHTML();
-            const replaced = html.replace(
-              /<p>(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)[^<\s]+)<\/p>/gi,
-              (whole, url) => {
-                const match = url.match(YT_URL_RE);
-                return match ? makeIframeHTML(match[1]) : whole;
-              }
-            );
-            if (replaced !== html) ed.setHTML(replaced);
-            setContentHtml(ed.getHTML());
-          }, 250);
-        };
-      })();
-      ed.on('change', onChange);
-      setContentHtml(ed.getHTML());
-
-      editorRef.current = ed;
-    }, 100);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(t);
-      try {
-        if (editorRef.current) editorRef.current.destroy();
-      } catch (e) {}
-      editorRef.current = null;
-    };
-  }, [canInitEditor, isEdit, initialEditorContent]);
-
-  const handleMultiImageChange = async (e) => {
-    const files = e.target.files;
-    if (!files?.length || !editorRef.current) return;
-    const token = getAccessToken();
-    const ed = editorRef.current;
-    const pid = (isEdit && postId) ? String(postId) : 'temp';
-    for (const file of files) {
-      try {
-        const fd = new FormData();
-        fd.append('file', file, file.name || 'image.jpg');
-        const res = await fetch(`${UPLOAD_URL}?post_id=${encodeURIComponent(pid)}`, {
-          method: 'POST',
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-          body: fd,
-        });
-        if (!res.ok) throw new Error('업로드 실패');
-        const data = await res.json();
-        const url = data.url ?? data.file_path ?? data.file_url;
-        if (url) {
-          const html = ed.getHTML();
-          ed.setHTML(html + `<img src="${toImageSrc(url)}" alt="" style="max-width:100%;height:auto;"><br>`);
-        }
-      } catch (err) {
-        console.error('이미지 업로드 오류:', err);
-      }
-    }
-    e.target.value = '';
-  };
-
-  const handleTitleChange = (e) => {
-    setForm((f) => ({ ...f, title: e.target.value }));
-  };
+  const handleTitleChange = (e) => setForm((f) => ({ ...f, title: e.target.value }));
 
   const handleTagKeyDown = async (e) => {
     if (e.key !== 'Enter' || !tagInput.trim()) return;
@@ -473,12 +221,41 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     setTagInput('');
   };
 
-  const removeTag = (idOrName) => {
-    setForm((f) => ({ ...f, post_tags: f.post_tags.filter((x) => x !== idOrName) }));
-  };
+  const removeTag = (idOrName) => setForm((f) => ({ ...f, post_tags: f.post_tags.filter((x) => x !== idOrName) }));
 
-  const attachmentInputRef = useRef(null);
-  const [attachmentUploading, setAttachmentUploading] = useState(false);
+  const handleMultiImageChange = async (e) => {
+    const files = Array.from(e.target?.files || []);
+    if (multiImageInputRef.current) multiImageInputRef.current.value = '';
+    if (!files?.length || !editorRef.current) return;
+    const token = getAccessToken();
+    const pid = isEdit && postId ? String(postId) : 'temp';
+    for (const file of files) {
+      if (!file.type?.startsWith('image/')) continue;
+      try {
+        const fd = new FormData();
+        fd.append('file', file, file.name || 'image.jpg');
+        const res = await fetch(`${UPLOAD_URL}?post_id=${encodeURIComponent(pid)}`, {
+          method: 'POST',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          body: fd,
+          credentials: 'include',
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.detail || '이미지 업로드에 실패했습니다.');
+        }
+        const data = await res.json();
+        const url = data.url ?? data.file_path ?? data.file_url;
+        if (url) {
+          const src = toImageSrc(url);
+          const imgHtml = `<img src="${src}" alt="" style="max-width:100%; height:auto;"><br>`;
+          editorRef.current.insertContent(imgHtml);
+        }
+      } catch (err) {
+        setSaveError(err?.message || '이미지 업로드에 실패했습니다.');
+      }
+    }
+  };
 
   const handleAttachmentSelect = async (e) => {
     const files = Array.from(e.target?.files || []);
@@ -488,7 +265,6 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     const sizeOk = (f) => f.size <= MAX_ATTACH_SIZE;
     setAttachmentUploading(true);
     const token = getAccessToken();
-    console.log('[첨부업로드] uploadUrl=', UPLOAD_URL, 'files=', files.length, 'VITE_API_URL=', import.meta.env.VITE_API_URL);
     try {
       for (const file of files) {
         if (!extOk(file)) {
@@ -501,66 +277,46 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         }
         const formData = new FormData();
         formData.append('file', file);
-        console.log('[첨부업로드] POST', file.name);
         const response = await fetch(UPLOAD_URL, {
           method: 'POST',
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: formData,
           credentials: 'include',
         });
-        console.log('[첨부업로드] response.ok=', response.ok, 'status=', response.status);
         if (!response.ok) {
           const errBody = await response.json().catch(() => ({}));
           throw new Error(errBody.detail || '업로드에 실패했습니다.');
         }
         const result = await response.json();
-        console.log('[첨부업로드] result=', result);
         const id = result?.id != null ? Number(result.id) : null;
         const original_name = result?.original_name || file.name;
-        console.log('[첨부업로드] parsed id=', id, 'original_name=', original_name);
         if (id && id > 0) {
-          setAttachmentList((prev) => {
-            const next = [...prev, { id, original_name }];
-            console.log('[첨부업로드] setAttachmentList prev.len=', prev.length, 'next.len=', next.length);
-            return next;
-          });
-        } else {
-          console.warn('[첨부업로드] id가 없거나 0이라 목록에 추가 안 함', { id, result });
+          setAttachmentList((prev) => [...prev, { id, original_name }]);
         }
       }
     } catch (err) {
-      console.error('[첨부업로드] error', err);
       setSaveError(err?.message || '업로드에 실패했습니다.');
     } finally {
       setAttachmentUploading(false);
     }
   };
 
-  const removeAttachment = (id) => {
-    setAttachmentList((prev) => prev.filter((a) => a.id !== id));
-  };
+  const removeAttachment = (id) => setAttachmentList((prev) => prev.filter((a) => a.id !== id));
 
   const handleSave = async () => {
-    let content_html = editorRef.current ? editorRef.current.getHTML() : '';
-    // H5/H6는 사용하지 않음 → H4로 통일
+    let content_html = editorRef.current ? editorRef.current.getContent() : '';
     content_html = content_html.replace(/<\/h[56]>/gi, '</h4>').replace(/<h[56](\s|>)/gi, '<h4$1');
 
     const visibility = form.visibility || form.status;
     const isScheduled = visibility === 'PUBLISHED' && form.publishType === 'scheduled';
-
     let published_at = null;
 
     if (visibility === 'PUBLISHED') {
       if (isScheduled && form.published_at) {
-        // 1. 예약 발행: 사용자가 입력한 미래 날짜 사용
-        // datetime-local 값("2025-02-14T15:00") → Date(로컬 해석) → toISOString() → UTC
         published_at = new Date(form.published_at).toISOString();
       } else {
-        // 2. 즉시 공개(Now): form.published_at(사용자가 만진 값)이 아니라 originPublishedAt(DB 원본) 기준.
-        // 예약으로 미래 날짜 넣었다가 다시 즉시로 돌아와도, 원래 과거 글이면 원래 날짜 복구.
         const originDate = originPublishedAt ? new Date(originPublishedAt) : null;
         const now = new Date();
-
         if (originDate && originDate <= now) {
           published_at = originDate.toISOString();
         } else {
@@ -568,24 +324,26 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         }
       }
     } else {
-      // 3. 비공개/일부공개로 저장할 때: 원래 발행일이 있으면 그대로 유지 (DB에서 날짜가 날아가지 않도록)
       if (originPublishedAt) {
         published_at = new Date(originPublishedAt).toISOString();
       }
     }
 
-    const postTagsRaw = (form.post_tags || []).filter((x) => typeof x === 'number' || (typeof x === 'string' && /^\d+$/.test(x)));
-    const attachment_asset_ids = (attachmentList || []).map((a) => Number(a.id)).filter((n) => !Number.isNaN(n) && n > 0);
-
-    console.log('[저장] attachmentList=', attachmentList, 'attachment_asset_ids=', attachment_asset_ids);
+    const postTagsRaw = (form.post_tags || []).filter(
+      (x) => typeof x === 'number' || (typeof x === 'string' && /^\d+$/.test(x))
+    );
+    const attachment_asset_ids = (attachmentList || [])
+      .map((a) => Number(a.id))
+      .filter((n) => !Number.isNaN(n) && n > 0);
 
     const payload = {
       title: form.title || '제목 없음',
       slug: slugFromTitle(form.title) || 'untitled',
       status: visibility,
       published_at: published_at || null,
-      category_id: (form.category_id && form.category_id !== '__select__') ? Number(form.category_id) : null,
-      prefix_id: (form.prefix_id && form.prefix_id !== '__select__' && form.prefix_id !== '') ? Number(form.prefix_id) : null,
+      category_id: form.category_id && form.category_id !== '__select__' ? Number(form.category_id) : null,
+      prefix_id:
+        form.prefix_id && form.prefix_id !== '__select__' && form.prefix_id !== '' ? Number(form.prefix_id) : null,
       thumbnail_asset_id: form.thumbnail_asset_id || null,
       content_html,
       content_json: null,
@@ -619,7 +377,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
     bodyTrimmed.length > 0 &&
     ['PUBLISHED', 'UNLISTED', 'PRIVATE'].includes(form.status);
 
-  if (!toastUILoaded || (isEdit && initialEditorContent === null && !loadError)) {
+  if (!isEditorReady && isEdit) {
     return (
       <div className="w-full flex items-center justify-center min-h-[200px]">
         <CircularProgress />
@@ -629,11 +387,14 @@ export default function PostEditor({ isEdit = false, postId = null }) {
 
   return (
     <div className="w-full">
-      {/* Header - sample 스타일 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{isEdit ? '포스트 수정' : '새 포스트'}</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{isEdit ? '글을 수정합니다.' : '새로운 글을 작성하세요.'}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            {isEdit ? '포스트 수정' : '새 포스트'}
+          </h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            {isEdit ? '글을 수정합니다.' : '새로운 글을 작성하세요.'}
+          </p>
         </div>
         {isEdit && (
           <button
@@ -652,7 +413,9 @@ export default function PostEditor({ isEdit = false, postId = null }) {
           <DialogContentText sx={{ whiteSpace: 'pre-wrap' }}>{loadError}</DialogContentText>
         </DialogContent>
         <DialogActions className="dark:border-t dark:border-gray-700">
-          <Button onClick={() => setLoadError(null)} color="primary" variant="contained">확인</Button>
+          <Button onClick={() => setLoadError(null)} color="primary" variant="contained">
+            확인
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -668,26 +431,38 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         </DialogActions>
       </Dialog>
 
-      {/* sample처럼 단일 컬럼 - 하단으로 쭉 */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">제목 <span className="text-blue-600 dark:text-green-400">*</span></label>
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">
+            제목 <span className="text-blue-600 dark:text-green-400">*</span>
+          </label>
           <TextField fullWidth placeholder="제목을 입력하세요" value={form.title} onChange={handleTitleChange} size="small" />
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">카테고리 <span className="text-blue-600 dark:text-green-400">*</span></label>
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">
+            카테고리 <span className="text-blue-600 dark:text-green-400">*</span>
+          </label>
           <FormControl fullWidth size="small">
-            <Select value={form.category_id} onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))} displayEmpty renderValue={(v) => {
-              if (v === '__select__') return '선택';
-              if (v === '') return '미지정';
-              const c = categories.find((x) => String(x.id) === v);
-              if (!c) return v;
-              return c.parentName ? `${c.parentName} > ${c.name}` : c.name;
-            }}>
-              <MenuItem value="__select__" disabled>선택</MenuItem>
+            <Select
+              value={form.category_id}
+              onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}
+              displayEmpty
+              renderValue={(v) => {
+                if (v === '__select__') return '선택';
+                if (v === '') return '미지정';
+                const c = categories.find((x) => String(x.id) === v);
+                if (!c) return v;
+                return c.parentName ? `${c.parentName} > ${c.name}` : c.name;
+              }}
+            >
+              <MenuItem value="__select__" disabled>
+                선택
+              </MenuItem>
               <MenuItem value="">미지정</MenuItem>
               {categories.map((c) => (
-                <MenuItem key={c.id} value={String(c.id)}>{c.label || c.name}</MenuItem>
+                <MenuItem key={c.id} value={String(c.id)}>
+                  {c.label || c.name}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -705,17 +480,23 @@ export default function PostEditor({ isEdit = false, postId = null }) {
                 return p ? p.name : v;
               }}
             >
-              <MenuItem value="__select__" disabled>선택</MenuItem>
+              <MenuItem value="__select__" disabled>
+                선택
+              </MenuItem>
               <MenuItem value="">미지정</MenuItem>
               {prefixes.map((p) => (
-                <MenuItem key={p.id} value={String(p.id)}>{p.name}</MenuItem>
+                <MenuItem key={p.id} value={String(p.id)}>
+                  {p.name}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
         </div>
         <div className="mb-6">
           <div className="flex items-center justify-between gap-3 mb-2">
-            <label className="block text-sm font-medium text-gray-900 dark:text-gray-200">본문 <span className="text-blue-600 dark:text-green-400">*</span></label>
+            <label className="block text-sm font-medium text-gray-900 dark:text-gray-200">
+              본문 <span className="text-blue-600 dark:text-green-400">*</span>
+            </label>
             <div className="flex items-center gap-2">
               <input
                 ref={multiImageInputRef}
@@ -734,22 +515,101 @@ export default function PostEditor({ isEdit = false, postId = null }) {
               </button>
             </div>
           </div>
-          <div className="min-h-[500px]">
-            <div id="post-editor" data-placeholder="내용을 입력하세요" />
-          </div>
+          <Editor
+            tinymceScriptSrc="/tinymce/tinymce.min.js"
+            onInit={(evt, editor) => {
+              editorRef.current = editor;
+              setContentHtml(editor.getContent());
+            }}
+            onEditorChange={(content) => setContentHtml(content)}
+            initialValue={initialContent}
+            init={{
+              license_key: 'gpl',
+              height: 600,
+              menubar: false,
+              plugins: [
+                'advlist',
+                'autolink',
+                'lists',
+                'link',
+                'image',
+                'charmap',
+                'preview',
+                'anchor',
+                'searchreplace',
+                'visualblocks',
+                'code',
+                'fullscreen',
+                'insertdatetime',
+                'media',
+                'table',
+                'help',
+                'wordcount',
+              ],
+              toolbar:
+                'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table image media | removeformat | code',
+              content_style: `
+                body { font-family: 'NexonLv1Gothic', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333; }
+                table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+                th, td { border: 1px solid #ccc; padding: 8px 12px; vertical-align: top; }
+                th { background-color: #f5f9fc; font-weight: bold; text-align: left; }
+                img, iframe { max-width: 100%; height: auto; border-radius: 8px; }
+                blockquote { margin: 1em 0; padding-left: 1em; border-left: 4px solid #35C5F0; background: #f9f9f9; }
+              `,
+              extended_valid_elements: 'iframe[*]',
+              images_upload_handler: handleEditorImageUpload,
+              table_resize_bars: true,
+              object_resizing: true,
+              promotion: false,
+              media_live_embeds: true,
+              setup: (editor) => {
+                editor.on('paste', (e) => {
+                  const clip = e.clipboardData || window.clipboardData;
+                  if (!clip) return;
+                  const text = clip.getData('text').trim();
+                  const match = text.match(YT_EXACT_URL_RE);
+                  if (match && match[1]) {
+                    e.preventDefault();
+                    const videoId = match[1];
+                    const iframeHtml = makeYoutubeIframe(videoId);
+                    editor.insertContent(iframeHtml + '<p><br></p>');
+                  }
+                });
+              },
+            }}
+          />
         </div>
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">태그 (엔터로 추가)</label>
-          <TextField fullWidth placeholder="태그 입력 후 엔터" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} size="small" />
+          <TextField
+            fullWidth
+            placeholder="태그 입력 후 엔터"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+            size="small"
+          />
           <div className="flex flex-wrap gap-1 mt-2">
             {form.post_tags.map((idOrName) => {
-              const t = typeof idOrName === 'number' || /^\d+$/.test(String(idOrName)) ? tags.find((x) => x.id === Number(idOrName)) : null;
-              return <Chip key={idOrName} label={t ? t.name : String(idOrName)} size="small" onDelete={() => removeTag(idOrName)} />;
+              const t =
+                typeof idOrName === 'number' || /^\d+$/.test(String(idOrName))
+                  ? tags.find((x) => x.id === Number(idOrName))
+                  : null;
+              return (
+                <Chip
+                  key={idOrName}
+                  label={t ? t.name : String(idOrName)}
+                  size="small"
+                  onDelete={() => removeTag(idOrName)}
+                />
+              );
             })}
           </div>
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">발행 방식 <span className="text-blue-600 dark:text-green-400">*</span></label>
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">
+            발행 방식 <span className="text-blue-600 dark:text-green-400">*</span>
+          </label>
           <div className="flex flex-col gap-3">
             <FormControl fullWidth size="small">
               <Select
@@ -757,12 +617,29 @@ export default function PostEditor({ isEdit = false, postId = null }) {
                 onChange={(e) => {
                   const v = e.target.value;
                   if (v === '__select__') return;
-                  setForm((f) => ({ ...f, status: v, visibility: v, publishType: v === 'PUBLISHED' ? f.publishType : 'now' }));
+                  setForm((f) => ({
+                    ...f,
+                    status: v,
+                    visibility: v,
+                    publishType: v === 'PUBLISHED' ? f.publishType : 'now',
+                  }));
                 }}
                 displayEmpty
-                renderValue={(v) => (v === '__select__' || !v ? '발행 상태를 선택하세요' : v === 'PUBLISHED' ? '공개' : v === 'UNLISTED' ? '일부공개' : v === 'PRIVATE' ? '비공개' : v)}
+                renderValue={(v) =>
+                  v === '__select__' || !v
+                    ? '발행 상태를 선택하세요'
+                    : v === 'PUBLISHED'
+                      ? '공개'
+                      : v === 'UNLISTED'
+                        ? '일부공개'
+                        : v === 'PRIVATE'
+                          ? '비공개'
+                          : v
+                }
               >
-                <MenuItem value="__select__" disabled>발행 상태를 선택하세요</MenuItem>
+                <MenuItem value="__select__" disabled>
+                  발행 상태를 선택하세요
+                </MenuItem>
                 <MenuItem value="PUBLISHED">공개</MenuItem>
                 <MenuItem value="UNLISTED">일부공개</MenuItem>
                 <MenuItem value="PRIVATE">비공개</MenuItem>
@@ -793,13 +670,17 @@ export default function PostEditor({ isEdit = false, postId = null }) {
               </div>
             )}
             {form.visibility === 'UNLISTED' && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 pl-1">링크가 있는 사람만 직접 입력해 접근할 수 있습니다.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 pl-1">
+                링크가 있는 사람만 직접 입력해 접근할 수 있습니다.
+              </p>
             )}
           </div>
         </div>
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2">파일 첨부</label>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">PNG, JPG, JPEG, PDF, PPT, PPTX, HWP, HWPX, DOCX (각 10MB 이하, 다중 선택 가능)</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+            PNG, JPG, JPEG, PDF, PPT, PPTX, HWP, HWPX, DOCX (각 10MB 이하, 다중 선택 가능)
+          </p>
           <input
             ref={attachmentInputRef}
             type="file"
@@ -812,9 +693,20 @@ export default function PostEditor({ isEdit = false, postId = null }) {
             role="button"
             tabIndex={0}
             onClick={() => attachmentInputRef.current?.click()}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); attachmentInputRef.current?.click(); } }}
-            onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-green-500', 'bg-gray-50', 'dark:bg-gray-700'); }}
-            onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-green-500', 'bg-gray-50', 'dark:bg-gray-700'); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                attachmentInputRef.current?.click();
+              }
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.currentTarget.classList.add('border-green-500', 'bg-gray-50', 'dark:bg-gray-700');
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.currentTarget.classList.remove('border-green-500', 'bg-gray-50', 'dark:bg-gray-700');
+            }}
             onDrop={(e) => {
               e.preventDefault();
               e.currentTarget.classList.remove('border-green-500', 'bg-gray-50', 'dark:bg-gray-700');
@@ -840,7 +732,10 @@ export default function PostEditor({ isEdit = false, postId = null }) {
           {attachmentList.length > 0 && (
             <ul className="mt-3 space-y-2">
               {attachmentList.map((a) => (
-                <li key={a.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
+                <li
+                  key={a.id}
+                  className="flex items-center justify-between py-2 px-3 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
+                >
                   <span className="text-sm text-gray-800 dark:text-gray-200 truncate">{a.original_name}</span>
                   <button
                     type="button"

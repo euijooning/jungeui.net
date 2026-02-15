@@ -19,12 +19,13 @@
 
 **레이아웃**: 좌측 에디터 / 우측 설정 패널.
 
-### 에디터 (Toast UI Editor)
+### 에디터 (TinyMCE 로컬)
 
-- **툴바**: H1~H3, Bold, Italic, Strike, Blockquote, Code Block, Link, Image, YouTube Embed, Horizontal Rule.
-- **이미지**: 툴바 버튼·드래그앤드롭·Ctrl+V → POST /api/assets/upload 호출 후 이미지 URL로 삽입.
-- **유튜브**: URL 붙여넣기 시 플레이어 노드로 변환.
-- **저장**: content_html(뷰어용), content_json(에디터 복구용) 둘 다 API로 전송.
+- **구성**: `@tinymce/tinymce-react` + `public/tinymce/` 로컬 배치. API 키·사용량 제한 없음.
+- **툴바**: blocks, Bold, Italic, Forecolor, 정렬, 리스트, Table, Image, Media, Code 등.
+- **이미지**: 툴바·드래그앤드롭·붙여넣기 → `images_upload_handler` → POST /api/assets/upload 후 URL 삽입.
+- **미디어**: media 플러그인으로 YouTube 등 임베드.
+- **저장**: content_html(뷰어용), content_json(null) API 전송.
 
 ### 우측 설정 패널
 
@@ -43,7 +44,7 @@
 ## 완료 기준
 
 - 글 목록에서 필터·페이지네이션·수정/삭제 동작.
-- PostEditor에서 Toast UI 에디터·설정 패널·이미지 업로드·유튜브 임베드 동작.
+- PostEditor에서 TinyMCE 에디터·설정 패널·이미지 업로드·미디어 임베드 동작.
 - 저장 시 posts·post_tags 반영.
 
 ## 구현 현황

@@ -276,37 +276,3 @@ a:hover .lucide-icon {
   background-color: transparent !important;
 }
 
-/* 다크 모드: Toast UI Editor (포스트 등록/수정) */
-.dark #post-editor .toastui-editor-default-ui,
-.dark #post-editor .toastui-editor-ww-container,
-.dark #post-editor .toastui-editor-md-container,
-.dark #post-editor .toastui-editor-mode-switch,
-.dark #post-editor .ProseMirror {
-  background-color: rgb(55 65 81) !important;
-  color: rgb(229 231 235) !important;
-}
-.dark #post-editor .toastui-editor-toolbar {
-  background-color: rgb(55 65 81) !important;
-  border-color: rgb(75 85 99) !important;
-}
-.dark #post-editor .toastui-editor-toolbar button {
-  color: rgb(209 213 219) !important;
-}
-.dark #post-editor .toastui-editor-toolbar button:hover {
-  background-color: rgb(75 85 99) !important;
-  color: rgb(243 244 246) !important;
-}
-.dark #post-editor .toastui-editor-ww-container .ProseMirror,
-.dark #post-editor .toastui-editor-md-container .ProseMirror {
-  color: rgb(229 231 235) !important;
-}
-.dark #post-editor .toastui-editor-md-preview {
-  background-color: rgb(55 65 81) !important;
-  color: rgb(229 231 235) !important;
-}
-.dark #post-editor .toastui-editor-md-container textarea {
-  background-color: rgb(55 65 81) !important;
-  color: rgb(229 231 235) !important;
-  border-color: rgb(75 85 99) !important;
-}
-
