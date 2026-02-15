@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import SharedLayout from '../components/SharedLayout';
 import { fetchPosts, fetchCategories, fetchTags } from '../api';
@@ -9,6 +9,7 @@ const PER_PAGE = 5;
 
 export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { pathname } = useLocation();
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
   const q = searchParams.get('q') || '';
   const categoryId = searchParams.get('category_id') || null;
@@ -19,6 +20,11 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
+
+  useEffect(() => {
+    document.title = pathname === '/posts' ? 'Posts' : '정의랩';
+    return () => { document.title = '정의랩'; };
+  }, [pathname]);
 
   useEffect(() => {
     let cancelled = false;

@@ -74,6 +74,16 @@ export default function PostDetail() {
     return () => { cancelled = true; };
   }, [postId, error]);
 
+  // 브라우저 탭 제목: 글 제목 표시, 이탈 시 복구
+  useEffect(() => {
+    if (post?.title !== undefined) {
+      document.title = post.title || '정의랩';
+    }
+    return () => {
+      document.title = '정의랩';
+    };
+  }, [post?.title]);
+
   // 이미지 클릭 시 라이트박스 처리
   useEffect(() => {
     const el = bodyRef.current;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import apiClient from '../../lib/apiClient';
@@ -294,13 +294,12 @@ export default function PostList() {
                           </td>
                           <td className="px-2 py-3 text-sm text-gray-500 dark:text-gray-400">{displayNo}</td>
                           <td className="px-4 py-3 text-sm">
-                            <button
-                              type="button"
-                              onClick={() => navigate(`/posts/${row.id}`)}
+                            <Link
+                              to={`/posts/${row.id}`}
                               className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 text-left"
                             >
                               {row.title || '(제목 없음)'}
-                            </button>
+                            </Link>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{row.category?.name ?? row.category_name ?? '-'}</td>
                           <td className="px-4 py-3 text-sm">{statusBadge(row.status, row.published_at)}</td>
