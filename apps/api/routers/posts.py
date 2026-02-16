@@ -204,7 +204,7 @@ def list_posts(
 
 @router.get("/{post_id}/neighbors")
 def get_post_neighbors(post_id: int, db=Depends(get_db)):
-    """이전/다음 글 (published_at 기준, PUBLISHED만). 목록 순서=newest first."""
+    """이전/다음 글 (published_at 기준, PUBLISHED만). prev=이전에 쓴 글(오래된), next=다음에 쓴 글(최신)."""
     cur = db.execute(
         text("""
             SELECT id, published_at FROM posts
@@ -216,7 +216,7 @@ def get_post_neighbors(post_id: int, db=Depends(get_db)):
     if not cur:
         raise HTTPException(status_code=404, detail="글을 찾을 수 없습니다.")
     pub_at = cur[1]
-    # 이전글 = 목록에서 위 = 더 최신 글 (published_at, id) > current
+    # 목록에서 위 = 더 최신 글 (published_at, id) > current → 응답에서는 next
     prev_row = db.execute(
         text("""
             SELECT p.id, p.title FROM posts p
@@ -228,7 +228,7 @@ def get_post_neighbors(post_id: int, db=Depends(get_db)):
         """),
         {"id": post_id, "pub_at": pub_at},
     ).fetchone()
-    # 다음글 = 목록에서 아래 = 더 오래된 글
+    # 목록에서 아래 = 더 오래된 글 → 응답에서는 prev
     next_row = db.execute(
         text("""
             SELECT p.id, p.title FROM posts p
@@ -241,8 +241,8 @@ def get_post_neighbors(post_id: int, db=Depends(get_db)):
         {"id": post_id, "pub_at": pub_at},
     ).fetchone()
     return {
-        "prev": {"id": prev_row[0], "title": prev_row[1]} if prev_row else None,
-        "next": {"id": next_row[0], "title": next_row[1]} if next_row else None,
+        "prev": {"id": next_row[0], "title": next_row[1]} if next_row else None,  # 이전에 쓴 글(오래된)
+        "next": {"id": prev_row[0], "title": prev_row[1]} if prev_row else None,  # 다음에 쓴 글(최신)
     }
 
 
