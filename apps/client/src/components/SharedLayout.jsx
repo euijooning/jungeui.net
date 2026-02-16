@@ -151,7 +151,30 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
     </nav>
   );
 
-  const footer = <span>© 2026 Jungeui Lab. All rights reserved.</span>;
+  const iconBtnClass = 'flex items-center justify-center w-8 h-8 border rounded-md theme-btn-icon bg-transparent hover:opacity-80 shrink-0';
+  const footer = (
+    <div className="flex items-center justify-center gap-3 flex-wrap">
+      <span>© {new Date().getFullYear()} JUNGEUI LAB. All rights reserved.</span>
+      <div className="flex items-center gap-2">
+        <a
+          href="mailto:ej@jungeui.net"
+          className={iconBtnClass}
+          aria-label="이메일"
+        >
+          <i className="fa-solid fa-envelope text-[1.125rem]" aria-hidden />
+        </a>
+        <a
+          href="https://youtube.com/@jungeuilab"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={iconBtnClass}
+          aria-label="유튜브"
+        >
+          <i className="fa-brands fa-youtube text-[1.125rem]" aria-hidden />
+        </a>
+      </div>
+    </div>
+  );
 
   return (
     <>
