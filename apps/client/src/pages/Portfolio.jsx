@@ -107,7 +107,13 @@ export default function Portfolio() {
         
         <div className="w-full max-w-[1000px] mx-auto px-6 py-12 md:py-20 flex flex-col gap-16">
           
-          {/* 1. 메시지 섹션 */}
+          {/* 1. 메인 타이틀 */}
+          <h1 className="text-4xl md:text-6xl font-black italic text-center tracking-tighter leading-tight text-gray-900 dark:text-white">
+            <span className="text-blue-700 dark:text-blue-400 inline-block mr-2">"끝내는 기획자",</span>
+            <span className="inline-block">정의준입니다.</span>
+          </h1>
+
+          {/* 2. 메시지 섹션 (모호함을 끝내다, 고민을 끝내다, 휘발을 끝내다) */}
           {messages.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center justify-items-center">
               {messages.map((m) => (
@@ -124,12 +130,6 @@ export default function Portfolio() {
             </div>
           )}
 
-          {/* 2. 메인 타이틀 */}
-          <h1 className="text-4xl md:text-6xl font-black italic text-center tracking-tighter leading-tight text-gray-900 dark:text-white">
-            <span className="text-blue-700 dark:text-blue-400 inline-block mr-2">"끝내는 기획자",</span>
-            <span className="inline-block">정의준입니다.</span>
-          </h1>
-
           {/* 3. 카드 그리드 섹션 */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 md:gap-6 w-full">
             
@@ -143,7 +143,7 @@ export default function Portfolio() {
               icon={Mail}
             />
 
-            {/* [2] Resume - Blue 600 (중간) */}
+            {/* [2] Resume - Blue 600 */}
             {linksLoading ? (
               <SkeletonCard />
             ) : showResume ? (
@@ -157,7 +157,7 @@ export default function Portfolio() {
               />
             ) : null}
 
-            {/* [3] Portfolio - Sky 500 (가장 밝음) */}
+            {/* [3] Portfolio - Sky 500 */}
             {linksLoading ? (
               <SkeletonCard />
             ) : showPortfolio ? (
