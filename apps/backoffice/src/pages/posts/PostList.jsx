@@ -49,6 +49,14 @@ export default function PostList() {
   const from = page * PER_PAGE + 1;
   const to = Math.min((page + 1) * PER_PAGE, total);
 
+  const PAGE_GROUP_SIZE = 5;
+  const currentPage1 = page + 1;
+  const currentGroup = Math.ceil(currentPage1 / PAGE_GROUP_SIZE);
+  const startPage1 = (currentGroup - 1) * PAGE_GROUP_SIZE + 1;
+  const endPage1 = Math.min(startPage1 + PAGE_GROUP_SIZE - 1, totalPages);
+  const pageNumbers = [];
+  for (let i = startPage1; i <= endPage1; i++) pageNumbers.push(i);
+
   const updateParams = useCallback((updates) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
@@ -388,25 +396,26 @@ export default function PostList() {
                     >
                       <ChevronLeft size={18} strokeWidth={1.5} />
                     </button>
-                    {Array.from({ length: totalPages }, (_, i) => i).map((p) => (
-                      p === page ? (
+                    {pageNumbers.map((p1) => {
+                      const p = p1 - 1;
+                      return p === page ? (
                         <span
-                          key={p}
+                          key={p1}
                           className="relative inline-flex items-center px-4 py-2 border border-green-600 dark:border-green-500 bg-green-600 dark:bg-green-600 text-sm font-medium text-white"
                         >
-                          {p + 1}
+                          {p1}
                         </span>
                       ) : (
                         <button
-                          key={p}
+                          key={p1}
                           type="button"
                           onClick={() => setPageToUrl(p)}
                           className="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
                         >
-                          {p + 1}
+                          {p1}
                         </button>
-                      )
-                    ))}
+                      );
+                    })}
                     <button
                       type="button"
                       onClick={() => setPageToUrl(Math.min(totalPages - 1, page + 1))}
