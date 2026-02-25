@@ -1,0 +1,246 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Nexon Lv1 Gothic (Client와 동일, WYSIWYG·미리보기용) - 눈누 https://noonnu.cc/font_page/432 */
+@font-face {
+  font-family: 'NexonLv1Gothic';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NEXON%20Lv1%20Gothic%20OTF%20Light.woff') format('woff');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NexonLv1Gothic';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NEXON%20Lv1%20Gothic%20OTF.woff') format('woff');
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NexonLv1Gothic';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NEXON%20Lv1%20Gothic%20OTF%20Bold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* 백오피스 전역 기본 폰트 (Tailwind preflight는 body에 font만 inherit하므로 여기서 명시) */
+html,
+body {
+  font-family: 'NexonLv1Gothic', 'Pretendard', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Lucide 아이콘 기본 스타일 (strokeWidth 1.5 통일, 버튼 정렬 흔들림 방지) */
+.lucide-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke-width: 1.5;
+  opacity: 0.85;
+}
+/* 버튼/링크 호버 시 아이콘 opacity 보강 (FA 제거 후 유지) */
+button:hover .lucide-icon,
+a:hover .lucide-icon {
+  opacity: 1;
+}
+
+/* Sidebar scrollbar (dark theme) */
+.lnb-content.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.lnb-content.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.lnb-content.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Sidebar styles - zoom(125%,150%)에서 찌그러짐 방지 (min-width는 AdminLayout inline으로 처리) */
+.lnb-content {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.lnb-content .nav-item {
+  min-height: 2.5rem;
+  flex-shrink: 0;
+}
+.lnb-content .space-y-1 > * {
+  flex-shrink: 0;
+}
+
+.lnb-container.collapsed .sidebar-text {
+  display: none;
+}
+
+.lnb-container.collapsed .nav-item {
+  justify-content: center;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.lnb-container.collapsed .nav-item > *:first-child {
+  margin-right: 0 !important;
+}
+
+.lnb-container.collapsed .lnb-content {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Sidebar overlay mode: 1279px 이하에서 fixed, 슬라이드 인 */
+@media (max-width: 1279px) {
+  .sidebar-overlay-mode {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 15rem;
+    transform: translateX(-100%);
+    z-index: 50;
+    transition: transform 0.2s ease;
+  }
+  body.sidebar-overlay-open .sidebar-overlay-mode {
+    transform: translateX(0);
+  }
+}
+@media (min-width: 1280px) {
+  .sidebar-overlay-mode {
+    position: relative;
+    transform: none;
+  }
+}
+
+/* 아코디언 메인 아이템 hover 효과 제거 */
+.accordion-main-item:hover {
+  background-color: transparent !important;
+}
+
+.accordion-main-item:hover * {
+  color: inherit !important;
+}
+
+/* TipTap / ProseMirror 에디터: H1, H2, H3 제목 스타일 (tiptap 클래스도 동일 적용) */
+.ProseMirror h1,
+.tiptap h1 {
+  font-size: 1.875rem !important;
+  font-weight: 700 !important;
+  line-height: 1.3;
+  margin: 0.75em 0 0.5em;
+}
+.ProseMirror h2,
+.tiptap h2 {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  line-height: 1.35;
+  margin: 0.75em 0 0.5em;
+}
+.ProseMirror h3,
+.tiptap h3 {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  line-height: 1.4;
+  margin: 0.5em 0 0.35em;
+}
+.ProseMirror p,
+.tiptap p {
+  margin: 0.5em 0;
+}
+.ProseMirror:focus,
+.tiptap:focus {
+  outline: none;
+}
+
+/* 로딩 스피너 (상세 등) */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: loading-spin 0.8s linear infinite;
+}
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========== 다크 모드: MUI Dialog / Paper / Actions ========== */
+.dark .MuiDialog-paper {
+  background-color: rgb(31 41 55) !important;
+  border: 1px solid rgb(55 65 81);
+}
+.dark .MuiDialogTitle-root {
+  color: rgb(243 244 246);
+}
+.dark .MuiDialogActions-root {
+  background-color: rgb(31 41 55);
+  border-top: 1px solid rgb(55 65 81);
+}
+
+/* 다크 모드: MUI TextField/Select 아웃라인 */
+.dark .MuiOutlinedInput-root {
+  background-color: rgb(55 65 81) !important;
+}
+.dark .MuiOutlinedInput-input,
+.dark .MuiOutlinedInput-input::placeholder {
+  color: rgb(243 244 246) !important;
+}
+.dark .MuiInputLabel-root {
+  color: rgb(156 163 175) !important;
+}
+.dark .MuiInputLabel-root.Mui-focused {
+  color: rgb(52 211 153) !important;
+}
+.dark .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(75 85 99) !important;
+}
+.dark .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(107 114 128) !important;
+}
+.dark .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(52 211 153) !important;
+  border-width: 2px !important;
+}
+.dark .MuiFormHelperText-root {
+  color: rgb(156 163 175) !important;
+}
+
+/* 다크 모드: MUI Select 드롭다운 메뉴 */
+.dark .MuiPopover-paper,
+.dark .MuiMenu-paper {
+  background-color: rgb(31 41 55) !important;
+  border: 1px solid rgb(55 65 81);
+}
+.dark .MuiMenuItem-root {
+  color: rgb(229 231 235) !important;
+}
+.dark .MuiMenuItem-root:hover {
+  background-color: rgb(55 65 81) !important;
+}
+.dark .MuiList-root {
+  background-color: transparent !important;
+}
+

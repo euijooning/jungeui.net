@@ -1,0 +1,47 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Environment
+.env
+.env.staging
+
+# IDE
+.idea/
+.vscode/
+
+# Git diff/compare temp files
+.git-head-*.txt
+
+# Node (apps/client, apps/backoffice)
+node_modules/
+apps/client/node_modules/
+apps/backoffice/node_modules/
+npm-debug.log*
+
+# Build outputs
+apps/client/dist/
+apps/backoffice/dist/
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Uploads (local dev)
+uploads/
+static/uploads/
+
+# Sample / example folders
+(sample)/*
