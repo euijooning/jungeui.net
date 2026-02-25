@@ -94,15 +94,21 @@ export default function PostEditor({ isEdit = false, postId = null }) {
 
   const loadPost = useCallback(async () => {
     if (!postId) return;
+    const requestedId = postId;
     setLoadError(null);
     try {
-      const res = await apiClient.get(`/api/posts/${postId}`);
+      const res = await apiClient.get(`/api/posts/${requestedId}`);
       const d = res.data;
+      if (d.id != null && Number(d.id) !== Number(requestedId)) return;
       const status = d.status ?? 'DRAFT';
       setOriginPublishedAt(d.published_at);
       const pubAt = d.published_at ? toLocalISOString(d.published_at) : '';
       const isScheduled = status === 'PUBLISHED' && pubAt && new Date(pubAt) > new Date();
       const visibility = status === 'DRAFT' ? 'PUBLISHED' : status;
+      const postTagsFromApi = Array.isArray(d.post_tags) ? d.post_tags : (d.tags || []);
+      const postTagIds = postTagsFromApi.map((t) =>
+        typeof t === 'object' && t?.id != null ? t.id : t
+      );
 
       setForm({
         title: d.title ?? '',
@@ -113,9 +119,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
         category_id: d.category_id != null ? String(d.category_id) : '',
         prefix_id: d.prefix_id != null ? String(d.prefix_id) : '',
         thumbnail_asset_id: d.thumbnail_asset_id ?? null,
-        post_tags: (Array.isArray(d.post_tags) ? d.post_tags : d.tags || []).map((t) =>
-          typeof t === 'object' && t?.id != null ? t.id : t
-        ),
+        post_tags: postTagIds,
       });
       setAttachmentList((Array.isArray(d.attachments) ? d.attachments : []).map((a) => ({
         id: a.id,
@@ -154,8 +158,35 @@ export default function PostEditor({ isEdit = false, postId = null }) {
 
   useEffect(() => {
     if (isEdit && postId) {
+      setForm({
+        title: '',
+        status: '',
+        visibility: '',
+        publishType: 'now',
+        published_at: '',
+        category_id: '__select__',
+        prefix_id: '__select__',
+        thumbnail_asset_id: null,
+        post_tags: [],
+      });
+      setOriginPublishedAt(null);
+      setAttachmentList([]);
+      setTagInput('');
+      setInitialContent('');
+      setIsEditorReady(false);
       loadPost();
     } else {
+      setForm({
+        title: '',
+        status: '',
+        visibility: '',
+        publishType: 'now',
+        published_at: '',
+        category_id: '__select__',
+        prefix_id: '__select__',
+        thumbnail_asset_id: null,
+        post_tags: [],
+      });
       setInitialContent('');
       setIsEditorReady(true);
     }
