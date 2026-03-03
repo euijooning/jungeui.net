@@ -1,4 +1,5 @@
 """프로젝트 API."""
+import json
 import shutil
 import traceback
 from pathlib import Path
@@ -25,10 +26,11 @@ class ProjectBody(BaseModel):
     start_date: str | None = None
     end_date: str | None = None
     thumbnail_asset_id: int | None = None
-    intro_image_asset_id: int | None = None
     logo_asset_id: int | None = None
     sort_order: int = 0
     notion_url: str | None = None
+    website_url: str | None = None
+    detail_bullets: list[str] | None = None
     is_pinned: bool = False
     project_links: list[ProjectLinkItem] = []
     project_tag_names: list[str] = []
@@ -44,6 +46,18 @@ class ProjectBody(BaseModel):
             if s:
                 out.append(s)
         return out[:7]
+
+    @field_validator("detail_bullets", mode="before")
+    @classmethod
+    def normalize_detail_bullets(cls, v):
+        if not v:
+            return []
+        out = []
+        for x in v:
+            s = (x if isinstance(x, str) else str(x)).strip()[:40]
+            if s:
+                out.append(s)
+        return out[:5]
 
 
 class ReorderBody(BaseModel):
@@ -64,12 +78,12 @@ def list_projects(db=Depends(get_db)):
     try:
         rows = db.execute(
             text("""
-                SELECT p.id, p.thumbnail_asset_id, p.intro_image_asset_id, p.title, p.description,
-                       p.start_date, p.end_date, p.sort_order, p.notion_url, p.is_pinned, p.logo_asset_id,
-                       a.file_path, a2.file_path, a3.file_path
+                SELECT p.id, p.thumbnail_asset_id, p.title, p.description,
+                       p.start_date, p.end_date, p.sort_order, p.notion_url, p.website_url, p.detail_bullets,
+                       p.is_pinned, p.logo_asset_id,
+                       a.file_path, a3.file_path
                 FROM projects p
                 LEFT JOIN assets a ON a.id = p.thumbnail_asset_id
-                LEFT JOIN assets a2 ON a2.id = p.intro_image_asset_id
                 LEFT JOIN assets a3 ON a3.id = p.logo_asset_id
                 ORDER BY p.sort_order, p.id
             """)
@@ -81,10 +95,10 @@ def list_projects(db=Depends(get_db)):
                 status_code=500,
                 detail="DB에 notion_url/is_pinned/logo_asset_id 컬럼이 없습니다. python scripts/add_projects_notion_pinned_logo.py 실행 후 다시 시도하세요.",
             )
-        if "intro_image_asset_id" in err or "unknown column" in err:
+        if "unknown column" in err and ("website_url" in err or "detail_bullets" in err):
             raise HTTPException(
                 status_code=500,
-                detail="DB에 intro_image_asset_id 컬럼이 없습니다. python scripts/add_intro_image_to_projects.py 실행 후 다시 시도하세요.",
+                detail="DB에 website_url/detail_bullets 컬럼이 없습니다. python scripts/add_project_modal_fields_staging.py 또는 add_project_modal_fields_production.py 실행 후 다시 시도하세요.",
             )
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
@@ -103,23 +117,29 @@ def list_projects(db=Depends(get_db)):
         except Exception:
             tag_rows = []
         tag_list = [{"name": x[0]} for x in tag_rows]
-        thumb_path = _file_path_to_url(r[11])
-        intro_path = _file_path_to_url(r[12])
+        thumb_path = _file_path_to_url(r[12])
         logo_path = _file_path_to_url(r[13]) if len(r) > 13 else None
+        raw_bullets = r[9] if len(r) > 9 else None
+        try:
+            detail_bullets = json.loads(raw_bullets) if raw_bullets else []
+        except (TypeError, json.JSONDecodeError):
+            detail_bullets = []
+        if not isinstance(detail_bullets, list):
+            detail_bullets = []
         items.append({
             "id": r[0],
             "thumbnail_asset_id": r[1],
             "thumbnail": thumb_path,
-            "intro_image_asset_id": r[2],
-            "intro_image": intro_path,
-            "title": r[3],
-            "description": r[4],
-            "start_date": r[5].isoformat() if r[5] else None,
-            "end_date": r[6].isoformat() if r[6] else None,
-            "sort_order": r[7],
-            "notion_url": r[8] if len(r) > 8 else None,
-            "is_pinned": bool(r[9]) if len(r) > 9 else False,
-            "logo_asset_id": r[10] if len(r) > 10 else None,
+            "title": r[2],
+            "description": r[3],
+            "start_date": r[4].isoformat() if r[4] else None,
+            "end_date": r[5].isoformat() if r[5] else None,
+            "sort_order": r[6],
+            "notion_url": r[7] if len(r) > 7 else None,
+            "website_url": (r[8] or "").strip() or None if len(r) > 8 else None,
+            "detail_bullets": detail_bullets,
+            "is_pinned": bool(r[10]) if len(r) > 10 else False,
+            "logo_asset_id": r[11] if len(r) > 11 else None,
             "logo": logo_path,
             "links": [{"id": x[0], "link_name": x[1], "link_url": x[2], "sort_order": x[3]} for x in link_rows],
             "tags": tag_list,
@@ -185,9 +205,11 @@ def _create_project_impl(body: ProjectBody, db):
     if len(title) > 20:
         raise HTTPException(status_code=400, detail="프로젝트명은 20자 이하여야 합니다.")
     desc = (body.description or "").strip() or None
-    if desc and len(desc) > 20:
-        raise HTTPException(status_code=400, detail="한 줄 설명은 20자 이하여야 합니다.")
+    if desc and len(desc) > 30:
+        raise HTTPException(status_code=400, detail="한 줄 설명은 30자 이하여야 합니다.")
     notion_url = (body.notion_url or "").strip() or None
+    website_url = (body.website_url or "").strip() or None
+    detail_bullets_json = json.dumps(body.detail_bullets[:5] if body.detail_bullets else []) if (body.detail_bullets and any(s for s in body.detail_bullets)) else None
     start_parsed = _parse_date(body.start_date)
     end_parsed = _parse_date(body.end_date)
     _validate_start_end_dates(start_parsed, end_parsed)
@@ -196,8 +218,8 @@ def _create_project_impl(body: ProjectBody, db):
         sort_order = body.sort_order if body.sort_order is not None else max_order + 1
         db.execute(
             text("""
-                INSERT INTO projects (title, description, start_date, end_date, thumbnail_asset_id, intro_image_asset_id, logo_asset_id, sort_order, notion_url, is_pinned)
-                VALUES (:title, :description, :start_date, :end_date, :thumbnail_asset_id, :intro_image_asset_id, :logo_asset_id, :sort_order, :notion_url, :is_pinned)
+                INSERT INTO projects (title, description, start_date, end_date, thumbnail_asset_id, intro_image_asset_id, logo_asset_id, sort_order, notion_url, website_url, detail_bullets, is_pinned)
+                VALUES (:title, :description, :start_date, :end_date, :thumbnail_asset_id, NULL, :logo_asset_id, :sort_order, :notion_url, :website_url, :detail_bullets, :is_pinned)
             """),
             {
                 "title": title,
@@ -205,10 +227,11 @@ def _create_project_impl(body: ProjectBody, db):
                 "start_date": start_parsed,
                 "end_date": end_parsed,
                 "thumbnail_asset_id": body.thumbnail_asset_id,
-                "intro_image_asset_id": body.intro_image_asset_id,
                 "logo_asset_id": body.logo_asset_id,
                 "sort_order": sort_order,
                 "notion_url": notion_url,
+                "website_url": website_url,
+                "detail_bullets": detail_bullets_json,
                 "is_pinned": 1 if body.is_pinned else 0,
             },
         )
@@ -219,7 +242,6 @@ def _create_project_impl(body: ProjectBody, db):
             raise HTTPException(status_code=500, detail="프로젝트 생성 실패")
         upload_dir = Path(UPLOAD_DIR)
         _relocate_temp_asset(body.thumbnail_asset_id, new_id, db, upload_dir)
-        _relocate_temp_asset(body.intro_image_asset_id, new_id, db, upload_dir)
         _relocate_temp_asset(body.logo_asset_id, new_id, db, upload_dir)
         for idx, link in enumerate(body.project_links or []):
             if not (link.link_name and link.link_url):
@@ -256,9 +278,11 @@ def update_project(project_id: int, body: ProjectBody, db=Depends(get_db)):
     if len(title) > 20:
         raise HTTPException(status_code=400, detail="프로젝트명은 20자 이하여야 합니다.")
     desc = (body.description or "").strip() or None
-    if desc and len(desc) > 20:
-        raise HTTPException(status_code=400, detail="한 줄 설명은 20자 이하여야 합니다.")
+    if desc and len(desc) > 30:
+        raise HTTPException(status_code=400, detail="한 줄 설명은 30자 이하여야 합니다.")
     notion_url = (body.notion_url or "").strip() or None
+    website_url = (body.website_url or "").strip() or None
+    detail_bullets_json = json.dumps(body.detail_bullets[:5] if body.detail_bullets else []) if (body.detail_bullets and any(s for s in body.detail_bullets)) else None
     start_parsed = _parse_date(body.start_date)
     end_parsed = _parse_date(body.end_date)
     _validate_start_end_dates(start_parsed, end_parsed)
@@ -267,8 +291,9 @@ def update_project(project_id: int, body: ProjectBody, db=Depends(get_db)):
             UPDATE projects SET
                 title = :title, description = :description,
                 start_date = :start_date, end_date = :end_date,
-                thumbnail_asset_id = :thumbnail_asset_id, intro_image_asset_id = :intro_image_asset_id,
-                logo_asset_id = :logo_asset_id, sort_order = :sort_order, notion_url = :notion_url, is_pinned = :is_pinned
+                thumbnail_asset_id = :thumbnail_asset_id, intro_image_asset_id = NULL,
+                logo_asset_id = :logo_asset_id, sort_order = :sort_order, notion_url = :notion_url,
+                website_url = :website_url, detail_bullets = :detail_bullets, is_pinned = :is_pinned
             WHERE id = :id
         """),
         {
@@ -278,10 +303,11 @@ def update_project(project_id: int, body: ProjectBody, db=Depends(get_db)):
             "start_date": start_parsed,
             "end_date": end_parsed,
             "thumbnail_asset_id": body.thumbnail_asset_id,
-            "intro_image_asset_id": body.intro_image_asset_id,
             "logo_asset_id": body.logo_asset_id,
             "sort_order": body.sort_order if body.sort_order is not None else 0,
             "notion_url": notion_url,
+            "website_url": website_url,
+            "detail_bullets": detail_bullets_json,
             "is_pinned": 1 if body.is_pinned else 0,
         },
     )
@@ -305,7 +331,6 @@ def update_project(project_id: int, body: ProjectBody, db=Depends(get_db)):
             )
     upload_dir = Path(UPLOAD_DIR)
     _relocate_temp_asset(body.thumbnail_asset_id, project_id, db, upload_dir)
-    _relocate_temp_asset(body.intro_image_asset_id, project_id, db, upload_dir)
     _relocate_temp_asset(body.logo_asset_id, project_id, db, upload_dir)
     db.commit()
     return {"id": project_id}

@@ -125,7 +125,9 @@ CREATE TABLE IF NOT EXISTS projects (
   start_date DATE NULL COMMENT '시작일',
   end_date DATE NULL COMMENT '종료일',
   sort_order INT DEFAULT 0 COMMENT '정렬 순서',
-  notion_url VARCHAR(500) NULL COMMENT '노션 페이지 URL (카드 클릭 시 이동)',
+  notion_url VARCHAR(500) NULL COMMENT '노션 페이지 URL (자세히 보기)',
+  website_url VARCHAR(500) NULL COMMENT '웹사이트 URL (사이트 이동 버튼)',
+  detail_bullets TEXT NULL COMMENT '상세 설명 개조식 (JSON 배열, 최대 5개 각 50자)',
   is_pinned TINYINT(1) NOT NULL DEFAULT 0 COMMENT '상단 고정(핀)',
   logo_asset_id BIGINT NULL COMMENT '로고 이미지 ID (핀 영역 표시)',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -350,6 +352,39 @@ def _ensure_site_settings():
         conn.close()
 
 
+def _ensure_project_modal_columns():
+    """projects 테이블에 website_url, detail_bullets 컬럼이 없으면 추가 (모달 저장 시 예외 방지)."""
+    conn = _get_conn(use_db=True)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT 1 FROM information_schema.COLUMNS "
+                "WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'projects' AND COLUMN_NAME = 'website_url'",
+                (MYSQL_DATABASE,),
+            )
+            if cur.fetchone() is None:
+                cur.execute(
+                    "ALTER TABLE projects ADD COLUMN website_url VARCHAR(500) NULL "
+                    "COMMENT '웹사이트 URL (사이트 이동 버튼)' AFTER notion_url"
+                )
+                conn.commit()
+                logger.info("projects.website_url 컬럼 추가됨")
+            cur.execute(
+                "SELECT 1 FROM information_schema.COLUMNS "
+                "WHERE TABLE_SCHEMA = %s AND TABLE_NAME = 'projects' AND COLUMN_NAME = 'detail_bullets'",
+                (MYSQL_DATABASE,),
+            )
+            if cur.fetchone() is None:
+                cur.execute(
+                    "ALTER TABLE projects ADD COLUMN detail_bullets TEXT NULL "
+                    "COMMENT '상세 설명 개조식 (JSON 배열, 최대 5개 각 50자)' AFTER website_url"
+                )
+                conn.commit()
+                logger.info("projects.detail_bullets 컬럼 추가됨")
+    finally:
+        conn.close()
+
+
 def _migrate_site_settings_value_to_text():
     """site_settings.value를 VARCHAR(255)에서 TEXT로 변경 (긴 URL 저장 대응)."""
     conn = _get_conn(use_db=True)
@@ -400,6 +435,7 @@ def init_on_startup():
         _ensure_posts_view_count()
         _ensure_posts_prefix_id()
         _ensure_career_extension_tables()
+        _ensure_project_modal_columns()
         _ensure_site_settings()
         _migrate_site_settings_value_to_text()
         _ensure_admin()

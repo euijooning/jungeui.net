@@ -7,12 +7,16 @@ import {
   Chip,
   FormControlLabel,
   Checkbox,
+  IconButton,
 } from '@mui/material';
+import { Delete as DeleteIcon, ArrowUpward, ArrowDownward } from '@mui/icons-material';
 import apiClient, { getAccessToken, API_BASE, UPLOAD_URL } from '../../lib/apiClient';
 
 const TITLE_MAX = 20;
-const DESC_MAX = 20;
+const DESC_MAX = 30;
 const TAG_MAX = 7;
+const BULLET_MAX = 5;
+const BULLET_ITEM_MAX = 40;
 
 function toImageUrl(path) {
   if (!path) return null;
@@ -50,6 +54,8 @@ export default function ProjectForm({ isEdit = false, projectId = null }) {
     thumbnail_asset_id: null,
     logo_asset_id: null,
     notion_url: '',
+    website_url: '',
+    detail_bullets: [''],
     project_tag_names: [],
     project_links: [],
   });
@@ -78,6 +84,9 @@ export default function ProjectForm({ isEdit = false, projectId = null }) {
         setLoadError('프로젝트를 찾을 수 없습니다.');
         return;
       }
+      const bullets = Array.isArray(p.detail_bullets) && p.detail_bullets.length > 0
+        ? [...p.detail_bullets.map((s) => String(s || '').slice(0, BULLET_ITEM_MAX)), ''].slice(0, BULLET_MAX)
+        : [''];
       setForm({
         title: p.title ?? '',
         description: p.description ?? '',
@@ -86,6 +95,8 @@ export default function ProjectForm({ isEdit = false, projectId = null }) {
         thumbnail_asset_id: p.thumbnail_asset_id ?? null,
         logo_asset_id: p.logo_asset_id ?? null,
         notion_url: p.notion_url ?? '',
+        website_url: p.website_url ?? '',
+        detail_bullets: bullets,
         project_tag_names: (p.tags || []).map((t) => t.name || t).filter(Boolean),
         project_links: p.links || [],
       });
@@ -190,6 +201,11 @@ export default function ProjectForm({ isEdit = false, projectId = null }) {
       logo_asset_id: form.logo_asset_id || null,
       sort_order: 0,
       notion_url: (form.notion_url || '').trim() || null,
+      website_url: (form.website_url || '').trim() || null,
+      detail_bullets: (form.detail_bullets || [])
+        .map((s) => (s || '').trim())
+        .filter(Boolean)
+        .slice(0, BULLET_MAX),
       is_pinned: false,
       project_links: (form.project_links || []).map((l) => ({
         link_name: l.link_name ?? '',
@@ -453,6 +469,95 @@ export default function ProjectForm({ isEdit = false, projectId = null }) {
         <div>
           <div className="flex items-baseline justify-between gap-2 mb-1">
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              프로젝트 설명 (상세, 개조식 최대 {BULLET_MAX}개 · 항목당 {BULLET_ITEM_MAX}자)
+            </label>
+            <Button
+              size="small"
+              variant="outlined"
+              disabled={(form.detail_bullets || []).length >= BULLET_MAX}
+              onClick={() =>
+                setForm((f) => ({
+                  ...f,
+                  detail_bullets: [...(f.detail_bullets || ['']), ''].slice(0, BULLET_MAX),
+                }))
+              }
+            >
+              항목 추가
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {(form.detail_bullets || ['']).map((line, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <span className="text-gray-500 dark:text-gray-400 w-6 flex-shrink-0">{idx + 1}.</span>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={line}
+                  onChange={(e) =>
+                    setForm((f) => {
+                      const list = [...(f.detail_bullets || [''])];
+                      list[idx] = e.target.value.slice(0, BULLET_ITEM_MAX);
+                      return { ...f, detail_bullets: list };
+                    })
+                  }
+                  placeholder={`항목 ${idx + 1}`}
+                  inputProps={{ maxLength: BULLET_ITEM_MAX }}
+                />
+                <span className="text-xs text-gray-400 flex-shrink-0 tabular-nums">
+                  {(line || '').length}/{BULLET_ITEM_MAX}
+                </span>
+                <div className="flex items-center flex-shrink-0">
+                  <IconButton
+                    size="small"
+                    disabled={idx === 0}
+                    onClick={() =>
+                      setForm((f) => {
+                        const list = [...(f.detail_bullets || [''])];
+                        [list[idx - 1], list[idx]] = [list[idx], list[idx - 1]];
+                        return { ...f, detail_bullets: list };
+                      })
+                    }
+                    aria-label="위로 이동"
+                  >
+                    <ArrowUpward fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    disabled={idx === (form.detail_bullets || []).length - 1}
+                    onClick={() =>
+                      setForm((f) => {
+                        const list = [...(f.detail_bullets || [''])];
+                        [list[idx], list[idx + 1]] = [list[idx + 1], list[idx]];
+                        return { ...f, detail_bullets: list };
+                      })
+                    }
+                    aria-label="아래로 이동"
+                  >
+                    <ArrowDownward fontSize="small" />
+                  </IconButton>
+                  {(form.detail_bullets || []).length > 1 && (
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        setForm((f) => {
+                          const list = (f.detail_bullets || []).filter((_, i) => i !== idx);
+                          return { ...f, detail_bullets: list.length ? list : [''] };
+                        })
+                      }
+                      aria-label="항목 삭제"
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-baseline justify-between gap-2 mb-1">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
               프로젝트 소개용 태그 (최대 {TAG_MAX}개)
             </label>
             <span className="text-sm tabular-nums text-gray-500 dark:text-gray-400 flex-shrink-0">
@@ -484,12 +589,23 @@ export default function ProjectForm({ isEdit = false, projectId = null }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">노션 링크 (카드 클릭 시 이동)</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">노션 링크 (모달에서 자세히 보기)</label>
           <TextField
             fullWidth
             size="small"
             value={form.notion_url}
             onChange={(e) => setForm((f) => ({ ...f, notion_url: e.target.value }))}
+            placeholder="https://..."
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">웹사이트 URL (선택, 모달에서 사이트 이동)</label>
+          <TextField
+            fullWidth
+            size="small"
+            value={form.website_url}
+            onChange={(e) => setForm((f) => ({ ...f, website_url: e.target.value }))}
             placeholder="https://..."
           />
         </div>
