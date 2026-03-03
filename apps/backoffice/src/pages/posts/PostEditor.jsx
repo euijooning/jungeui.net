@@ -59,6 +59,8 @@ export default function PostEditor({ isEdit = false, postId = null }) {
   const editorRef = useRef(null);
   const attachmentInputRef = useRef(null);
   const multiImageInputRef = useRef(null);
+  const currentPostIdRef = useRef(postId);
+  currentPostIdRef.current = postId;
 
   const [categories, setCategories] = useState([]);
   const [prefixes, setPrefixes] = useState([]);
@@ -100,6 +102,7 @@ export default function PostEditor({ isEdit = false, postId = null }) {
       const res = await apiClient.get(`/api/posts/${requestedId}`);
       const d = res.data;
       if (d.id != null && Number(d.id) !== Number(requestedId)) return;
+      if (Number(currentPostIdRef.current) !== Number(requestedId)) return;
       const status = d.status ?? 'DRAFT';
       setOriginPublishedAt(d.published_at);
       const pubAt = d.published_at ? toLocalISOString(d.published_at) : '';

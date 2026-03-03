@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SharedLayout from '../components/SharedLayout';
 import ProjectCard from '../components/ProjectCard';
+import ProjectDetailModal from '../components/ProjectDetailModal';
 import { fetchTags, fetchProjects, fetchProjectsCareersIntro } from '../api';
 
 export default function Projects() {
   const [tags, setTags] = useState([]);
   const [projects, setProjects] = useState([]);
   const [projectsCareersIntro, setProjectsCareersIntro] = useState('');
+  const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
     document.title = 'Projects';
@@ -61,7 +63,11 @@ export default function Projects() {
             {projects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 {projects.map((p) => (
-                  <ProjectCard key={p.id} project={p} />
+                  <ProjectCard
+                    key={p.id}
+                    project={p}
+                    onProjectClick={setSelectedProject}
+                  />
                 ))}
               </div>
             ) : (
@@ -90,7 +96,11 @@ export default function Projects() {
             </div>
           </div>
         </section>
-        
+        <ProjectDetailModal
+          open={!!selectedProject}
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
+        />
       </div>
     </SharedLayout>
   );

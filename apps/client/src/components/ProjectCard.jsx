@@ -2,7 +2,7 @@ import React from 'react';
 import { MapPin } from 'lucide-react';
 import { getStaticUrl } from '../api';
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project, onProjectClick }) {
   const {
     title,
     description,
@@ -11,7 +11,6 @@ export default function ProjectCard({ project }) {
     thumbnail,
     logo,
     tags = [],
-    notion_url,
   } = project;
 
   const formatDate = (dateString) => {
@@ -24,33 +23,30 @@ export default function ProjectCard({ project }) {
     : `${formatDate(start_date)} ~ 진행중`;
 
   const handleClick = () => {
-    if (notion_url) {
-      window.open(notion_url, '_blank', 'noopener,noreferrer');
-    }
+    if (onProjectClick) onProjectClick(project);
   };
 
   const thumbUrl = thumbnail ? getStaticUrl(thumbnail) : null;
   const logoUrl = logo ? getStaticUrl(logo) : null;
   const titleStr = (title || '프로젝트').slice(0, 20);
-  const descStr = (description || '').slice(0, 20);
+  const descStr = (description || '').slice(0, 30);
 
   return (
     <div
-      role={notion_url ? 'button' : undefined}
-      tabIndex={notion_url ? 0 : undefined}
+      role="button"
+      tabIndex={0}
       onClick={handleClick}
       onKeyDown={(e) => {
-        if (notion_url && (e.key === 'Enter' || e.key === ' ')) {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           handleClick();
         }
       }}
-      className={`
+      className="
         group relative flex flex-col bg-white dark:bg-gray-800
         rounded-xl overflow-hidden border border-gray-300 dark:border-gray-600
-        transition-all duration-300 hover:-translate-y-1 hover:shadow-lg
-        ${notion_url ? 'cursor-pointer' : ''}
-      `}
+        transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer
+      "
     >
       {/* 1. 16:9 대표 이미지 */}
       <div className="relative w-full aspect-video bg-gray-100 dark:bg-gray-700 overflow-hidden">
