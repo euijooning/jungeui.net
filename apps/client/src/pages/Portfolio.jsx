@@ -14,24 +14,24 @@ const LinkCard = ({ href, label, title, description, colorClass, icon: Icon }) =
     target={href.startsWith('mailto') ? undefined : "_blank"}
     rel={href.startsWith('mailto') ? undefined : "noopener noreferrer"}
     className={`
-      group relative flex flex-col justify-between p-6 md:p-8 rounded-2xl 
+      group relative flex flex-col justify-between p-4 sm:p-6 md:p-8 rounded-2xl 
       ${colorClass} text-white 
       transition-all duration-300 hover:-translate-y-2 hover:shadow-xl
-      w-full aspect-[4/3] md:aspect-square lg:aspect-[4/3]
-      min-h-[220px] 
+      w-full aspect-[5/3] sm:aspect-[4/3] md:aspect-square lg:aspect-[4/3]
+      min-h-0 sm:min-h-[220px]
     `}
   >
     <div className="flex flex-col items-start gap-1">
       <span className="text-xs font-semibold opacity-70 uppercase tracking-widest">
         {label}
       </span>
-      <h3 className="text-2xl md:text-3xl font-extrabold leading-tight tracking-tight mt-1">
+      <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-tight tracking-tight mt-1">
         {title}
       </h3>
     </div>
     
-    <div className="flex items-end justify-between w-full mt-auto pt-6">
-      <p className="text-base md:text-lg font-medium opacity-95 break-all leading-snug pr-2">
+    <div className="flex items-end justify-between w-full mt-auto pt-4 sm:pt-6">
+      <p className="text-sm sm:text-base md:text-lg font-medium opacity-95 break-all leading-snug pr-2">
         {description}
       </p>
       <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md group-hover:bg-white/30 transition-all shrink-0">
@@ -43,7 +43,7 @@ const LinkCard = ({ href, label, title, description, colorClass, icon: Icon }) =
 
 // 스켈레톤 컴포넌트
 const SkeletonCard = () => (
-  <div className="w-full aspect-[4/3] md:aspect-square lg:aspect-[4/3] min-h-[220px] rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse" />
+  <div className="w-full aspect-[5/3] sm:aspect-[4/3] md:aspect-square lg:aspect-[4/3] min-h-0 sm:min-h-[220px] rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse" />
 );
 
 export default function Portfolio() {
