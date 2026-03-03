@@ -70,8 +70,8 @@ export default function ProjectDetailModal({ open, project, onClose }) {
 
           {bullets.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">프로젝트 설명</h3>
-              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">프로젝트 설명</h3>
+              <ul className="list-disc list-inside space-y-1.5 text-base text-gray-600 dark:text-gray-400">
                 {bullets.map((line, idx) => (
                   <li key={idx}>{line}</li>
                 ))}
@@ -79,13 +79,15 @@ export default function ProjectDetailModal({ open, project, onClose }) {
             </div>
           )}
 
-          <div className="flex flex-wrap gap-3 pt-2">
+          <div
+            className={`w-full grid gap-3 pt-2 ${hasNotion && hasWebsite ? 'grid-cols-2' : 'grid-cols-1'}`}
+          >
             {hasNotion && (
               <a
                 href={project.notion_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-medium text-sm hover:opacity-90 transition-opacity"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-medium text-sm hover:opacity-90 transition-opacity"
               >
                 자세히 보기
               </a>
@@ -95,7 +97,7 @@ export default function ProjectDetailModal({ open, project, onClose }) {
                 href={project.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#0EA5E9] text-white font-medium text-sm hover:opacity-90 transition-opacity"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#0EA5E9] text-white font-medium text-sm hover:opacity-90 transition-opacity"
               >
                 <Home size={18} />
                 사이트 이동
