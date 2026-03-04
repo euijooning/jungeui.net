@@ -42,14 +42,6 @@ export default function Home() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchCategories({ tree: true })
-      .then((list) => { if (!cancelled) setCategories(Array.isArray(list) ? list : []); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
     if (tagId) {
       fetchTags().then((list) => {
         if (!cancelled && Array.isArray(list)) setTags(list);
@@ -60,20 +52,25 @@ export default function Home() {
     return () => { cancelled = true; };
   }, [tagId]);
 
+  // 카테고리 + 포스트 병렬 로드 (레이아웃 시프트 방지, 한 번에 스켈레톤 해제)
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetchPosts({
-      page,
-      per_page: PER_PAGE,
-      category_id: categoryId || undefined,
-      tag_id: tagId || undefined,
-      q: q || undefined,
-    })
-      .then((res) => {
+    Promise.all([
+      fetchCategories({ tree: true }),
+      fetchPosts({
+        page,
+        per_page: PER_PAGE,
+        category_id: categoryId || undefined,
+        tag_id: tagId || undefined,
+        q: q || undefined,
+      }),
+    ])
+      .then(([categoriesData, postsRes]) => {
         if (cancelled) return;
-        setPosts(res.items || []);
-        setTotal(res.total || 0);
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+        setPosts(postsRes.items || []);
+        setTotal(postsRes.total || 0);
       })
       .catch((err) => {
         if (!cancelled) console.error(err);

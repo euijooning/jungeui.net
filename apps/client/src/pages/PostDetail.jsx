@@ -1,15 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Paperclip, Download } from 'lucide-react';
-import Prism from 'prismjs';
-import 'prismjs/themes/prism-tomorrow.css';
-import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-markup-templating';
-import 'prismjs/components/prism-php';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-sql';
 import SharedLayout from '../components/SharedLayout';
 // import AdBanner from '../components/AdBanner';
 import { fetchPost, fetchPostNeighbors, fetchCategories, getStaticUrl } from '../api';
@@ -43,25 +34,23 @@ export default function PostDetail() {
   const [categories, setCategories] = useState([]);
   const bodyRef = useRef(null);
 
-  // 카테고리 로드
-  useEffect(() => {
-    let cancelled = false;
-    fetchCategories({ tree: true })
-      .then((list) => { if (!cancelled) setCategories(Array.isArray(list) ? list : []); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
-  // 포스트 상세 로드
+  // 포스트 상세 + 이전/다음글 + 카테고리 병렬 로드
   useEffect(() => {
     if (!postId) return;
     let cancelled = false;
     setLoading(true);
     setError(null);
-    fetchPost(Number(postId))
-      .then((data) => {
+    const pid = Number(postId);
+    Promise.all([
+      fetchPost(pid),
+      fetchPostNeighbors(pid),
+      fetchCategories({ tree: true }).catch(() => []),
+    ])
+      .then(([postData, neighborsData, categoriesData]) => {
         if (cancelled) return;
-        setPost(data);
+        setPost(postData);
+        setNeighbors({ prev: neighborsData?.prev ?? null, next: neighborsData?.next ?? null });
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
       })
       .catch((err) => {
         if (!cancelled) setError(err.message || '글을 불러올 수 없습니다.');
@@ -71,18 +60,6 @@ export default function PostDetail() {
       });
     return () => { cancelled = true; };
   }, [postId]);
-
-  // 이전글/다음글 로드
-  useEffect(() => {
-    if (!postId || error) return;
-    let cancelled = false;
-    fetchPostNeighbors(Number(postId))
-      .then((data) => {
-        if (!cancelled) setNeighbors({ prev: data.prev || null, next: data.next || null });
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [postId, error]);
 
   // 브라우저 탭 제목: 글 제목 표시, 이탈 시 복구
   useEffect(() => {
@@ -117,11 +94,30 @@ export default function PostDetail() {
     };
   }, [post?.content_html]);
 
-  // Prism.js 문법 강조
+  // Prism.js 문법 강조 (코드 블록 있을 때만 동적 로드)
   useEffect(() => {
-    if (post?.content_html && bodyRef.current) {
-      Prism.highlightAllUnder(bodyRef.current);
-    }
+    if (!post?.content_html || !bodyRef.current) return;
+    const el = bodyRef.current;
+    if (!el.querySelector('pre code')) return;
+    let cancelled = false;
+    import('prismjs')
+      .then(({ default: Prism }) =>
+        Promise.all([
+          import('prismjs/themes/prism-tomorrow.css'),
+          import('prismjs/components/prism-bash'),
+          import('prismjs/components/prism-json'),
+          import('prismjs/components/prism-python'),
+          import('prismjs/components/prism-markup-templating'),
+          import('prismjs/components/prism-php'),
+          import('prismjs/components/prism-typescript'),
+          import('prismjs/components/prism-sql'),
+        ]).then(() => Prism)
+      )
+      .then((Prism) => {
+        if (!cancelled && bodyRef.current) Prism.highlightAllUnder(bodyRef.current);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, [post?.content_html]);
 
   // Utterances 댓글 로드

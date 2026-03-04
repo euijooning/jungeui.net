@@ -118,7 +118,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
       <div className="flex items-center gap-8 md:gap-8">
         <button
           type="button"
-          className="hidden max-[375px]:flex items-center justify-center w-8 h-8 border rounded-md theme-btn-icon theme-input-bg hover:bg-[var(--ui-background-secondary)] shrink-0"
+          className="hidden max-[375px]:flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 border rounded-md theme-btn-icon theme-input-bg hover:bg-[var(--ui-background-secondary)] shrink-0"
           onClick={() => setMainMenuOverlayOpen(true)}
           aria-label="메뉴"
         >
@@ -154,7 +154,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
         </form>
         <button
           type="button"
-          className="flex items-center justify-center w-8 h-8 border rounded-md theme-btn-icon bg-transparent hover:opacity-80 cursor-pointer"
+          className="flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 border rounded-md theme-btn-icon bg-transparent hover:opacity-80 cursor-pointer"
           onClick={() => setTheme()}
           aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
         >
@@ -163,7 +163,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
         {hasCategories && (
           <button
             type="button"
-            className="flex md:hidden items-center justify-center w-8 h-8 border rounded-md theme-btn-icon theme-input-bg hover:bg-[var(--ui-background-secondary)]"
+            className="flex md:hidden items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 border rounded-md theme-btn-icon theme-input-bg hover:bg-[var(--ui-background-secondary)]"
             onClick={() => setOverlayOpen(true)}
             aria-label="카테고리 메뉴"
           >
@@ -174,7 +174,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
     </nav>
   );
 
-  const iconBtnClass = 'flex items-center justify-center w-8 h-8 border rounded-md theme-btn-icon bg-transparent hover:opacity-80 shrink-0';
+  const iconBtnClass = 'flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 border rounded-md theme-btn-icon bg-transparent hover:opacity-80 shrink-0';
   const footer = (
     <div className="flex items-center justify-center gap-3 flex-wrap">
       <span>© {new Date().getFullYear()} JUNGEUI LAB. All rights reserved.</span>

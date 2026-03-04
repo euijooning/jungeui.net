@@ -17,8 +17,8 @@ const LinkCard = ({ href, label, title, description, colorClass, icon: Icon }) =
       group relative flex flex-col justify-between p-4 sm:p-6 md:p-8 rounded-2xl 
       ${colorClass} text-white 
       transition-all duration-300 hover:-translate-y-2 hover:shadow-xl
-      w-full aspect-[5/3] sm:aspect-[4/3] md:aspect-square lg:aspect-[4/3]
-      min-h-0 sm:min-h-[220px]
+      w-full aspect-[3/2] sm:aspect-[4/3] md:aspect-square lg:aspect-[4/3]
+      min-h-0 sm:min-h-[220px] max-h-[200px] sm:max-h-none
     `}
   >
     <div className="flex flex-col items-start gap-1">
@@ -43,7 +43,7 @@ const LinkCard = ({ href, label, title, description, colorClass, icon: Icon }) =
 
 // 스켈레톤 컴포넌트
 const SkeletonCard = () => (
-  <div className="w-full aspect-[5/3] sm:aspect-[4/3] md:aspect-square lg:aspect-[4/3] min-h-0 sm:min-h-[220px] rounded-2xl bg-gray-200 dark:bg-gray-700 animate-pulse" />
+  <div className="w-full aspect-[3/2] sm:aspect-[4/3] md:aspect-square lg:aspect-[4/3] min-h-0 sm:min-h-[220px] max-h-[200px] sm:max-h-none rounded-2xl bg-gray-200 dark:bg-gray-700 animate-pulse" />
 );
 
 // 메시지 섹션용 텍스트 스켈레톤 (3열 그리드에 맞춰 3줄)

@@ -30,6 +30,25 @@ async function request(path, options = {}) {
   }
 }
 
+// 인메모리 캐시: path → { promise, expiresAt }. Promise를 캐싱해 동시 요청도 1회만 나가도록 함.
+const cache = new Map();
+const DEFAULT_TTL = 60000; // 1분
+
+async function cachedGet(path, ttl = DEFAULT_TTL) {
+  const now = Date.now();
+  if (cache.has(path)) {
+    const { promise, expiresAt } = cache.get(path);
+    if (now < expiresAt) return promise;
+    cache.delete(path); // 만료된 항목 제거 후 새로 요청
+  }
+  const promise = request(path, { method: 'GET' }).catch((err) => {
+    cache.delete(path);
+    throw err;
+  });
+  cache.set(path, { promise, expiresAt: now + ttl });
+  return promise;
+}
+
 export async function fetchPosts({ page = 1, per_page = 5, category_id, tag_id, q } = {}) {
   const params = new URLSearchParams();
   params.set('page', String(page));
@@ -44,7 +63,7 @@ export async function fetchPosts({ page = 1, per_page = 5, category_id, tag_id, 
 /** @param {{ tree?: boolean }} opts - tree=true면 대/소 계층 구조로 반환 */
 export async function fetchCategories(opts = {}) {
   const q = opts.tree ? '?tree=true' : '';
-  return request(`/api/categories${q}`);
+  return cachedGet(`/api/categories${q}`);
 }
 
 /** 글 단건 조회 (공개용). 비공개 시 백엔드에서 404. */
@@ -59,34 +78,34 @@ export async function fetchPostNeighbors(postId) {
 
 /** 소개 페이지 메시지 목록 (sort_order 순). */
 export async function fetchAboutMessages() {
-  return request('/api/about/messages');
+  return cachedGet('/api/about/messages');
 }
 
 /** 프로젝트/경력 섹션 소개 문구 한 줄 (최대 20자). */
 export async function fetchProjectsCareersIntro() {
-  const res = await request('/api/about/projects-careers-intro');
+  const res = await cachedGet('/api/about/projects-careers-intro');
   return res?.text ?? '';
 }
 
 /** 포트폴리오 페이지 이력서/포트폴리오 링크·소개 문구. */
 export async function fetchPortfolioLinks() {
-  return request('/api/about/portfolio-links');
+  return cachedGet('/api/about/portfolio-links');
 }
 
 /** 프로젝트 목록 (sort_order 순). 링크·태그·썸네일 URL 포함. */
 export async function fetchProjects() {
-  return request('/api/projects');
+  return cachedGet('/api/projects');
 }
 
 /** 경력 목록 (sort_order 순). */
 export async function fetchCareers() {
-  return request('/api/careers');
+  return cachedGet('/api/careers');
 }
 
 /** 태그 목록. used_in_posts=true면 공개 포스트에 사용된 태그만 반환 (post_count 포함). */
 export async function fetchTags(opts = {}) {
   const q = opts.used_in_posts ? '?used_in_posts=true' : '';
-  return request(`/api/tags${q}`);
+  return cachedGet(`/api/tags${q}`);
 }
 
 /** 첨부파일 등 정적 파일 전체 URL. 개발/프로덕션 모두 VITE_API_URL이 있으면 API 도메인 사용. */
