@@ -6,6 +6,7 @@ import ProjectDetailModal from '../components/ProjectDetailModal';
 import { fetchTags, fetchProjects, fetchProjectsCareersIntro } from '../api';
 
 export default function Projects() {
+  const [loading, setLoading] = useState(true);
   const [tags, setTags] = useState([]);
   const [projects, setProjects] = useState([]);
   const [projectsCareersIntro, setProjectsCareersIntro] = useState('');
@@ -18,6 +19,7 @@ export default function Projects() {
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     async function fetchAllData() {
       try {
         const [tagData, projData, introData] = await Promise.all([
@@ -31,6 +33,8 @@ export default function Projects() {
         if (typeof introData === 'string') setProjectsCareersIntro(introData);
       } catch (e) {
         console.error('Failed to load Projects page data', e);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
     fetchAllData();
@@ -50,8 +54,8 @@ export default function Projects() {
           <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6">
             <h1 className="text-3xl font-bold text-black dark:text-white text-center mb-2">프로젝트</h1>
             
-            {/* 소개 문구 or 빈 공간 */}
-            {projectsCareersIntro ? (
+            {/* 소개 문구 or 빈 공간 (로딩 중에는 빈 공간) */}
+            {!loading && projectsCareersIntro ? (
               <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-8 max-w-[600px] mx-auto">
                 {projectsCareersIntro}
               </p>
@@ -59,8 +63,14 @@ export default function Projects() {
               <div className="h-5 mb-8" aria-hidden />
             )}
 
-            {/* 프로젝트 리스트 or 없음 메시지 */}
-            {projects.length > 0 ? (
+            {/* 로딩: 스켈레톤 그리드 / 완료: 프로젝트 리스트 or 없음 메시지 */}
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <div key={idx} className="animate-pulse w-full aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg" />
+                ))}
+              </div>
+            ) : projects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 {projects.map((p) => (
                   <ProjectCard
@@ -84,15 +94,21 @@ export default function Projects() {
           <div className="w-full max-w-[1200px] mx-auto px-4 md:px-6">
             <h1 className="text-3xl font-bold text-black dark:text-white mb-6 text-center">태그</h1>
             <div className="flex flex-wrap gap-2 justify-start">
-              {tags.map((t) => (
-                <Link
-                  key={t.id}
-                  to={`/?tag=${t.id}`}
-                  className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/30 text-gray-700 dark:text-gray-200 text-base hover:bg-green-200 dark:hover:bg-green-800/40 transition-colors"
-                >
-                  {t.post_count != null ? `${t.name} (${t.post_count})` : t.name}
-                </Link>
-              ))}
+              {loading ? (
+                Array.from({ length: 8 }).map((_, idx) => (
+                  <div key={idx} className="h-9 w-20 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+                ))
+              ) : (
+                tags.map((t) => (
+                  <Link
+                    key={t.id}
+                    to={`/?tag=${t.id}`}
+                    className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/30 text-gray-700 dark:text-gray-200 text-base hover:bg-green-200 dark:hover:bg-green-800/40 transition-colors"
+                  >
+                    {t.post_count != null ? `${t.name} (${t.post_count})` : t.name}
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </section>

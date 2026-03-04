@@ -43,11 +43,28 @@ const LinkCard = ({ href, label, title, description, colorClass, icon: Icon }) =
 
 // 스켈레톤 컴포넌트
 const SkeletonCard = () => (
-  <div className="w-full aspect-[5/3] sm:aspect-[4/3] md:aspect-square lg:aspect-[4/3] min-h-0 sm:min-h-[220px] rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse" />
+  <div className="w-full aspect-[5/3] sm:aspect-[4/3] md:aspect-square lg:aspect-[4/3] min-h-0 sm:min-h-[220px] rounded-2xl bg-gray-200 dark:bg-gray-700 animate-pulse" />
+);
+
+// 메시지 섹션용 텍스트 스켈레톤 (3열 그리드에 맞춰 3줄)
+const MessageSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center justify-items-center">
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="flex flex-col items-center space-y-3 w-full max-w-[240px]">
+        <div className="w-2.5 h-2.5 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse shrink-0" />
+        <div className="h-6 w-3/4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+        <div className="space-y-2 w-full">
+          <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          <div className="h-4 w-5/6 mx-auto bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+        </div>
+      </div>
+    ))}
+  </div>
 );
 
 export default function Portfolio() {
   const [messages, setMessages] = useState([]);
+  const [messagesLoading, setMessagesLoading] = useState(true);
   const [links, setLinks] = useState(null);
   const [linksLoading, setLinksLoading] = useState(true);
 
@@ -58,6 +75,7 @@ export default function Portfolio() {
 
   useEffect(() => {
     let cancelled = false;
+    setMessagesLoading(true);
     async function load() {
       try {
         const data = await fetchAboutMessages();
@@ -65,6 +83,8 @@ export default function Portfolio() {
         if (Array.isArray(data)) setMessages(data.slice(0, 3));
       } catch (e) {
         console.error('Failed to load Portfolio messages', e);
+      } finally {
+        if (!cancelled) setMessagesLoading(false);
       }
     }
     load();
@@ -114,7 +134,9 @@ export default function Portfolio() {
           </h1>
 
           {/* 2. 메시지 섹션 (모호함을 끝내다, 고민을 끝내다, 휘발을 끝내다) */}
-          {messages.length > 0 && (
+          {messagesLoading ? (
+            <MessageSkeleton />
+          ) : messages.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center justify-items-center">
               {messages.map((m) => (
                 <div key={m.id} className="flex flex-col items-center space-y-3">
@@ -128,7 +150,7 @@ export default function Portfolio() {
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
 
           {/* 3. 카드 그리드 섹션 */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 md:gap-6 w-full">
