@@ -9,7 +9,7 @@ const Portfolio = React.lazy(() => import('./pages/Portfolio'));
 export default function App() {
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex items-center justify-center min-h-[60vh] text-gray-600 dark:text-gray-400">
         <span>로딩 중…</span>
       </div>
     }>
