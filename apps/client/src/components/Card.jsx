@@ -57,7 +57,7 @@ export default function Card({
         <div
           className={`${thumbBase} ${listMode ? thumbList : thumbDefault}`}
         >
-          <img src={thumbnail} alt="" className="w-full h-full object-cover block" />
+          <img src={thumbnail} alt="" loading="lazy" className="w-full h-full object-cover block" />
         </div>
       )}
       <div className={bodyBase}>
