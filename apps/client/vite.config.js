@@ -12,6 +12,19 @@ export default defineConfig(({ mode }) => {
     root: '.',
     publicDir: 'public',
     envDir: rootEnvDir,
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react-dom') || id.includes('react-router') || id.includes('react/')) {
+                return 'vendor';
+              }
+            }
+          },
+        },
+      },
+    },
     resolve: {
       alias: {
         '@ui-kit': path.resolve(__dirname, '../../shared/ui-kit'),

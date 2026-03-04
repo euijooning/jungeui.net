@@ -38,7 +38,7 @@ export default function ProjectDetailModal({ open, project, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-3 right-3 p-1.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-400 dark:hover:bg-gray-700 transition-colors"
+          className="absolute top-3 right-3 flex items-center justify-center min-w-[44px] min-h-[44px] p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-400 dark:hover:bg-gray-700 transition-colors"
           aria-label="닫기"
         >
           <X size={20} />
