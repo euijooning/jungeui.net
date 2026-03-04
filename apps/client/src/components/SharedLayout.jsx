@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Menu, Sun, Moon, X, FolderOpen } from 'lucide-react';
+import { Menu, Sun, Moon, X, FolderOpen, Mail, Youtube } from 'lucide-react';
 import Layout from './Layout';
 import { useTheme } from '../ThemeContext';
 
@@ -184,7 +184,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
           className={iconBtnClass}
           aria-label="이메일"
         >
-          <i className="fa-solid fa-envelope text-[1.125rem]" aria-hidden />
+          <Mail size={18} aria-hidden />
         </a>
         <a
           href="https://youtube.com/@jungeuilab"
@@ -193,7 +193,7 @@ export default function SharedLayout({ categories = [], currentCategoryId = null
           className={iconBtnClass}
           aria-label="유튜브"
         >
-          <i className="fa-brands fa-youtube text-[1.125rem]" aria-hidden />
+          <Youtube size={18} aria-hidden />
         </a>
       </div>
     </div>

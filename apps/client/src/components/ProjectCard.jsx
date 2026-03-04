@@ -54,6 +54,7 @@ export default function ProjectCard({ project, onProjectClick }) {
           <img
             src={thumbUrl}
             alt={titleStr}
+            loading="lazy"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={(e) => {
               if (!e.currentTarget.src.includes('/favicon.png')) {
@@ -73,7 +74,7 @@ export default function ProjectCard({ project, onProjectClick }) {
         <div className="flex items-start gap-2 mb-2 overflow-hidden">
           <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-600">
             {logoUrl ? (
-              <img src={logoUrl} alt="" className="w-full h-full object-contain p-0.5" />
+              <img src={logoUrl} alt="" loading="lazy" className="w-full h-full object-contain p-0.5" />
             ) : (
               <MapPin size={16} className="text-gray-400 dark:text-gray-500" />
             )}

@@ -1,17 +1,25 @@
+import React, { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import PostDetail from './pages/PostDetail';
-import Projects from './pages/Projects';
-import Portfolio from './pages/Portfolio';
+
+const Home = React.lazy(() => import('./pages/Home'));
+const PostDetail = React.lazy(() => import('./pages/PostDetail'));
+const Projects = React.lazy(() => import('./pages/Projects'));
+const Portfolio = React.lazy(() => import('./pages/Portfolio'));
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/posts" element={<Home />} />
-      <Route path="/posts/:postId" element={<PostDetail />} />
-      <Route path="/projects" element={<Projects />} />
-      <Route path="/portfolio" element={<Portfolio />} />
-    </Routes>
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <span>로딩 중…</span>
+      </div>
+    }>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/posts" element={<Home />} />
+        <Route path="/posts/:postId" element={<PostDetail />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/portfolio" element={<Portfolio />} />
+      </Routes>
+    </Suspense>
   );
 }
