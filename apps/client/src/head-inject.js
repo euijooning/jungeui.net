@@ -1,7 +1,8 @@
 /**
- * Search Console 소유권 확인 메타 + GTM 스니펫 주입.
+ * Search Console 소유권 확인 메타 + GTM + GA4(gtag) 스니펫 주입.
  * VITE_GOOGLE_SITE_VERIFICATION 설정 시 메타 추가.
  * GTM: VITE_GTM_ID가 있으면 사용, 없으면 jungeui.net / www.jungeui.net 에서만 GTM-T6GHB6K3 로드 (admin/new/new-admin·로컬 비수집).
+ * GA4: jungeui.net / www.jungeui.net 에서만 gtag(G-3DRS5VYSCL) 로드.
  */
 const verification = import.meta.env.VITE_GOOGLE_SITE_VERIFICATION;
 const isProductionHost =
@@ -30,4 +31,21 @@ if (gtmId) {
   iframe.style.cssText = 'display:none;visibility:hidden';
   noscript.appendChild(iframe);
   document.body.insertBefore(noscript, document.body.firstChild);
+}
+
+if (isProductionHost) {
+  const gaId = 'G-3DRS5VYSCL';
+  const gtagScript = document.createElement('script');
+  gtagScript.async = true;
+  gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+  document.head.appendChild(gtagScript);
+
+  const gtagConfig = document.createElement('script');
+  gtagConfig.textContent = `
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '${gaId}');
+  `.trim();
+  document.head.appendChild(gtagConfig);
 }
